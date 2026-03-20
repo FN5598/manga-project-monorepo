@@ -1,0 +1,35 @@
+info:
+  name: Upload Manga
+  type: http
+  seq: 3
+
+http:
+  method: POST
+  url: "{{BASE_URL}}/manga/upload-chapter"
+  body:
+    type: json
+    data: |-
+      {
+        "mangaData": {
+          "title": "One Piece",
+          "author": "Oda",
+          "description": "SUPER AMAZING MANGA TOP BEST COOL",
+          "coverImageObject": "/manga/bucket/something",
+          "chaptersCount": 4,
+          "chapterImagesBucket": "/manga/onepiece-bucket/s31231231",
+          "status": "Ongoing",
+          "genres": [
+            "69b1a3204cf95764efd309b3",
+            "69b1a3204cf95764efd309b4",
+            "69b1a3204cf95764efd309b5",
+            "69b1a3204cf95764efd309b6"
+          ]
+        }
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

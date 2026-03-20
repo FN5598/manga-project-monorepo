@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+
+    "baseUrl": ".",
+    "paths": {
+      "@config/*": ["src/config/*"],
+      "@controllers/*": ["src/controllers/*"],
+      "@models/*": ["src/models/*"],
+      "@repository/*": ["src/repository/*"],
+      "@resolvers/*": ["src/resolvers/*"],
+      "@rest/*": ["src/routes/rest/*"],
+      "@graphql/*": ["src/routes/graphql/*"],
+      "@tests/*": ["src/tests"]
+    }
+  }
+}

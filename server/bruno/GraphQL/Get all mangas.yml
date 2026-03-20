@@ -1,0 +1,29 @@
+info:
+  name: Get all mangas
+  type: graphql
+  seq: 1
+
+graphql:
+  method: POST
+  url: "{{BASE_URL}}/graphql"
+  body:
+    query: |-
+      query MyQuery {
+        findAllMangas {
+          title
+          author
+          description
+          genres
+          chaptersCount
+          createdAt
+          updatedAt
+          previewUrl
+        }
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

@@ -1,0 +1,27 @@
+@import "tailwindcss";
+@theme {
+  --color-midnight: rgb(16, 25, 30);
+  --color-white: rgb(255, 255, 255);
+  --color-gray: rgb(106, 114, 129);
+  --color-milkyWhite: rgb(245, 243, 237);
+  --color-black: rgb(0, 0, 0);
+  
+  
+  --color-warn: rgb(255,236,145);
+}
+
+.admin-input-style {
+  @apply text-black placeholder:text-gray border border-gray focus:outline-none rounded-lg px-3 py-2 bg-milkyWhite;
+}
+
+.admin-label {
+  @apply text-black font-medium pb-1
+}
+
+.genres-bg-unchecked {
+  @apply inline-block bg-gray-200 hover:bg-gray-300 text-gray-800 py-1 px-3 rounded-full text-sm font-medium mr-2 mb-2 transition-colors cursor-pointer;
+}
+
+.genres-bg-checked {
+  @apply inline-block bg-midnight text-white py-1 px-3 mr-2 mb-2 rounded-full text-sm font-medium mb-2 cursor-pointer hover:opacity-80 transition-opacity;
+}

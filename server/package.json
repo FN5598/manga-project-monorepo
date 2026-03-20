@@ -1,0 +1,37 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "pnpm exec tsx watch ./src/server.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.30.3",
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/node": "^25.3.3",
+    "cors": "^2.8.6",
+    "dotenv": "^17.3.1",
+    "mongoose": "^9.2.3",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  },
+  "type": "module",
+  "dependencies": {
+    "@apollo/server": "^5.4.0",
+    "@as-integrations/express4": "^1.1.2",
+    "@aws-sdk/client-s3": "^3.1006.0",
+    "@aws-sdk/s3-request-presigner": "^3.1006.0",
+    "@typegoose/typegoose": "^13.2.1",
+    "chalk": "^5.6.2",
+    "express": "~4.22.1",
+    "graphql": "^16.13.0",
+    "graphql-tag": "^2.12.6",
+    "reflect-metadata": "^0.2.2"
+  }
+}

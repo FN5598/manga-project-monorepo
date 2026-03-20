@@ -1,0 +1,23 @@
+info:
+  name: Generate S3 Upload URL
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{BASE_URL}}/api/uploads/sign-url"
+  body:
+    type: json
+    data: |-
+      {
+        "fileName": "cover.png",
+        "contentType": "image/png",
+        "mangaTitle": "One Piece"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
