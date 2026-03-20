@@ -121,7 +121,7 @@ export function UploadManga() {
         title: mangaTitle!,
         author: authorName!,
         description: mangaDescription,
-        imageKey: signS3UrlRes.preview.key,
+        previewKey: signS3UrlRes.preview.key,
         genres: activeGenresIds,
         status: mangaStatus,
       };

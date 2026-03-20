@@ -1,21 +1,12 @@
 import { Bell, Search } from "lucide-react";
 import Logo from "./Logo";
-import type React from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 
 const navItems = ["Discover", "Browse", "My Library", "Community"];
 
 export default function Header() {
-  const navigate = useNavigate();
-  const location = useLocation();
-
   function getPath(name: string): string {
-    return `/${name.toLowerCase().split(" ").join("-")}`;
-  }
-  function handleRedirect(e: React.ChangeEvent<HTMLButtonElement>) {
-    const { name } = e.target;
-
-    navigate(getPath(name));
+    return `/${name.toLowerCase().trim().replace(/\s+/g, "-")}`;
   }
 
   return (
@@ -26,19 +17,19 @@ export default function Header() {
 
           <nav className="hidden items-center gap-6 md:flex">
             {navItems.map((item) => (
-              <button
+              <NavLink
                 key={item}
-                name={item}
-                onClick={(e) => handleRedirect(e)}
-                className={`text-xs font-medium transition cursor-pointer ${
-                  getPath(item) ===
-                  location.pathname.slice(1, location.pathname.length)
-                    ? "text-slate-900 underline decoration-2 underline-offset-8"
-                    : "text-slate-500 hover:text-slate-900"
-                }`}
+                to={getPath(item)}
+                className={({ isActive }) =>
+                  `text-xs font-medium transition cursor-pointer ${
+                    isActive
+                      ? "text-slate-900 underline decoration-2 underline-offset-8"
+                      : "text-slate-500 hover:text-slate-900"
+                  }`
+                }
               >
                 {item}
-              </button>
+              </NavLink>
             ))}
           </nav>
         </div>

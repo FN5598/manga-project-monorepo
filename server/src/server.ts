@@ -3,22 +3,25 @@ import express from "express";
 import { ApolloServer } from "@apollo/server";
 import { expressMiddleware } from "@as-integrations/express4";
 import chalk from "chalk";
-import { typeDefs } from "@graphql/typedefs.js";
-import { resolvers } from "@resolvers/resolvers.js";
 import { connectToDb } from "@config//database.js";
 import dotenv from "dotenv";
 import mangaRouter from "@rest/manga.routes.js";
 import uploadsRouter from "@rest/access.routes.js";
 import cors from "cors";
 import genresRouter from "@rest/genres.routes.js";
+import { buildSchema } from "type-graphql";
+import { MangaResolver } from "@resolvers/manga.resolvers.js";
 
 dotenv.config(); // Load environment variables from .env file
 
 async function main() {
   await connectToDb(); // connect to MongoDB before starting the server to ensure DB is available for resolvers
+
+  const schema = await buildSchema({
+    resolvers: [MangaResolver],
+  });
   const server = new ApolloServer({
-    typeDefs,
-    resolvers,
+    schema,
   });
 
   await server.start(); // start graphql Apollo server

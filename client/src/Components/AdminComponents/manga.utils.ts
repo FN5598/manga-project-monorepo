@@ -20,7 +20,7 @@ export type UploadMangaPayload = {
   title: string;
   author: string;
   description?: string | null;
-  imageKey: string;
+  previewKey: string;
   genres: string[];
   status: MangaStatus;
 };

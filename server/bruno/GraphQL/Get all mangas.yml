@@ -9,15 +9,19 @@ graphql:
   body:
     query: |-
       query MyQuery {
-        findAllMangas {
+      	findAllMangas {
+          _id
           title
-          author
           description
-          genres
-          chaptersCount
-          createdAt
-          updatedAt
+          author
+          status
           previewUrl
+          genres {
+            _id
+            description
+            slug
+            name
+          }
         }
       }
   auth: inherit

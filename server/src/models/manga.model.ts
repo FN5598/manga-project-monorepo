@@ -6,6 +6,9 @@ import {
 } from "@typegoose/typegoose";
 import { Genre } from "./genre.model.js";
 import mongoose from "mongoose";
+import { ObjectType, Field, ID } from "type-graphql";
+
+type MangaStatus = "ongoing" | "completed" | "hiatus" | "cancelled";
 
 @modelOptions({
   schemaOptions: {
@@ -13,56 +16,56 @@ import mongoose from "mongoose";
     collection: "mangas",
   },
 })
+@ObjectType()
 export class Manga {
+  @Field(() => ID)
+  _id!: string;
+
+  @Field(() => String)
   @prop({
     required: true,
     type: () => String,
   })
-  public title!: string;
+  title!: string;
 
+  @Field(() => String)
   @prop({
     required: true,
     type: () => String,
   })
-  public author!: string; // TODO make schema for author and reference it here
+  author!: string; // TODO make schema for author and reference it here
 
+  @Field(() => String, { nullable: true })
   @prop({
     default: "No description provided as of yet.",
     type: () => String,
   })
-  public description!: string;
+  description?: string;
 
   @prop({
     required: true,
     type: () => String,
   })
-  public imageKey!: string;
+  previewKey!: string;
 
+  @Field(() => [Genre], { nullable: true })
   @prop({
     ref: () => Genre,
     default: [],
     type: () => [mongoose.Schema.Types.ObjectId],
   })
-  public genres!: Ref<Genre>[];
+  genres?: Ref<Genre>[];
 
+  @Field(() => String)
   @prop({
     required: true,
-    default: 0,
-    type: () => Number,
-  })
-  public chaptersCount!: number;
-
-  @prop({
-    required: true,
+    enum: ["ongoing", "completed", "hiatus", "cancelled"],
     type: () => String,
   })
-  public chapterImagesBucket!: string;
+  status!: MangaStatus;
 
-  @prop({
-    required: true,
-    type: () => String,
-  })
-  public status!: string;
+  @Field(() => String, { nullable: true })
+  previewUrl?: string;
 }
 
 const MangaModel = getModelForClass(Manga);

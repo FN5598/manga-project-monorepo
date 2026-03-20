@@ -5,10 +5,11 @@ import {
   index,
   pre,
 } from "@typegoose/typegoose";
+import { ObjectType, ID, Field } from "type-graphql";
 
 /**
  * Used to slugify genre name to be easy to use on BE, also can be used instead of _id
- * 
+ *
  * @param text - Science Fiction
  * @returns - science-fiction
  */
@@ -34,33 +35,40 @@ function slugify(text: string): string {
 })
 @index({ name: 1 }, { unique: true })
 @index({ slug: 1 }, { unique: true })
+@ObjectType()
 export class Genre {
+  @Field(() => ID)
+  _id!: string;
+
+  @Field(() => String)
   @prop({
     required: true,
     trim: true,
     minlength: 2,
     maxlength: 50,
-    type: () => String
+    type: () => String,
   })
-  public name!: string;
+  name!: string;
 
+  @Field(() => String)
   @prop({
     required: true,
     trim: true,
     lowercase: true,
     minlength: 2,
     maxlength: 60,
-    type: () => String
+    type: () => String,
   })
-  public slug!: string;
+  slug!: string;
 
+  @Field(() => String, { nullable: true })
   @prop({
     trim: true,
     maxlength: 500,
     default: "",
-    type: () => String
+    type: () => String,
   })
-  public description?: string;
+  description?: string;
 }
 
 export const GenreModel = getModelForClass(Genre);

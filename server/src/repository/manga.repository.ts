@@ -1,6 +1,10 @@
 import { DEFAULT_PAGINATION, Pagination } from "@config/constants.js";
 import MangaModel, { Manga } from "@models/manga.model.js";
 import logger from "@config/logger.js";
+import {
+  MangaUploadInput,
+  PaginationInput,
+} from "@resolvers/manga.resolvers.js";
 
 export async function updateManga(
   mangaId: string,
@@ -26,7 +30,7 @@ export async function updateManga(
   }
 }
 
-export async function uploadManga(mangaData: Partial<Manga>): Promise<Manga> {
+export async function uploadManga(mangaData: MangaUploadInput): Promise<Manga> {
   if (!mangaData.title || !mangaData.author) {
     throw new Error("Title and Author are required fields");
   }
@@ -45,16 +49,29 @@ export async function uploadManga(mangaData: Partial<Manga>): Promise<Manga> {
 }
 
 export async function findAllMangas(
-  paginationInput: Pagination = DEFAULT_PAGINATION,
+  paginationInput: PaginationInput | undefined,
 ): Promise<Manga[] | []> {
   try {
-    const { limit, page } = paginationInput;
+    const page = paginationInput?.page ?? DEFAULT_PAGINATION.page;
+    const limit = paginationInput?.limit
+      ? paginationInput.limit > DEFAULT_PAGINATION.limit
+        ? DEFAULT_PAGINATION.limit
+        : paginationInput.limit
+      : DEFAULT_PAGINATION.limit;
     let pipeline = [
       {
         $skip: (page - 1) * limit,
       },
       {
         $limit: limit,
+      },
+      {
+        $lookup: {
+          from: "genres",
+          localField: "genres",
+          foreignField: "_id",
+          as: "genres",
+        },
       },
     ];
 

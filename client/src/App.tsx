@@ -3,15 +3,12 @@ import { Suspense, lazy } from "react";
 import { ToastContainer, Zoom } from "react-toastify";
 
 const Login = lazy(() => import("./Pages/LoginPage"));
-const Home = lazy(() => import("./Pages/HomePage"));
+const DiscoverPage = lazy(() => import("./Pages/DiscoverPage"));
 const MangaPage = lazy(() => import("./Pages/MangaPage"));
 const AdminPage = lazy(() => import("./Pages/AdminPage"));
 const CommunityPage = lazy(() => import("./Pages/CommunityPage"));
 const BrowsePage = lazy(() => import("./Pages/BrowsePage"));
 const MyLibraryPage = lazy(() => import("./Pages/MyLibraryPage"));
-
-// TODO testing
-const TestPage = lazy(() => import("./Pages/TestPage"));
 
 function App() {
   return (
@@ -37,11 +34,10 @@ function App() {
       <BrowserRouter>
         <Suspense>
           <Routes>
-            <Route path="discover" element={<Home />} />
+            <Route path="discover" element={<DiscoverPage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/manga/:id" element={<MangaPage />} />
             <Route path="/admin/:id" element={<AdminPage />} />
-            <Route path="/test" element={<TestPage />} />
             <Route path="community" element={<CommunityPage />} />
             <Route path="browse" element={<BrowsePage />} />
             <Route path="my-library" element={<MyLibraryPage />} />
