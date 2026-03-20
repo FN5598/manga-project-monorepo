@@ -1,0 +1,33 @@
+info:
+  name: Update Manga Information
+  type: http
+  seq: 4
+
+http:
+  method: PUT
+  url: "{{BASE_URL}}/manga/update-manga"
+  body:
+    type: json
+    data: |-
+      {
+        "manga": {
+          "_id": "{{?mangaId}}",
+          "previewKey": "mangas/previes/asdasdasda"
+        },
+        "chapter": {
+          "chapterNumber": 1,
+          "title": "LUFFY BEATS KAIDO"
+        },
+        "pages": [{
+          "imageKey": "images/12321/key/1111",
+          "fileName": "01-OnePiece.png",
+          "fileSize": 101010
+        }]
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

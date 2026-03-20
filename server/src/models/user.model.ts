@@ -16,7 +16,7 @@ pre<User>("save", function () {
 ObjectType();
 export class User {
   @Field(() => ID)
-  _id!: string;
+  readonly _id!: string;
 
   @Field(() => String)
   @prop({
@@ -45,6 +45,12 @@ export class User {
     type: () => String,
   })
   passwordHash!: string;
+
+  @Field(() => Date)
+  createdAt!: Date;
+
+  @Field(() => Date)
+  updatedAt!: Date;
 }
 
 const UserModel = getModelForClass(User);

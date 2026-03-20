@@ -10,9 +10,18 @@ http:
     type: json
     data: |-
       {
-        "fileName": "cover.png",
+        "fileName": "asdasdasda.png",
         "contentType": "image/png",
-        "mangaTitle": "One Piece"
+        "mangaId": "mangaID123",
+        "mangaChapter": 1,
+        "size": 10000,
+        "type": "PREVIEW",
+        "chapters": [{
+          "fileName": "01-OnePiece",
+          "contentType": "image/png",
+          "size": 1100,
+          "type": "PAGE" 
+        }]
       }
   auth: inherit
 

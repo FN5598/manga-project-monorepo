@@ -19,7 +19,7 @@ type MangaStatus = "ongoing" | "completed" | "hiatus" | "cancelled";
 @ObjectType()
 export class Manga {
   @Field(() => ID)
-  _id!: string;
+  readonly _id!: string;
 
   @Field(() => String)
   @prop({
@@ -42,11 +42,11 @@ export class Manga {
   })
   description?: string;
 
+  @Field(() => String, { nullable: true })
   @prop({
-    required: true,
     type: () => String,
   })
-  previewKey!: string;
+  previewKey?: string;
 
   @Field(() => [Genre], { nullable: true })
   @prop({
@@ -66,6 +66,12 @@ export class Manga {
 
   @Field(() => String, { nullable: true })
   previewUrl?: string;
+
+  @Field(() => Date)
+  createdAt!: Date;
+
+  @Field(() => Date)
+  updatedAt!: Date;
 }
 
 const MangaModel = getModelForClass(Manga);

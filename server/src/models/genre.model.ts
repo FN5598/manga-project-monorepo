@@ -25,7 +25,6 @@ function slugify(text: string): string {
 @modelOptions({
   schemaOptions: {
     collection: "genres",
-    timestamps: true,
   },
 })
 @pre<Genre>("save", function () {
@@ -38,7 +37,7 @@ function slugify(text: string): string {
 @ObjectType()
 export class Genre {
   @Field(() => ID)
-  _id!: string;
+  readonly _id!: string;
 
   @Field(() => String)
   @prop({

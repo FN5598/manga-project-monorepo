@@ -93,7 +93,7 @@ export async function findMangaById(mangaId: string): Promise<Manga> {
     throw new Error("Manga ID is required");
   }
   try {
-    const manga = await MangaModel.findById(mangaId);
+    const manga = await MangaModel.findById(mangaId).populate("genres");
     if (!manga) {
       throw new Error("Manga not found");
     }

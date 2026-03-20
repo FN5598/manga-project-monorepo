@@ -1,4 +1,3 @@
-import { Genre } from "@models/genre.model.js";
 import { AWS_REGION, Pagination, S3_BUCKET_NAME } from "../config/constants.js";
 import * as mangaRepository from "../repository/manga.repository.js";
 import { Manga } from "@models/manga.model.js";
@@ -13,6 +12,8 @@ import {
   FieldResolver,
   Root,
 } from "type-graphql";
+import * as resolversUtils from "./manga.resolvers.utils.js";
+import { sanitizeS3PathPart } from "@controllers/uploadS3URL.controller.js";
 
 function getUrlForImage(previewKey: string): string {
   return `https://${S3_BUCKET_NAME}.s3.${AWS_REGION}.amazonaws.com/${previewKey.split("/").map(encodeURIComponent).join("/")}`;
@@ -38,9 +39,6 @@ export class MangaUploadInput {
   @Field(() => String, { nullable: true })
   description?: string;
 
-  @Field(() => String)
-  previewKey!: string;
-
   @Field(() => [String], { nullable: true })
   genres?: string[];
 
@@ -60,6 +58,7 @@ export class MangaResolver {
 
   @FieldResolver(() => String, { nullable: true })
   previewUrl(@Root() manga: Manga): string | null {
+    console.log("FieldResolver called with:", manga);
     if (!manga.previewKey) return null;
     return getUrlForImage(manga.previewKey);
   }
@@ -78,5 +77,30 @@ export class MangaResolver {
     mangaUploadInput: MangaUploadInput,
   ): Promise<Manga> {
     return mangaRepository.uploadManga(mangaUploadInput);
+  }
+
+  @Mutation(() => Manga)
+  async deleteManga(
+    @Arg("mangaId", () => String) mangaId: string,
+  ): Promise<Manga> {
+    // 1. Delete manga from DB
+    const deletedManga = await mangaRepository.deleteMangaById(mangaId);
+
+    const safeMangaTitle = sanitizeS3PathPart(deletedManga.title);
+
+    const mangaFolder = `mangas/${safeMangaTitle}/`;
+    const previewFolder = deletedManga.previewKey
+      ? deletedManga.previewKey.split("/").slice(0, -1).join("/") + "/"
+      : null;
+
+    // 2. Delete whole manga folder
+    await resolversUtils.deleteFolderFromS3(mangaFolder);
+
+    // 3. Delete Preview folder
+    if (previewFolder) {
+      await resolversUtils.deleteFolderFromS3(previewFolder);
+    }
+
+    return deletedManga;
   }
 }

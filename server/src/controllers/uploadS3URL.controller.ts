@@ -25,14 +25,14 @@ type ChapterUpload = {
 type UploadImageData = {
   fileName: string;
   contentType?: AllowedImageUploadTypes;
-  mangaTitle?: string;
+  mangaId: string;
   mangaChapter: number;
   size: number;
   type: FileType;
   chapters: ChapterUpload[];
 };
 
-function sanitizeS3PathPart(value: string) {
+export function sanitizeS3PathPart(value: string) {
   return value
     .trim()
     .toLowerCase()
@@ -40,8 +40,13 @@ function sanitizeS3PathPart(value: string) {
     .replace(/[^a-z0-9-_]/g, "");
 }
 
-function getExtension(fileName: string) {
-  return fileName.split(".").pop()?.toLowerCase() || "bin";
+function getExtension(fileName?: string): string | null {
+  if (!fileName) return null;
+
+  const lastDot = fileName.lastIndexOf(".");
+  if (lastDot <= 0 || lastDot === fileName.length - 1) return null;
+
+  return fileName.slice(lastDot + 1).toLowerCase();
 }
 
 function getPrefix(type: FileType) {
@@ -59,18 +64,18 @@ export async function createS3UploadURL(req: Request, res: Response) {
   const {
     fileName,
     contentType,
-    mangaTitle,
+    mangaId,
     mangaChapter,
     size,
     type,
     chapters,
   }: UploadImageData = req.body;
 
-  if (!fileName || !contentType || !mangaTitle) {
+  if (!fileName || !contentType || !mangaId) {
     logger.debug("Missing required fields", {
       fileName: !!fileName,
       contentType: !!contentType,
-      mangaTitle: !!mangaTitle,
+      mangaTitle: !!mangaId,
     });
     return res.status(400).json({ message: "Missing required fields" });
   }
@@ -104,10 +109,8 @@ export async function createS3UploadURL(req: Request, res: Response) {
     }
   }
 
-  const safeMangaTitle = sanitizeS3PathPart(mangaTitle);
-
-  const previewExt = getExtension(fileName);
-  const previewKey = `${getPrefix(FileType.preview)}/${safeMangaTitle}/${randomUUID()}.${previewExt}`;
+  const previewExt = getExtension(fileName) || "bin";
+  const previewKey = `${getPrefix(FileType.preview)}/${mangaId}/${randomUUID()}.${previewExt}`;
 
   try {
     const previewCommand = new PutObjectCommand({
@@ -123,7 +126,7 @@ export async function createS3UploadURL(req: Request, res: Response) {
     const chapterUploads = await Promise.all(
       chapters.map(async (chapter) => {
         const chapterExt = getExtension(chapter.fileName);
-        const chapterKey = `${getPrefix(chapter.type)}/${safeMangaTitle}/${mangaChapter}/${randomUUID()}.${chapterExt}`;
+        const chapterKey = `${getPrefix(chapter.type)}/${mangaId}/${mangaChapter}/${randomUUID()}.${chapterExt}`;
 
         const chapterCommand = new PutObjectCommand({
           Bucket: S3_BUCKET_NAME,

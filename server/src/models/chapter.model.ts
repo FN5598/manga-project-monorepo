@@ -6,7 +6,7 @@ import {
 } from "@typegoose/typegoose";
 import { ObjectType, ID, Field } from "type-graphql";
 
-type UploadStatus = "draft" | "uploading" | "ready" | "failed";
+export type UploadStatus = "draft" | "uploading" | "ready" | "failed";
 
 @index({ manga: 1, chapterNumber: 1 }, { unique: true })
 @modelOptions({
@@ -18,7 +18,7 @@ type UploadStatus = "draft" | "uploading" | "ready" | "failed";
 @ObjectType()
 export class Chapter {
   @Field(() => ID)
-  _id!: string;
+  readonly _id!: string;
 
   @Field(() => Number)
   @prop({
@@ -61,6 +61,12 @@ export class Chapter {
     type: () => String,
   })
   uploadStatus!: UploadStatus;
+
+  @Field(() => Date)
+  createdAt!: Date;
+
+  @Field(() => Date)
+  updatedAt!: Date;
 }
 
 const ChapterModel = getModelForClass(Chapter);

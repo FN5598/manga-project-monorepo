@@ -14,10 +14,7 @@ http:
           "title": "One Piece",
           "author": "Oda",
           "description": "SUPER AMAZING MANGA TOP BEST COOL",
-          "coverImageObject": "/manga/bucket/something",
-          "chaptersCount": 4,
-          "chapterImagesBucket": "/manga/onepiece-bucket/s31231231",
-          "status": "Ongoing",
+          "status": "ongoing",
           "genres": [
             "69b1a3204cf95764efd309b3",
             "69b1a3204cf95764efd309b4",

@@ -19,7 +19,7 @@ import { Chapter } from "./chapter.model.js";
 @ObjectType()
 export class Page {
   @Field(() => ID)
-  _id!: string;
+  readonly _id!: string;
 
   @Field(() => Chapter)
   @prop({
@@ -43,6 +43,12 @@ export class Page {
     type: () => Number,
   })
   fileSize?: number;
+
+  @Field(() => Date)
+  createdAt!: Date;
+
+  @Field(() => Date)
+  updatedAt!: Date;
 }
 
 const PageModel = getModelForClass(Page);
