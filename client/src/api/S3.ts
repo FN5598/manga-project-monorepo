@@ -5,9 +5,9 @@ import { FileType } from "../Components/AdminComponents/manga.utils";
 type AllowedImageUploadTypes = "image/jpeg" | "image/png" | "image/webp";
 
 type SignBody = {
+  mangaId: string;
   fileName: string;
   contentType: string;
-  mangaTitle: string;
   mangaChapter: number;
   type: FileType;
   size: number;
@@ -32,6 +32,7 @@ type SignS3UploadResponse = {
     key: string;
     uploadUrl: string;
     contentType: AllowedImageUploadTypes;
+    size: number;
   }[];
 };
 

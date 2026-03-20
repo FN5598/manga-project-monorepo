@@ -4,6 +4,7 @@ import {
   MangaStatus,
   FileType,
   type UploadMangaPayload,
+  type UpdateMangaPayload,
 } from "./manga.utils";
 import BasincInformation from "./BasicInformation";
 import CoverImage from "./CoverImage";
@@ -11,7 +12,10 @@ import ChaptersElement from "./ChaptersElement";
 import { emitAlert } from "../..";
 import LoadingSpinner from "../UI/LoadingSpinner";
 import { useSignS3BucketUploadUrlMutation } from "../../api/S3";
-import { useUploadMangaMutation } from "../../api/manga";
+import {
+  useUpdateMangaMutation,
+  useUploadMangaMutation,
+} from "../../api/manga";
 
 export function UploadManga() {
   const [mangaTitle, setMangaTitle] = useState<string | null>(null);
@@ -34,6 +38,7 @@ export function UploadManga() {
 
   const [signS3UploadUrl] = useSignS3BucketUploadUrlMutation();
   const [uploadMangaToDB] = useUploadMangaMutation();
+  const [updateMangaToDB] = useUpdateMangaMutation();
 
   type ApiError = {
     status?: number;
@@ -86,20 +91,35 @@ export function UploadManga() {
         type: FileType.page,
         size: page.size,
       }));
-      // 1) Get signed upload URL
+
+      // 1. Create Manga inside DB
+      const payload: UploadMangaPayload = {
+        title: mangaTitle!,
+        author: authorName!,
+        description: mangaDescription,
+        genres: activeGenresIds,
+        status: mangaStatus,
+      };
+      const dbRes = await uploadMangaToDB({
+        mangaData: payload,
+      }).unwrap();
+
+      console.log(dbRes);
+
+      // 2. Get signed upload URL
       const signS3UrlRes = await signS3UploadUrl({
         fileName: previewFileData!.name,
         contentType: previewFileData!.type,
-        mangaTitle: mangaTitle!,
+        mangaId: dbRes.mangaData._id,
+        mangaChapter: chapterNumber!,
         type: FileType.preview,
         size: previewFileData!.size,
-        mangaChapter: chapterNumber!,
         chapters: [...uploadPages],
       }).unwrap();
 
       console.log(signS3UrlRes);
 
-      // 2. Upload Data to Bucket
+      // 3. Upload Data to Bucket
       await fetch(signS3UrlRes.preview.uploadUrl, {
         method: "PUT",
         headers: { "Content-Type": signS3UrlRes.preview.contentType },
@@ -116,25 +136,30 @@ export function UploadManga() {
         ),
       );
 
-      // 3. Save manga to Database
-      const payload: UploadMangaPayload = {
-        title: mangaTitle!,
-        author: authorName!,
-        description: mangaDescription,
-        previewKey: signS3UrlRes.preview.key,
-        genres: activeGenresIds,
-        status: mangaStatus,
+      const updateMangaPayload: UpdateMangaPayload = {
+        manga: {
+          _id: dbRes.mangaData._id,
+          previewKey: signS3UrlRes.preview.key,
+        },
+        chapter: {
+          chapterNumber: chapterNumber!,
+          title: chapterTitle!,
+        },
+        pages: signS3UrlRes.chapters.map((chapter) => ({
+          imageKey: chapter.key,
+          fileName: chapter.fileName,
+          fileSize: chapter.size,
+        })),
       };
-      const dbRes = await uploadMangaToDB({
-        mangaData: payload,
-      }).unwrap();
+      // 4. Fill in Data in DB
+      const finalSave = await updateMangaToDB(updateMangaPayload);
+      // 5. Emit message so success can be identified
+      emitAlert(
+        finalSave.data?.message ?? "Manga published successfully",
+        "info",
+      );
 
-      console.log(dbRes);
-
-      // 4. Emit message so success can be identified
-      emitAlert(dbRes.message ?? "Manga published successfully", "info");
-
-      // 5. Reset states after sending successfull request
+      // 6. Reset states after sending successfull request
       clearAllStates();
     } catch (error) {
       const err = error as ApiError;

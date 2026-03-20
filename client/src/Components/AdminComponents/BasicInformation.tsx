@@ -116,6 +116,9 @@ export default function BasincInformation({
             <option value={MangaStatus.COMPLETED}>
               {MangaStatus.COMPLETED}
             </option>
+            <option value={MangaStatus.CANCELLED}>
+              {MangaStatus.CANCELLED}
+            </option>
           </select>
         </div>
       </div>

@@ -18,10 +18,11 @@ export async function createPages(
     if (!chapterId) throw new Error("Chapter id is required");
     if (pages.length <= 0) throw new Error("Invalid pages payload");
 
-    const pagesToUpload = pages.map((page) => ({
+    const pagesToUpload = pages.map((page, index) => ({
       chapter: chapterId,
       imageKey: page.imageKey,
       fileSize: page.fileSize,
+      pageNumber: index + 1,
     }));
 
     const newPages = await PageModel.insertMany(pagesToUpload);

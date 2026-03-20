@@ -17,7 +17,7 @@ http:
         "size": 10000,
         "type": "PREVIEW",
         "chapters": [{
-          "fileName": "01-OnePiece",
+          "fileName": "01-OnePiece.png",
           "contentType": "image/png",
           "size": 1100,
           "type": "PAGE" 

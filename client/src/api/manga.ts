@@ -1,14 +1,20 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { BASE_URL, UPLOAD_MANGA_URL } from "../routes";
-import type { UploadMangaPayload } from "../Components/AdminComponents/manga.utils";
+import { BASE_URL, UPDADE_MANGA_URL, UPLOAD_MANGA_URL } from "../routes";
+import type {
+  UploadMangaPayload,
+  UploadMangaReponse,
+  UpdateMangaPayload,
+  UpdateMangaResponse,
+} from "../Components/AdminComponents/manga.utils";
 import { GET_ALL_MANGAS } from "./queries/graphql";
 
 type uploadMangaResponse = {
-  mangaData: UploadMangaPayload;
+  mangaData: UploadMangaReponse;
   message: string;
 };
 
 type Manga = {
+  _id: string;
   title: string;
   author: string;
   description?: string;
@@ -55,7 +61,18 @@ export const mangaApi = createApi({
         return response.data.findAllMangas;
       },
     }),
+    updateManga: builder.mutation<UpdateMangaResponse, UpdateMangaPayload>({
+      query: (body) => ({
+        url: `manga/${UPDADE_MANGA_URL}`,
+        method: "PUT",
+        body,
+      }),
+    }),
   }),
 });
 
-export const { useUploadMangaMutation, useGetAllMangasQuery } = mangaApi;
+export const {
+  useUploadMangaMutation,
+  useGetAllMangasQuery,
+  useUpdateMangaMutation,
+} = mangaApi;

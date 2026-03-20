@@ -143,6 +143,7 @@ export async function createS3UploadURL(req: Request, res: Response) {
           key: chapterKey,
           uploadUrl: chapterUploadUrl,
           contentType: chapter.contentType,
+          size: chapter.size,
         };
       }),
     );

@@ -44,6 +44,14 @@ export class Page {
   })
   fileSize?: number;
 
+  @prop({
+    required: true,
+    min: 0,
+    validate: Number.isInteger,
+    type: () => Number,
+  })
+  pageNumber!: number;
+
   @Field(() => Date)
   createdAt!: Date;
 
