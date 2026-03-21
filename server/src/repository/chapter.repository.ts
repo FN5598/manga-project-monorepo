@@ -1,5 +1,6 @@
 import logger from "@config/logger.js";
 import ChapterModel, { Chapter } from "@models/chapter.model.js";
+import mongoose from "mongoose";
 
 enum UploadStatus {
   DRAFT = "draft",
@@ -57,21 +58,19 @@ export async function createChapter(
 }
 
 export async function findChaptersByMangaId(
-  mangaId: String,
+  mangaId: string,
 ): Promise<Chapter[]> {
   try {
     if (!mangaId) throw new Error("mangaId is required input!");
-
     const pipeline = [
       {
-        $match: { mangaId },
+        $match: { mangaId: new mongoose.Types.ObjectId(mangaId) },
       },
     ];
 
     const chapters = await ChapterModel.aggregate(pipeline);
 
-    if (chapters.length <= 0)
-      throw new Error("Failed to find chapters for this manga");
+    if (chapters.length <= 0) return [];
 
     return chapters;
   } catch (error) {
@@ -79,6 +78,26 @@ export async function findChaptersByMangaId(
       error,
       operation: "findChaptersByMangaId",
       mangaId,
+    });
+    throw error;
+  }
+}
+
+export async function findChapterById(
+  chapterId: string,
+): Promise<Chapter | null> {
+  try {
+    if (!chapterId) throw new Error("Chapter Id is required field");
+
+    const chapter = await ChapterModel.findById(chapterId);
+    if (!chapter) return null;
+
+    return chapter;
+  } catch (error) {
+    logger.error("Failed to find chaper by mangaId", {
+      error,
+      operation: "findChapterByMangaId",
+      chapterId,
     });
     throw error;
   }

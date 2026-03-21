@@ -7,7 +7,7 @@ import type {
   UpdateMangaResponse,
   MangaStatus,
 } from "../Components/AdminComponents/manga.utils";
-import { GET_ALL_MANGAS } from "./queries/graphql";
+import { FIND_MANGA_BY_ID, GET_ALL_MANGAS } from "./queries/graphql";
 
 type uploadMangaResponse = {
   mangaData: UploadMangaReponse;
@@ -21,7 +21,12 @@ type Manga = {
   description?: string;
   previewUrl: string;
   status: MangaStatus;
-  genres: string[];
+  genres: {
+    name?: string;
+    description?: string;
+    _id?: string;
+    slug?: string;
+  }[];
   chaptersCount: number;
   createdAt: string;
   updatedAt: string;
@@ -33,18 +38,24 @@ type getAllMangaResponse = {
   };
 };
 
-type PaginationInput = {
+export type PaginationInput = {
   limit: number;
   page?: number;
 };
 
-type SortInput = {
+export type SortInput = {
   sortBy: "asc" | "desc";
 };
 
-type PaginationSortInput = {
+export type PaginationSortInput = {
   paginationInput?: PaginationInput;
   sort?: SortInput;
+};
+
+type FindMangaByIdResponse = {
+  data: {
+    findMangaById: Manga;
+  };
 };
 
 export const mangaApi = createApi({
@@ -88,6 +99,21 @@ export const mangaApi = createApi({
         body,
       }),
     }),
+    getMangaById: builder.query<Manga, { mangaId: string }>({
+      query: (payload) => ({
+        url: "graphql",
+        method: "POST",
+        body: {
+          query: FIND_MANGA_BY_ID,
+          variables: {
+            mangaId: payload.mangaId,
+          },
+        },
+      }),
+      transformResponse: (response: FindMangaByIdResponse) => {
+        return response.data.findMangaById;
+      },
+    }),
   }),
 });
 
@@ -95,4 +121,5 @@ export const {
   useUploadMangaMutation,
   useGetAllMangasQuery,
   useUpdateMangaMutation,
+  useGetMangaByIdQuery,
 } = mangaApi;

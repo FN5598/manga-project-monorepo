@@ -21,7 +21,7 @@ export class Page {
   @Field(() => ID)
   readonly _id!: string;
 
-  @Field(() => Chapter)
+  @Field(() => ID)
   @prop({
     ref: () => Chapter,
     required: true,
@@ -51,6 +51,9 @@ export class Page {
     type: () => Number,
   })
   pageNumber!: number;
+
+  @Field(() => String)
+  pageUrl?: string;
 
   @Field(() => Date)
   createdAt!: Date;

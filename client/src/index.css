@@ -25,6 +25,10 @@
   @apply inline-block bg-midnight text-white py-1 px-3 mr-2 mb-2 rounded-full text-sm font-medium mb-2 cursor-pointer hover:opacity-80 transition-opacity;
 }
 
+.genres-green {
+  @apply inline-block bg-emerald-100 text-emerald-500 py-1 px-3 mr-2 mb-2 rounded-full text-sm font-medium mb-2 cursor-pointer hover:opacity-80 transition-opacity;
+}
+
 .gradient-blue {
   @apply bg-gradient-to-r from-[rgb(17,25,31)] to-[rgb(29,41,57)];
 }

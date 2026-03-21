@@ -19,8 +19,9 @@ import {
 } from "type-graphql";
 import * as resolversUtils from "./manga.resolvers.utils.js";
 import { sanitizeS3PathPart } from "@controllers/uploadS3URL.controller.js";
+import logger from "@config/logger.js";
 
-function getUrlForImage(previewKey: string): string {
+export function getUrlForImage(previewKey: string): string {
   return `https://${S3_BUCKET_NAME}.s3.${AWS_REGION}.amazonaws.com/${previewKey.split("/").map(encodeURIComponent).join("/")}`;
 }
 
@@ -66,12 +67,15 @@ export class MangaResolver {
     @Arg("sort", () => SortInputType, { nullable: true })
     sort?: SortInput,
   ): Promise<Manga[]> {
+    logger.debug("findAllMangas resolver called", {
+      paginationInput,
+      sort,
+    });
     return await mangaRepository.findAllMangas(paginationInput, sort);
   }
 
   @FieldResolver(() => String, { nullable: true })
   previewUrl(@Root() manga: Manga): string | null {
-    console.log("FieldResolver called with:", manga);
     if (!manga.previewKey) return null;
     return getUrlForImage(manga.previewKey);
   }
@@ -81,6 +85,9 @@ export class MangaResolver {
     @Arg("mangaId", () => String)
     mangaId: string,
   ): Promise<Manga> {
+    logger.debug("FindMangaById resolver called", {
+      mangaId,
+    });
     return await mangaRepository.findMangaById(mangaId);
   }
 
@@ -89,6 +96,9 @@ export class MangaResolver {
     @Arg("mangaUploadInput", () => MangaUploadInput)
     mangaUploadInput: MangaUploadInput,
   ): Promise<Manga> {
+    logger.debug("uploadManga resolver called", {
+      mangaUploadInput,
+    });
     return mangaRepository.uploadManga(mangaUploadInput);
   }
 
@@ -113,7 +123,9 @@ export class MangaResolver {
     if (previewFolder) {
       await resolversUtils.deleteFolderFromS3(previewFolder);
     }
-
+    logger.debug("deleteManga resolver called", {
+      mangaId,
+    });
     return deletedManga;
   }
 }

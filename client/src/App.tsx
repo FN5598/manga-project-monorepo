@@ -9,6 +9,7 @@ const AdminPage = lazy(() => import("./Pages/AdminPage"));
 const CommunityPage = lazy(() => import("./Pages/CommunityPage"));
 const BrowsePage = lazy(() => import("./Pages/BrowsePage"));
 const MyLibraryPage = lazy(() => import("./Pages/MyLibraryPage"));
+const ChapterPage = lazy(() => import("./Pages/ChapterPage"));
 
 function App() {
   return (
@@ -36,7 +37,11 @@ function App() {
           <Routes>
             <Route path="discover" element={<DiscoverPage />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/manga/:id" element={<MangaPage />} />
+            <Route path="/manga/:mangaId" element={<MangaPage />} />
+            <Route
+              path="/manga/:mangaId/chapter/:chapterId"
+              element={<ChapterPage />}
+            />
             <Route path="/admin/:id" element={<AdminPage />} />
             <Route path="community" element={<CommunityPage />} />
             <Route path="browse" element={<BrowsePage />} />

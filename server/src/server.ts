@@ -12,6 +12,7 @@ import genresRouter from "@rest/genres.routes.js";
 import { buildSchema } from "type-graphql";
 import { MangaResolver } from "@resolvers/manga.resolvers.js";
 import { ChapterResolver } from "@resolvers/chapter.resolvers.js";
+import { PageResolver } from "@resolvers/page.resolvers.js";
 
 dotenv.config(); // Load environment variables from .env file
 
@@ -19,7 +20,7 @@ async function main() {
   await connectToDb(); // connect to MongoDB before starting the server to ensure DB is available for resolvers
 
   const schema = await buildSchema({
-    resolvers: [MangaResolver, ChapterResolver],
+    resolvers: [MangaResolver, ChapterResolver, PageResolver],
   });
   const server = new ApolloServer({
     schema,
