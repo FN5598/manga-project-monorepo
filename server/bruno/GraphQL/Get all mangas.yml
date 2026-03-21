@@ -8,22 +8,32 @@ graphql:
   url: "{{BASE_URL}}/graphql"
   body:
     query: |-
-      query MyQuery {
-      	findAllMangas {
+      query MyQuery($paginationInput: PaginationInput, $sort: SortInputType) {
+      	findAllMangas(paginationInput: $paginationInput, sort: $sort) {
           _id
           title
           description
           author
           status
           previewUrl
+          chaptersCount
           genres {
-            _id
-            description
             slug
             name
           }
           createdAt
           updatedAt
+          status
+        }
+      }
+    variables: |-
+      {
+        "paginationInput": {
+          "limit": 0,
+          "page": 1
+        },
+        "sort": {
+          "sortBy": "asc"
         }
       }
   auth: inherit

@@ -5,6 +5,11 @@ export type Pagination = {
   limit: number;
 };
 
+export enum SortInput {
+  ASC = "asc",
+  DESC = "desc",
+}
+
 export const DEFAULT_PAGINATION: Required<Pagination> = {
   page: 1,
   limit: 10,

@@ -1,10 +1,11 @@
-import { DEFAULT_PAGINATION, Pagination } from "@config/constants.js";
+import { DEFAULT_PAGINATION, SortInput } from "@config/constants.js";
 import MangaModel, { Manga } from "@models/manga.model.js";
 import logger from "@config/logger.js";
 import {
   MangaUploadInput,
   PaginationInput,
 } from "@resolvers/manga.resolvers.js";
+import { PipelineStage } from "mongoose";
 
 export async function updateManga(
   mangaId: string,
@@ -50,6 +51,7 @@ export async function uploadManga(mangaData: MangaUploadInput): Promise<Manga> {
 
 export async function findAllMangas(
   paginationInput: PaginationInput | undefined,
+  sort: SortInput = SortInput.DESC,
 ): Promise<Manga[] | []> {
   try {
     const page = paginationInput?.page ?? DEFAULT_PAGINATION.page;
@@ -58,22 +60,66 @@ export async function findAllMangas(
         ? DEFAULT_PAGINATION.limit
         : paginationInput.limit
       : DEFAULT_PAGINATION.limit;
-    let pipeline = [
+
+    const sortOrder = sort === "asc" ? 1 : -1;
+
+    // 1. Add pagination
+    let pipeline: PipelineStage[] = [
+      {
+        $sort: {
+          createdAt: sortOrder,
+        },
+      },
       {
         $skip: (page - 1) * limit,
       },
       {
         $limit: limit,
       },
+    ];
+
+    // 2. Fill in genres field so you can get in graphQL resolver
+    pipeline.push({
+      $lookup: {
+        from: "genres",
+        localField: "genres",
+        foreignField: "_id",
+        as: "genres",
+      },
+    });
+
+    // 3. Fill in the chapter count for easy FE fetch
+    pipeline.push(
       {
         $lookup: {
-          from: "genres",
-          localField: "genres",
-          foreignField: "_id",
-          as: "genres",
+          from: "chapters",
+          let: { mangaId: "$_id" },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: ["$mangaId", "$$mangaId"],
+                },
+              },
+            },
+            { $count: "count" },
+          ],
+          as: "chaptersMeta",
         },
       },
-    ];
+      {
+        $addFields: {
+          chaptersCount: {
+            $ifNull: [{ $arrayElemAt: ["$chaptersMeta.count", 0] }, 0],
+          },
+        },
+      },
+      {
+        $project: {
+          chaptersMeta: 0,
+        },
+      },
+    );
 
     const mangas = await MangaModel.aggregate(pipeline);
 

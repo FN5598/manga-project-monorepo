@@ -5,6 +5,7 @@ import type {
   UploadMangaReponse,
   UpdateMangaPayload,
   UpdateMangaResponse,
+  MangaStatus,
 } from "../Components/AdminComponents/manga.utils";
 import { GET_ALL_MANGAS } from "./queries/graphql";
 
@@ -19,6 +20,7 @@ type Manga = {
   author: string;
   description?: string;
   previewUrl: string;
+  status: MangaStatus;
   genres: string[];
   chaptersCount: number;
   createdAt: string;
@@ -29,6 +31,20 @@ type getAllMangaResponse = {
   data: {
     findAllMangas: Manga[];
   };
+};
+
+type PaginationInput = {
+  limit: number;
+  page?: number;
+};
+
+type SortInput = {
+  sortBy: "asc" | "desc";
+};
+
+type PaginationSortInput = {
+  paginationInput?: PaginationInput;
+  sort?: SortInput;
 };
 
 export const mangaApi = createApi({
@@ -49,12 +65,16 @@ export const mangaApi = createApi({
         body,
       }),
     }),
-    getAllMangas: builder.query<Manga[], void>({
-      query: () => ({
+    getAllMangas: builder.query<Manga[], void | PaginationSortInput>({
+      query: (params) => ({
         url: `graphql`,
         method: "POST",
         body: {
           query: GET_ALL_MANGAS,
+          variables: {
+            paginationInput: params?.paginationInput,
+            sort: params?.sort,
+          },
         },
       }),
       transformResponse: (response: getAllMangaResponse) => {

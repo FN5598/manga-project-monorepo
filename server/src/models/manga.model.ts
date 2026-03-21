@@ -64,6 +64,12 @@ export class Manga {
   })
   status!: MangaStatus;
 
+  @Field(() => Number)
+  @prop({
+    type: () => Number,
+  })
+  chaptersCount?: number;
+
   @Field(() => String, { nullable: true })
   previewUrl?: string;
 

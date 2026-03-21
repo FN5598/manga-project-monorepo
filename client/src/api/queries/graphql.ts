@@ -1,14 +1,20 @@
 export const GET_ALL_MANGAS = `
 query MyQuery {
-  findAllMangas {
+	findAllMangas {
+    _id
     title
-    author
     description
-    genres
+    author
+    status
     chaptersCount
+    previewUrl
+    status
+    genres {
+      slug
+      name
+    }
     createdAt
     updatedAt
-    previewUrl
   }
 }
 `;

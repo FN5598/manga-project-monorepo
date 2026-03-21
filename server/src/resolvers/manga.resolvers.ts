@@ -1,4 +1,9 @@
-import { AWS_REGION, Pagination, S3_BUCKET_NAME } from "../config/constants.js";
+import {
+  AWS_REGION,
+  Pagination,
+  S3_BUCKET_NAME,
+  SortInput,
+} from "../config/constants.js";
 import * as mangaRepository from "../repository/manga.repository.js";
 import { Manga } from "@models/manga.model.js";
 import {
@@ -29,6 +34,12 @@ export class PaginationInput {
 }
 
 @InputType()
+export class SortInputType {
+  @Field(() => String, { nullable: true })
+  sortBy?: "asc" | "desc";
+}
+
+@InputType()
 export class MangaUploadInput {
   @Field(() => String)
   title!: string;
@@ -52,8 +63,10 @@ export class MangaResolver {
   async findAllMangas(
     @Arg("paginationInput", () => PaginationInput, { nullable: true })
     paginationInput?: PaginationInput,
+    @Arg("sort", () => SortInputType, { nullable: true })
+    sort?: SortInput,
   ): Promise<Manga[]> {
-    return await mangaRepository.findAllMangas(paginationInput);
+    return await mangaRepository.findAllMangas(paginationInput, sort);
   }
 
   @FieldResolver(() => String, { nullable: true })

@@ -5,6 +5,11 @@ export const NUMBER_REGEX = /^[0-9]+$/;
 
 type AlertType = "info" | "success" | "warning" | "error";
 
+export enum Sort {
+  ASC = "asc",
+  DESC = "desc",
+}
+
 const createToastOptions = (
   position: ToastPosition,
   autoClose: number,
@@ -82,4 +87,27 @@ export function getItemFromLocalStorage(itemName: string) {
     return JSON.parse(item);
   }
   return null;
+}
+
+export function timeAgo(dateString: string) {
+  const now = new Date();
+  const past = new Date(dateString);
+  const diff = Math.floor((now.getTime() - past.getTime()) / 1000); // seconds
+
+  if (diff < 60) {
+    return `${diff} sec${diff !== 1 ? "s" : ""} ago`;
+  }
+
+  const minutes = Math.floor(diff / 60);
+  if (minutes < 60) {
+    return `${minutes} min${minutes !== 1 ? "s" : ""} ago`;
+  }
+
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) {
+    return `${hours} hour${hours !== 1 ? "s" : ""} ago`;
+  }
+
+  const days = Math.floor(hours / 24);
+  return `${days} day${days !== 1 ? "s" : ""} ago`;
 }
