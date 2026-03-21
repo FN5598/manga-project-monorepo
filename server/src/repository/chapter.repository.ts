@@ -55,3 +55,31 @@ export async function createChapter(
     throw error;
   }
 }
+
+export async function findChaptersByMangaId(
+  mangaId: String,
+): Promise<Chapter[]> {
+  try {
+    if (!mangaId) throw new Error("mangaId is required input!");
+
+    const pipeline = [
+      {
+        $match: { mangaId },
+      },
+    ];
+
+    const chapters = await ChapterModel.aggregate(pipeline);
+
+    if (chapters.length <= 0)
+      throw new Error("Failed to find chapters for this manga");
+
+    return chapters;
+  } catch (error) {
+    logger.error("Failed to find chapters for manga", {
+      error,
+      operation: "findChaptersByMangaId",
+      mangaId,
+    });
+    throw error;
+  }
+}

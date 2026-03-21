@@ -3,8 +3,11 @@ import {
   prop,
   modelOptions,
   index,
+  Ref,
 } from "@typegoose/typegoose";
 import { ObjectType, ID, Field } from "type-graphql";
+import { Manga } from "./manga.model.js";
+import { Types } from "mongoose";
 
 export type UploadStatus = "draft" | "uploading" | "ready" | "failed";
 
@@ -19,6 +22,14 @@ export type UploadStatus = "draft" | "uploading" | "ready" | "failed";
 export class Chapter {
   @Field(() => ID)
   readonly _id!: string;
+
+  @Field(() => ID)
+  @prop({
+    requried: true,
+    type: () => Types.ObjectId,
+    ref: () => Manga,
+  })
+  mangaId!: Ref<Manga>;
 
   @Field(() => Number)
   @prop({
