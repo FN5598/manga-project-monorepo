@@ -3,7 +3,7 @@ import PageModel, { Page } from "@models/page.model.js";
 import { PaginationInput, SortInputType } from "@resolvers/manga.resolvers.js";
 import { PipelineStage, Types } from "mongoose";
 import { DEFAULT_PAGINATION, SortInput } from "@config/constants.js";
-type CreatePagesPayload = {
+export type CreatePagesPayload = {
   chapterId: string;
   pages: {
     imageKey: string;

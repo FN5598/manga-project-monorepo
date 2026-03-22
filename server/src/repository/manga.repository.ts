@@ -6,6 +6,7 @@ import {
   PaginationInput,
 } from "@resolvers/manga.resolvers.js";
 import { PipelineStage } from "mongoose";
+import { escapeRegex } from "@config/regex.js";
 
 export async function updateManga(
   mangaId: string,
@@ -171,6 +172,63 @@ export async function deleteMangaById(mangaId: string): Promise<Manga> {
       error,
       operation: "deleteMangaById",
       mangaId,
+    });
+    throw error;
+  }
+}
+
+export async function findMangaByTitle(mangaTitle: string): Promise<Manga[]> {
+  try {
+    if (!mangaTitle) throw new Error("MangaTitle is required to search manga");
+
+    const safeTitle = escapeRegex(mangaTitle);
+    let pipeline: PipelineStage[] = [];
+
+    pipeline.push({
+      $match: {
+        title: { $regex: safeTitle, $options: "i" },
+      },
+    });
+
+    // 3. Fill in the chapter count for easy FE fetch
+    pipeline.push(
+      {
+        $lookup: {
+          from: "chapters",
+          let: { mangaId: "$_id" },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: ["$mangaId", "$$mangaId"],
+                },
+              },
+            },
+            { $count: "count" },
+          ],
+          as: "chaptersMeta",
+        },
+      },
+      {
+        $addFields: {
+          chaptersCount: {
+            $ifNull: [{ $arrayElemAt: ["$chaptersMeta.count", 0] }, 0],
+          },
+        },
+      },
+      {
+        $project: {
+          chaptersMeta: 0,
+        },
+      },
+    );
+    const manga = await MangaModel.aggregate(pipeline);
+    return manga || [];
+  } catch (error) {
+    logger.error("Failed to find manga by title", {
+      error,
+      operation: "findMangaByTitle",
+      mangaTitle,
     });
     throw error;
   }

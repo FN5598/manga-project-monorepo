@@ -9,7 +9,8 @@ enum UploadStatus {
   FAILED = "failed",
 }
 
-type createChapterPayload = {
+export type createChapterPayload = {
+  mangaId: string;
   chapterNumber: number;
   title: string;
   chapterPrefix: string;
@@ -20,9 +21,13 @@ export async function createChapter(
   payload: createChapterPayload,
 ): Promise<Chapter> {
   try {
-    const { chapterNumber, title, chapterPrefix, pageCount } = payload;
+    const { chapterNumber, title, chapterPrefix, pageCount, mangaId } = payload;
     if (chapterNumber == null || chapterNumber < 1) {
       throw new Error("Invalid chapterNumber");
+    }
+
+    if (!mangaId) {
+      throw new Error("mangaId is required input!");
     }
 
     if (!title.trim()) {
@@ -43,6 +48,7 @@ export async function createChapter(
       storagePrefix: chapterPrefix,
       pageCount,
       uploadStatus: UploadStatus.READY,
+      mangaId,
     });
     await chapter.save();
 

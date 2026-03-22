@@ -128,4 +128,15 @@ export class MangaResolver {
     });
     return deletedManga;
   }
+
+  @Query(() => [Manga])
+  async findMangaByName(
+    @Arg("mangaTitle", () => String)
+    mangaTitle: string,
+  ): Promise<Manga[]> {
+    logger.debug("findMangaByName resolver called", {
+      mangaTitle,
+    });
+    return await mangaRepository.findMangaByTitle(mangaTitle);
+  }
 }

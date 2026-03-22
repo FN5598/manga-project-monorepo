@@ -13,6 +13,7 @@ import { buildSchema } from "type-graphql";
 import { MangaResolver } from "@resolvers/manga.resolvers.js";
 import { ChapterResolver } from "@resolvers/chapter.resolvers.js";
 import { PageResolver } from "@resolvers/page.resolvers.js";
+import chapterRouter from "@rest/chapter.routes.js";
 
 dotenv.config(); // Load environment variables from .env file
 
@@ -44,6 +45,7 @@ async function main() {
   app.use("/manga", mangaRouter);
   app.use("/api/uploads", uploadsRouter);
   app.use("/api/genres", genresRouter);
+  app.use("/api/chapter", chapterRouter);
 
   app.listen(4000, () => {
     console.log(

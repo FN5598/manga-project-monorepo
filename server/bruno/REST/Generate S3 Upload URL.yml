@@ -5,7 +5,11 @@ info:
 
 http:
   method: POST
-  url: "{{BASE_URL}}/api/uploads/sign-url"
+  url: "{{BASE_URL}}/api/uploads/sign-url?chapter=true"
+  params:
+    - name: chapter
+      value: "true"
+      type: query
   body:
     type: json
     data: |-

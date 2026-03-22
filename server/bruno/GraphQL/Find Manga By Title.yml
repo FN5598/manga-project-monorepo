@@ -1,0 +1,33 @@
+info:
+  name: Find Manga By Title
+  type: graphql
+  seq: 7
+
+graphql:
+  method: POST
+  url: "{{BASE_URL}}/graphql"
+  body:
+    query: |-
+      query MyQuery($mangaTitle: String!) {
+        findMangaByName(mangaTitle: $mangaTitle) {
+          _id
+          title
+          author
+          description
+          chaptersCount
+      		status
+          updatedAt
+          createdAt
+        }
+      }
+    variables: |-
+      {
+        "mangaTitle": "{{?mangaTitle}}"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

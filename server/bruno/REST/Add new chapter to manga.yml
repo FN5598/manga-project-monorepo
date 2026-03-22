@@ -1,0 +1,28 @@
+info:
+  name: Add new chapter to manga
+  type: http
+  seq: 5
+
+http:
+  method: POST
+  url: "{{BASE_URL}}/api/chapter/create-chapter"
+  body:
+    type: json
+    data: |-
+      {
+        "mangaId": "{{?mangaId}}",
+        "chapterTitle": "Beginning",
+        "chapterNumber": 200,
+        "pages": [{
+          "imageKey": "ashdhasd/somethingsupercool.png",
+          "fileName": "01-OnePiece",
+          "fileSize": 191919
+        }]
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
