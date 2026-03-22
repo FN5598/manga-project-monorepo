@@ -2,6 +2,7 @@ import Logo from "./Logo";
 import { House, Compass, UsersRound, Library, Menu, X } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useState } from "react";
+import { getPath } from "..";
 
 const navItems = [
   { label: "Discover", icon: <House className="h-4 w-4" /> },
@@ -10,16 +11,18 @@ const navItems = [
   { label: "Community", icon: <UsersRound className="h-4 w-4" /> },
 ] as const;
 
-export default function Header() {
-  const [open, setOpen] = useState(false);
+type HeaderProps = {
+  sticky: boolean;
+};
 
-  function getPath(name: string): string {
-    return `/${name.toLowerCase().trim().replace(/\s+/g, "-")}`;
-  }
+export default function Header({ sticky }: HeaderProps) {
+  const [open, setOpen] = useState(false);
 
   return (
     <>
-      <header className="sticky top-0 z-30 border-b border-slate-200/80 bg-white/90 backdrop-blur">
+      <header
+        className={`top-0 z-30 border-b border-slate-200/80 bg-white/90 backdrop-blur ${sticky ? `sticky` : "block"}`}
+      >
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
           <div className="flex items-center gap-4 lg:gap-8">
             <Logo />

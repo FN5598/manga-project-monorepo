@@ -10,6 +10,7 @@ type ChapterElementProps = {
   chapterTitle: string | null;
   setChaptersPages: React.Dispatch<React.SetStateAction<File[]>>;
   chaptersPages: File[];
+  disabled?: boolean;
 };
 
 export default function ChaptersElement({
@@ -19,6 +20,7 @@ export default function ChaptersElement({
   chapterTitle,
   setChaptersPages,
   chaptersPages,
+  disabled,
 }: ChapterElementProps) {
   function handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
     const { name, value } = e.target;
@@ -109,7 +111,17 @@ export default function ChaptersElement({
   }
 
   return (
-    <section className="flex flex-col p-6 shadow-md rounded-xl bg-white gap-5 flex-1">
+    <section
+      className={`flex flex-col p-6 shadow-md rounded-xl bg-white gap-5 flex-1 ${disabled ? "opacity-50 pointer-events-none relative select-none" : ""}`}
+    >
+      {disabled && (
+        <div className="absolute inset-0 flex items-center justify-center z-50">
+          <span className="text-3xl font-semibold text-black">
+            Manga series is required!
+          </span>
+        </div>
+      )}
+
       <div className="flex flex-row gap-2 relative items-center">
         <Layers3 className="text-gray" />
         <h1 className="text-xl font-semibold text-gray">Chapters & Pages</h1>

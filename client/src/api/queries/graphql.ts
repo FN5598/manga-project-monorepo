@@ -87,3 +87,18 @@ query MyQuery($chapterId: String!) {
   }
 }
 `;
+
+export const FIND_MANGA_BY_NAME = `
+query MyQuery($mangaTitle: String!) {
+  findMangaByName(mangaTitle: $mangaTitle) {
+    _id
+    title
+    author
+    description
+    chaptersCount
+		status
+    updatedAt
+    createdAt
+  }
+}
+`;

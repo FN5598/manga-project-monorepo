@@ -1,9 +1,5 @@
 import { s3 } from "@config/aws.config.js";
-import {
-  DeleteObjectsCommand,
-  ListObjectsV2Command,
-  S3,
-} from "@aws-sdk/client-s3";
+import { DeleteObjectsCommand, ListObjectsV2Command } from "@aws-sdk/client-s3";
 import { S3_BUCKET_NAME } from "@config/constants.js";
 import logger from "@config/logger.js";
 
@@ -32,7 +28,7 @@ export async function deleteFolderFromS3(prefix: string) {
           }),
         );
       }
-      logger.info("Deleting files", {
+      logger.debug("Deleting files", {
         contents,
       });
       continuationToken = listed.IsTruncated
@@ -59,7 +55,7 @@ export async function deleteManyFromS3(keys: string[]) {
         },
       }),
     );
-    logger.info("Deleted multple objects from S3", {
+    logger.debug("Deleted multple objects from S3", {
       keys,
       bucket: S3_BUCKET_NAME,
     });

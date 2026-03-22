@@ -1,7 +1,7 @@
 import { AdminPanel } from "../Components/AdminComponents/AdminPanel";
 import { UploadManga } from "../Components/AdminComponents/UploadManga";
 
-export default function AdminPage() {
+export default function UploadMangaPage() {
   return (
     <div className="flex min-h-screen w-full bg-milkyWhite">
       <AdminPanel />

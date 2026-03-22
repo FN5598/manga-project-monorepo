@@ -1,5 +1,6 @@
 import Header from "../Components/Header";
 import LoadingSpinner from "../Components/UI/LoadingSpinner";
+import ReaderPage from "../Components/UI/PageReader";
 import { useFindChapterByIdQuery } from "../api/chapter";
 import { useGetPagesByChapterIdQuery } from "../api/page";
 import { useParams } from "react-router-dom";
@@ -27,10 +28,10 @@ export default function ChapterPage() {
 
   return (
     <div className="min-h-screen bg-black text-zinc-100">
-      <Header />
+      <Header sticky={false} />
 
       <main className="mx-auto w-full max-w-5xl px-2 pb-10 pt-4 sm:px-4">
-        <div className="sticky top-0 z-20 mb-6 rounded-xl border border-zinc-800/80 bg-zinc-950/85 backdrop-blur">
+        <div className="top-0 z-20 mb-6 rounded-xl border border-zinc-800/80 bg-zinc-950/85 backdrop-blur">
           <div className="flex items-center justify-between gap-4 px-4 py-3">
             <div className="min-w-0">
               <p className="text-xs uppercase tracking-[0.2em] text-zinc-500">
@@ -87,21 +88,13 @@ export default function ChapterPage() {
         )}
 
         {!isLoading && !error && pages.length > 0 && (
-          <section className="space-y-8">
-            {pages.map((page, index) => (
-              <div key={page._id} className="flex flex-col items-center">
-                <span className="mb-3 text-xs uppercase tracking-[0.22em] text-zinc-600">
-                  {index + 1} / {pages.length}
-                </span>
-
-                <img
-                  src={page.pageUrl}
-                  alt={`Page ${index + 1}`}
-                  loading="lazy"
-                  className="block h-auto w-full max-w-4xl select-none rounded-md"
-                  draggable={false}
-                />
-              </div>
+          <section className="space-y-2">
+            {pages.map((page) => (
+              <ReaderPage
+                key={page._id}
+                src={page.pageUrl}
+                alt={`${chapter?.title}-${page._id}`}
+              />
             ))}
           </section>
         )}

@@ -111,3 +111,7 @@ export function timeAgo(dateString: string) {
   const days = Math.floor(hours / 24);
   return `${days} day${days !== 1 ? "s" : ""} ago`;
 }
+
+export function getPath(name: string): string {
+  return `/${name.toLowerCase().trim().replace(/\s+/g, "-")}`;
+}

@@ -1,21 +1,29 @@
 import {
   LogOut,
-  LayoutDashboard,
   CloudUpload,
   Library,
   Users,
   ChartNoAxesColumn,
 } from "lucide-react";
+import { NavLink } from "react-router-dom";
+import { useParams } from "react-router-dom";
+import { getPath } from "../..";
+
+function getLocation(adminId: string, label: string): string {
+  if (!adminId) return `/discover`;
+  return `/admin/${adminId}${getPath(label)}`;
+}
 
 const sidebarItems = [
-  { label: "Dashboard", icon: LayoutDashboard, active: false },
-  { label: "Upload Manga", icon: CloudUpload, active: true },
-  { label: "Library", icon: Library, active: false },
-  { label: "Authors", icon: Users, active: false },
-  { label: "Analytics", icon: ChartNoAxesColumn, active: false },
+  { label: "Upload Manga", icon: CloudUpload },
+  { label: "Library", icon: Library },
+  { label: "Upload Chapter", icon: Users },
+  { label: "Analytics", icon: ChartNoAxesColumn },
 ];
 
 export function AdminPanel() {
+  const { adminId } = useParams();
+
   return (
     <div className="w-64 bg-midnight shadow-md p-4">
       <div className="flex items-center justify-between mb-6">
@@ -24,15 +32,18 @@ export function AdminPanel() {
       </div>
       <nav>
         {sidebarItems.map((item) => (
-          <div
+          <NavLink
+            to={getLocation(adminId!, item.label)}
             key={item.label}
-            className={`flex items-center p-2 mb-2 rounded cursor-pointer text-white ${
-              item.active ? "bg-gray-700" : "hover:bg-gray-700"
-            }`}
+            className={({ isActive }) =>
+              `flex items-center p-2 mb-2 rounded cursor-pointer text-white ${
+                isActive ? "bg-gray-700" : "hover:bg-gray-700"
+              }`
+            }
           >
             <item.icon className="mr-3" />
             {item.label}
-          </div>
+          </NavLink>
         ))}
       </nav>
     </div>

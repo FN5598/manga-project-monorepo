@@ -5,11 +5,12 @@ import { ToastContainer, Zoom } from "react-toastify";
 const Login = lazy(() => import("./Pages/LoginPage"));
 const DiscoverPage = lazy(() => import("./Pages/DiscoverPage"));
 const MangaPage = lazy(() => import("./Pages/MangaPage"));
-const AdminPage = lazy(() => import("./Pages/AdminPage"));
+const UploadMangaPage = lazy(() => import("./Pages/UploadMangaPage"));
 const CommunityPage = lazy(() => import("./Pages/CommunityPage"));
 const BrowsePage = lazy(() => import("./Pages/BrowsePage"));
 const MyLibraryPage = lazy(() => import("./Pages/MyLibraryPage"));
 const ChapterPage = lazy(() => import("./Pages/ChapterPage"));
+const UploadChapterPage = lazy(() => import("./Pages/UploadChapterPage"));
 
 function App() {
   return (
@@ -42,11 +43,18 @@ function App() {
               path="/manga/:mangaId/chapter/:chapterId"
               element={<ChapterPage />}
             />
-            <Route path="/admin/:id" element={<AdminPage />} />
+            <Route
+              path="/admin/:adminId/upload-manga"
+              element={<UploadMangaPage />}
+            />
             <Route path="community" element={<CommunityPage />} />
             <Route path="browse" element={<BrowsePage />} />
             <Route path="my-library" element={<MyLibraryPage />} />
             <Route path="*" element={<Navigate to="/discover" replace />} />
+            <Route
+              path="/admin/:adminId/upload-chapter"
+              element={<UploadChapterPage />}
+            />
           </Routes>
         </Suspense>
       </BrowserRouter>

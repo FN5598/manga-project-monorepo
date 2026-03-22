@@ -7,7 +7,7 @@ import LatestMangaUpdates from "../Components/LatestMangaUpdates";
 export default function DiscoverPage() {
   return (
     <>
-      <Header />
+      <Header sticky={true} />
       <div className="px-4 sm:px-10 md:px-20 lg:px-40 xl:px-80 mb-20">
         <DiscoverMangaCard />
 

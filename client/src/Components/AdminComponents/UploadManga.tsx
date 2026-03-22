@@ -10,12 +10,19 @@ import BasincInformation from "./BasicInformation";
 import CoverImage from "./CoverImage";
 import ChaptersElement from "./ChaptersElement";
 import { emitAlert } from "../..";
-import LoadingSpinner from "../UI/LoadingSpinner";
 import { useSignS3BucketUploadUrlMutation } from "../../api/S3";
 import {
   useUpdateMangaMutation,
   useUploadMangaMutation,
 } from "../../api/manga";
+import PublishButtons from "./PublishButtons";
+
+export type ApiError = {
+  status?: number;
+  data?: {
+    message?: string;
+  };
+};
 
 export function UploadManga() {
   const [mangaTitle, setMangaTitle] = useState<string | null>(null);
@@ -40,13 +47,6 @@ export function UploadManga() {
   const [uploadMangaToDB] = useUploadMangaMutation();
   const [updateMangaToDB] = useUpdateMangaMutation();
 
-  type ApiError = {
-    status?: number;
-    data?: {
-      message?: string;
-    };
-  };
-
   function clearAllStates() {
     const states = [
       setAuthorName,
@@ -59,6 +59,7 @@ export function UploadManga() {
     ];
     states.map((state) => state(null));
     setActiveGenre([]);
+    setChapterPages([]);
     setLoading(false);
   }
 
@@ -108,21 +109,24 @@ export function UploadManga() {
 
       // 2. Get signed upload URL
       const signS3UrlRes = await signS3UploadUrl({
-        fileName: previewFileData!.name,
-        contentType: previewFileData!.type,
-        mangaId: dbRes.mangaData._id,
-        mangaChapter: chapterNumber!,
-        type: FileType.preview,
-        size: previewFileData!.size,
-        chapters: [...uploadPages],
+        mode: "manga",
+        body: {
+          fileName: previewFileData!.name,
+          contentType: previewFileData!.type,
+          mangaId: dbRes.mangaData._id,
+          mangaChapter: chapterNumber!,
+          type: FileType.preview,
+          size: previewFileData!.size,
+          chapters: [...uploadPages],
+        },
       }).unwrap();
 
       console.log(signS3UrlRes);
 
       // 3. Upload Data to Bucket
-      await fetch(signS3UrlRes.preview.uploadUrl, {
+      await fetch(signS3UrlRes.preview!.uploadUrl, {
         method: "PUT",
-        headers: { "Content-Type": signS3UrlRes.preview.contentType },
+        headers: { "Content-Type": signS3UrlRes.preview!.contentType },
         body: previewFileData,
       });
 
@@ -139,7 +143,7 @@ export function UploadManga() {
       const updateMangaPayload: UpdateMangaPayload = {
         manga: {
           _id: dbRes.mangaData._id,
-          previewKey: signS3UrlRes.preview.key,
+          previewKey: signS3UrlRes.preview!.key,
         },
         chapter: {
           chapterNumber: chapterNumber!,
@@ -207,32 +211,11 @@ export function UploadManga() {
             setPreviewFileData={setPreviewFileData}
           />
 
-          <section className="flex flex-col gap-3 rounded-lg bg-white p-5 font-semibold shadow-md">
-            <button
-              onClick={handlePublishManga}
-              // We keep 'disabled' for UX, but the logic above provides the safety
-              disabled={loading}
-              className={`flex items-center justify-center gap-2 px-6 py-2 rounded-lg text-white transition-all ${
-                loading
-                  ? "bg-midnight/80 cursor-not-allowed"
-                  : "bg-midnight cursor-pointer hover:brightness-110 active:scale-95"
-              }
-                      `}
-            >
-              {loading && (
-                <span className="flex-shrink-0 animate-pulse">
-                  <LoadingSpinner />
-                </span>
-              )}
-              <span>{loading ? "Publishing..." : "Publish Manga"}</span>
-            </button>
-            <button
-              onClick={clearAllStates}
-              className="cursor-pointer rounded-lg p-2 text-gray transition duration-200 hover:bg-milkyWhite"
-            >
-              Cancel
-            </button>
-          </section>
+          <PublishButtons
+            handlePublish={handlePublishManga}
+            clearAllStates={clearAllStates}
+            loading={loading}
+          />
         </div>
       </div>
     </div>

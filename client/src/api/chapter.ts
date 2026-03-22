@@ -29,6 +29,17 @@ type FindChapterByIdBody = {
   };
 };
 
+export type addChapterPayload = {
+  mangaId: string;
+  chapterTitle: string;
+  chapterNumber: number;
+  pages: {
+    imageKey: string;
+    fileName: string;
+    fileSize: number;
+  }[];
+};
+
 export const chaptersApi = createApi({
   reducerPath: "chaptersApi",
 
@@ -67,8 +78,21 @@ export const chaptersApi = createApi({
         return response.data.findChapterById;
       },
     }),
+    createChapterForManga: builder.mutation<
+      { message: string },
+      addChapterPayload
+    >({
+      query: (body) => ({
+        url: "/api/chapter/create-chapter",
+        method: "POST",
+        body,
+      }),
+    }),
   }),
 });
 
-export const { useFindChapterByMangaIdQuery, useFindChapterByIdQuery } =
-  chaptersApi;
+export const {
+  useFindChapterByMangaIdQuery,
+  useFindChapterByIdQuery,
+  useCreateChapterForMangaMutation,
+} = chaptersApi;

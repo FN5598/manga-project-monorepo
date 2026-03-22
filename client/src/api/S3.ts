@@ -4,24 +4,27 @@ import { FileType } from "../Components/AdminComponents/manga.utils";
 
 type AllowedImageUploadTypes = "image/jpeg" | "image/png" | "image/webp";
 
-type SignBody = {
-  mangaId: string;
-  fileName: string;
-  contentType: string;
-  mangaChapter: number;
-  type: FileType;
-  size: number;
-  chapters: {
-    fileName: string;
-    contentType: string;
-    type: FileType;
-    size: number;
-  }[];
+export type SignBody = {
+  mode: "manga" | "chapter";
+  body: {
+    mangaId: string;
+    fileName?: string; // optional for chapter creation
+    contentType?: string; // optional for chapter creation
+    mangaChapter: number;
+    type?: FileType; // optional for chapter creation
+    size?: number; // optional for chapter creation
+    chapters: {
+      fileName: string;
+      contentType: string;
+      type: FileType;
+      size: number;
+    }[];
+  };
 };
 
-type SignS3UploadResponse = {
+export type SignS3UploadResponse = {
   message: string;
-  preview: {
+  preview?: {
     fileName: string;
     key: string;
     uploadUrl: string;
@@ -50,10 +53,11 @@ export const awsApi = createApi({
 
   endpoints: (builder) => ({
     signS3BucketUploadUrl: builder.mutation<SignS3UploadResponse, SignBody>({
-      query: (body) => ({
+      query: (payload) => ({
         url: SIGN_S3_UPLOAD_URL,
         method: "POST",
-        body,
+        body: payload.body,
+        params: payload.mode === "manga" ? { manga: true } : { chapter: true },
       }),
     }),
     uploadDataToS3: builder.mutation<unknown, UploadDataBody>({

@@ -7,14 +7,18 @@ import type {
   UpdateMangaResponse,
   MangaStatus,
 } from "../Components/AdminComponents/manga.utils";
-import { FIND_MANGA_BY_ID, GET_ALL_MANGAS } from "./queries/graphql";
+import {
+  FIND_MANGA_BY_ID,
+  FIND_MANGA_BY_NAME,
+  GET_ALL_MANGAS,
+} from "./queries/graphql";
 
 type uploadMangaResponse = {
   mangaData: UploadMangaReponse;
   message: string;
 };
 
-type Manga = {
+export type Manga = {
   _id: string;
   title: string;
   author: string;
@@ -55,6 +59,12 @@ export type PaginationSortInput = {
 type FindMangaByIdResponse = {
   data: {
     findMangaById: Manga;
+  };
+};
+
+type findMangaByNameBody = {
+  data: {
+    findMangaByName: Manga[];
   };
 };
 
@@ -114,6 +124,21 @@ export const mangaApi = createApi({
         return response.data.findMangaById;
       },
     }),
+    findChapterByName: builder.query<Manga[], { mangaTitle: string }>({
+      query: (payload) => ({
+        url: "graphql",
+        method: "POST",
+        body: {
+          query: FIND_MANGA_BY_NAME,
+          variables: {
+            mangaTitle: payload.mangaTitle,
+          },
+        },
+      }),
+      transformResponse: (response: findMangaByNameBody) => {
+        return response.data.findMangaByName;
+      },
+    }),
   }),
 });
 
@@ -122,4 +147,5 @@ export const {
   useGetAllMangasQuery,
   useUpdateMangaMutation,
   useGetMangaByIdQuery,
+  useFindChapterByNameQuery,
 } = mangaApi;
