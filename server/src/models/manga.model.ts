@@ -6,7 +6,7 @@ import {
   index,
 } from "@typegoose/typegoose";
 import { Genre } from "./genre.model.js";
-import mongoose from "mongoose";
+import mongoose, { Types } from "mongoose";
 import { ObjectType, Field, ID } from "type-graphql";
 
 type MangaStatus = "ongoing" | "completed" | "hiatus" | "cancelled";

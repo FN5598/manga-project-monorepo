@@ -1,7 +1,7 @@
 import logger from "@config/logger.js";
 import PageModel, { Page } from "@models/page.model.js";
 import { PaginationInput, SortInputType } from "@resolvers/manga.resolvers.js";
-import { PipelineStage, Types } from "mongoose";
+import { ClientSession, PipelineStage, Types } from "mongoose";
 import { DEFAULT_PAGINATION, SortInput } from "@config/constants.js";
 export type CreatePagesPayload = {
   chapterId: string;
@@ -21,7 +21,7 @@ export async function createPages(
     if (pages.length <= 0) throw new Error("Invalid pages payload");
 
     const pagesToUpload = pages.map((page, index) => ({
-      chapter: chapterId,
+      chapter: new Types.ObjectId(chapterId),
       imageKey: page.imageKey,
       fileSize: page.fileSize,
       pageNumber: index + 1,
@@ -88,6 +88,39 @@ export async function getPagesByChapterId(
       error,
       operation: "getPagesByChapterId",
       chapterId,
+    });
+    throw error;
+  }
+}
+
+export async function deletePagesByChapterIds(
+  chapterIds: string[],
+  session: ClientSession,
+): Promise<{ deletedCount: number; deletedPageIds: string[] }> {
+  try {
+    if (!Array.isArray(chapterIds) || chapterIds.length <= 0)
+      throw new Error("chapterIds must be a valid input");
+
+    const deletedPages = await PageModel.find({
+      chapter: { $in: chapterIds },
+    })
+      .select("_id")
+      .lean()
+      .session(session);
+
+    const deleteResponse = await PageModel.deleteMany({
+      chapter: { $in: chapterIds },
+    }).session(session);
+
+    return {
+      deletedCount: deleteResponse.deletedCount ?? 0,
+      deletedPageIds: deletedPages.map((page) => String(page._id)),
+    };
+  } catch (error) {
+    logger.error("Failed to delete pages by chapterIds", {
+      error,
+      operation: "deletePagesByChapterIds",
+      chapterIds,
     });
     throw error;
   }

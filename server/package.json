@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "pnpm exec tsx watch ./src/server.ts"
+    "dev": "NODE_ENV=development pnpm exec tsx watch ./src/server.ts",
+    "start": "NODE_ENV=production pnpm exec tsx watch ./src/server.ts"
   },
   "keywords": [],
   "author": "",

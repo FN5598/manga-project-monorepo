@@ -171,7 +171,7 @@ export async function createS3UploadURL(req: Request, res: Response) {
         });
 
         const chapterUploadUrl = await getSignedUrl(s3, chapterCommand, {
-          expiresIn: 60,
+          expiresIn: 300,
         });
 
         return {
@@ -211,7 +211,7 @@ export async function createS3UploadURL(req: Request, res: Response) {
     });
 
     const previewUploadUrl = await getSignedUrl(s3, previewCommand, {
-      expiresIn: 60,
+      expiresIn: 300,
     });
 
     logger.debug("Created manga S3 upload URLs", {

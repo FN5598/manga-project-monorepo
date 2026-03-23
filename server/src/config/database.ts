@@ -40,5 +40,11 @@ export const connectToDb = async (): Promise<void> => {
 
   await mongoose.connect(uri, {
     serverSelectionTimeoutMS: 5000, // 5 seconds timeout for initial connection
+    autoIndex: process.env.NODE_ENV !== "production",
   });
+
+  if (process.env.NODE_ENV === "development") {
+    await mongoose.connection.syncIndexes();
+    console.log(chalk.blue("[DB] Indexes synced"));
+  }
 };

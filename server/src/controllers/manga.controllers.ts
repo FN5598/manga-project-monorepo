@@ -95,6 +95,7 @@ export async function updateMangaController(req: Request, res: Response) {
 
     // 2. Update Chapter info
     const chapterRes = await chapterRepository.createChapter({
+      mangaId: mangaRes._id,
       pageCount,
       chapterPrefix,
       ...chapter,
@@ -135,7 +136,12 @@ export async function updateMangaController(req: Request, res: Response) {
       mangaId: manga._id,
       chapterId: chapterRes._id,
     });
-  } catch (error) {
+  } catch (error: any) {
+    if (error.code === 11000) {
+      return res.status(400).json({
+        message: "Manga already exists",
+      });
+    }
     logger.error("Failed to update manga", {
       error,
       operation: "updateMangaController",

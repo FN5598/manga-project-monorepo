@@ -11,14 +11,13 @@ graphql:
       query MyQuery($chapterId: String!) {
         findChapterById(chapterId: $chapterId) {
         	_id
-        	mangaId
           chapterNumber
+          mangaId
           title
           storagePrefix
           pageCount
           updatedAt
           createdAt
-          updatedAt
         }
       }
     variables: |-

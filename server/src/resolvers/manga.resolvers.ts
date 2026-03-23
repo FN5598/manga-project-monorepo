@@ -1,9 +1,4 @@
-import {
-  AWS_REGION,
-  Pagination,
-  S3_BUCKET_NAME,
-  SortInput,
-} from "../config/constants.js";
+import { AWS_REGION, S3_BUCKET_NAME, SortInput } from "../config/constants.js";
 import * as mangaRepository from "../repository/manga.repository.js";
 import { Manga } from "@models/manga.model.js";
 import {
@@ -18,8 +13,10 @@ import {
   Root,
 } from "type-graphql";
 import * as resolversUtils from "./manga.resolvers.utils.js";
-import { sanitizeS3PathPart } from "@controllers/uploadS3URL.controller.js";
+import * as chapterRepository from "@repository/chapter.repository.js";
+import * as pagesRepository from "@repository/page.repository.js";
 import logger from "@config/logger.js";
+import mongoose from "mongoose";
 
 export function getUrlForImage(previewKey: string): string {
   return `https://${S3_BUCKET_NAME}.s3.${AWS_REGION}.amazonaws.com/${previewKey.split("/").map(encodeURIComponent).join("/")}`;
@@ -102,31 +99,69 @@ export class MangaResolver {
     return mangaRepository.uploadManga(mangaUploadInput);
   }
 
+  // TODO improve by checking if manga exists before deletion change flow to Page -> Chapter -> Manga
   @Mutation(() => Manga)
   async deleteManga(
     @Arg("mangaId", () => String) mangaId: string,
   ): Promise<Manga> {
-    // 1. Delete manga from DB
-    const deletedManga = await mangaRepository.deleteMangaById(mangaId);
+    const session = await mongoose.startSession();
+    try {
+      let deletedManga!: Manga;
+      let deletedChapters!: { deletedCount: number; deletedIds: string[] };
+      let deletedPages!: { deletedCount: number; deletedPageIds: string[] };
+      await session.withTransaction(async () => {
+        // 1. Delete manga from DB
+        deletedManga = await mangaRepository.deleteMangaById(mangaId, session);
 
-    const safeMangaTitle = sanitizeS3PathPart(deletedManga.title);
+        logger.debug("deletedManga", {
+          deletedManga,
+        });
 
-    const mangaFolder = `mangas/${safeMangaTitle}/`;
-    const previewFolder = deletedManga.previewKey
-      ? deletedManga.previewKey.split("/").slice(0, -1).join("/") + "/"
-      : null;
+        deletedChapters = await chapterRepository.deleteChaptersByMangaId(
+          mangaId,
+          session,
+        );
 
-    // 2. Delete whole manga folder
-    await resolversUtils.deleteFolderFromS3(mangaFolder);
+        logger.debug("Deleted chapters", {
+          deletedChapters,
+        });
 
-    // 3. Delete Preview folder
-    if (previewFolder) {
-      await resolversUtils.deleteFolderFromS3(previewFolder);
+        deletedPages = await pagesRepository.deletePagesByChapterIds(
+          deletedChapters.deletedIds,
+          session,
+        );
+
+        logger.debug("deletedPages", {
+          deletedPages,
+        });
+      });
+      const mangaFolder = `mangas/${deletedManga._id}/`;
+      const previewFolder = deletedManga.previewKey
+        ? deletedManga.previewKey.split("/").slice(0, -1).join("/") + "/"
+        : null;
+
+      // 2. Delete whole manga folder
+      await resolversUtils.deleteFolderFromS3(mangaFolder);
+
+      // 3. Delete Preview folder
+      if (previewFolder) {
+        await resolversUtils.deleteFolderFromS3(previewFolder);
+      }
+      logger.debug("deleteManga resolver called", {
+        mangaId,
+        deletedManga,
+        deletedPages,
+        deletedChapters,
+      });
+      return deletedManga;
+    } catch (error) {
+      logger.error("Failed to call deleteManga resolver", {
+        error,
+      });
+      throw error;
+    } finally {
+      await session.endSession();
     }
-    logger.debug("deleteManga resolver called", {
-      mangaId,
-    });
-    return deletedManga;
   }
 
   @Query(() => [Manga])

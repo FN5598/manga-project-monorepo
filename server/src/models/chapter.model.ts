@@ -11,7 +11,7 @@ import { Types } from "mongoose";
 
 export type UploadStatus = "draft" | "uploading" | "ready" | "failed";
 
-@index({ manga: 1, chapterNumber: 1 }, { unique: true })
+@index({ mangaId: 1, chapterNumber: 1 }, { unique: true })
 @modelOptions({
   schemaOptions: {
     timestamps: true,
@@ -29,7 +29,7 @@ export class Chapter {
     type: () => Types.ObjectId,
     ref: () => Manga,
   })
-  mangaId!: Ref<Manga>;
+  mangaId!: Ref<Manga, Types.ObjectId>;
 
   @Field(() => Number)
   @prop({
@@ -58,7 +58,7 @@ export class Chapter {
 
   @Field(() => Number)
   @prop({
-    defailt: 0,
+    default: 0,
     min: 0,
     type: () => Number,
   })

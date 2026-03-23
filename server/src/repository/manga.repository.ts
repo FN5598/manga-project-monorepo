@@ -5,7 +5,7 @@ import {
   MangaUploadInput,
   PaginationInput,
 } from "@resolvers/manga.resolvers.js";
-import { PipelineStage } from "mongoose";
+import { ClientSession, PipelineStage } from "mongoose";
 import { escapeRegex } from "@config/regex.js";
 
 export async function updateManga(
@@ -156,12 +156,19 @@ export async function findMangaById(mangaId: string): Promise<Manga> {
   }
 }
 
-export async function deleteMangaById(mangaId: string): Promise<Manga> {
+export async function deleteMangaById(
+  mangaId: string,
+  session?: ClientSession,
+): Promise<Manga> {
   if (!mangaId) {
     throw new Error("Manga ID is required");
   }
   try {
-    const deletedManga = await MangaModel.findByIdAndDelete(mangaId);
+    const query = MangaModel.findByIdAndDelete(mangaId);
+
+    if (session) query.session(session);
+
+    const deletedManga = await query;
     if (!deletedManga) {
       throw new Error("Manga not found");
     }

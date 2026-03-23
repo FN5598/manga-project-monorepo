@@ -8,6 +8,7 @@ import {
 import { ObjectType, Field, ID } from "type-graphql";
 import mongoose from "mongoose";
 import { Chapter } from "./chapter.model.js";
+import { Types } from "mongoose";
 
 @index({ chapter: 1, pageNumber: 1 }, { unique: true })
 @modelOptions({
@@ -27,7 +28,7 @@ export class Page {
     required: true,
     type: () => mongoose.Schema.Types.ObjectId,
   })
-  chapter!: Ref<Chapter>;
+  chapter!: Ref<Chapter, Types.ObjectId>;
 
   @Field(() => String)
   @prop({
