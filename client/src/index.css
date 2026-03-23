@@ -10,7 +10,7 @@
 }
 
 .admin-input-style {
-  @apply text-black placeholder:text-gray border border-gray focus:outline-none rounded-lg px-3 py-2 bg-milkyWhite;
+  @apply text-black placeholder:text-gray border border-gray focus:outline-none rounded-lg px-3 py-2 bg-milkyWhite invalid:border-red-500 invalid:ring-red-500;
 }
 
 .admin-label {

@@ -3,7 +3,7 @@ import { BASE_URL } from "../routes";
 import { GET_PAGES_BY_CHAPTER_ID } from "./queries/graphql";
 import { type SortInput, type PaginationInput } from "./manga";
 
-type Page = {
+export type Page = {
   _id: string;
   chapter: string;
   imageKey: string;
@@ -51,4 +51,4 @@ export const pagesApi = createApi({
   }),
 });
 
-export const { useGetPagesByChapterIdQuery } = pagesApi;
+export const { useLazyGetPagesByChapterIdQuery } = pagesApi;

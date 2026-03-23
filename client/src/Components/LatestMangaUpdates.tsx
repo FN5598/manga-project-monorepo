@@ -1,17 +1,17 @@
 import { Clock } from "lucide-react";
-import { useGetAllMangasQuery } from "../api/manga";
 import { Sort, timeAgo } from "..";
 import LoadingSpinner from "./UI/LoadingSpinner";
 import { NavLink } from "react-router-dom";
+import { useFindAllChaptersQuery } from "../api/chapter";
 
-export default function LatestMangaUpdates() {
+export default function LatestchapterUpdates() {
   const {
-    data: mangas,
+    data: chapters,
     isLoading,
     error,
-  } = useGetAllMangasQuery({
+  } = useFindAllChaptersQuery({
     paginationInput: { limit: 10 },
-    sort: { sortBy: Sort.DESC },
+    sort: { sortBy: Sort.ASC },
   });
 
   return (
@@ -25,22 +25,26 @@ export default function LatestMangaUpdates() {
         {error && <div>Error</div>}
         {!isLoading &&
           !error &&
-          mangas?.map((manga, index) => (
+          chapters &&
+          chapters.map((chapter, index) => (
             <NavLink
-              key={manga._id}
-              to={`/manga/${manga._id}`}
-              className={`flex items-center justify-between px-6 py-4 transition hover:bg-slate-100 rounded-xl${
-                index !== mangas.length - 1 ? "border-b border-slate-200" : ""
+              key={chapter?._id}
+              to={`/manga/${chapter?.mangaId}/chapter/${chapter?._id}`}
+              className={`flex items-center justify-between px-6 py-4 transition hover:bg-slate-100 ${
+                index !== chapters.length - 1
+                  ? "border-b border-slate-200 rounded-t-xl"
+                  : "rounded-b-xl"
               }`}
             >
               <div className="min-w-0">
                 <p className="truncate text-lg font-semibold text-slate-900">
-                  {manga.title}
+                  {chapter?.title}
                 </p>
+                <p>Chapter {chapter?.chapterNumber}</p>
               </div>
 
               <span className="ml-4 shrink-0 text-sm text-slate-500">
-                {timeAgo(manga.updatedAt)}
+                {chapter?.updatedAt && timeAgo(chapter.updatedAt)}
               </span>
             </NavLink>
           ))}

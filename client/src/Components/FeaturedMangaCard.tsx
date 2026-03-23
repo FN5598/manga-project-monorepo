@@ -3,6 +3,7 @@ import { useGetAllMangasQuery } from "../api/manga";
 import LoadingSpinner from "./UI/LoadingSpinner";
 import { BookOpen } from "lucide-react";
 import { Sort } from "..";
+import { capitalizeFirstLetter } from "..";
 
 export default function FeaturedMangaCard() {
   const {
@@ -14,9 +15,6 @@ export default function FeaturedMangaCard() {
     sort: { sortBy: Sort.DESC },
   });
 
-  function capitalizeFirstLetter(str: string): string {
-    return str[0].toUpperCase() + str.slice(1);
-  }
   return (
     <>
       <div className="flex flex-row justify-between items-center mb-5 mt-10">
@@ -26,7 +24,7 @@ export default function FeaturedMangaCard() {
         </NavLink>
       </div>
 
-      <section>
+      <section className="flex flex-row gap-2">
         {isLoading && <LoadingSpinner />}
         {error && <div>Error</div>}
         {!isLoading &&

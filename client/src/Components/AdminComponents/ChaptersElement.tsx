@@ -136,6 +136,7 @@ export default function ChaptersElement({
             Chapter Number <span className="text-xs text-gray">required*</span>
           </label>
           <input
+            required
             value={chapterNumber ?? ""}
             onChange={handleInputChange}
             id="chapter-number"
@@ -152,6 +153,7 @@ export default function ChaptersElement({
             Chapter Title <span className="text-xs text-gray">required*</span>
           </label>
           <input
+            required
             value={chapterTitle ?? ""}
             onChange={handleInputChange}
             id="chapter-title"

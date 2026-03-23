@@ -115,3 +115,7 @@ export function timeAgo(dateString: string) {
 export function getPath(name: string): string {
   return `/${name.toLowerCase().trim().replace(/\s+/g, "-")}`;
 }
+
+export function capitalizeFirstLetter(str: string): string {
+  return str[0].toUpperCase() + str.slice(1);
+}

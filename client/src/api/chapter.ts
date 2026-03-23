@@ -1,9 +1,11 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { BASE_URL } from "../routes";
 import {
+  FIND_ALL_CHAPTERS,
   FIND_CHAPTER_BY_ID,
   FIND_CHAPTERS_BY_MANGA_ID,
 } from "./queries/graphql";
+import type { PaginationSortInput } from "./manga";
 
 type Chapter = {
   _id: string;
@@ -26,6 +28,12 @@ type FindChaptersResponseBody = {
 type FindChapterByIdBody = {
   data: {
     findChapterById: Chapter;
+  };
+};
+
+type FindAllChapersBody = {
+  data: {
+    findAllChapters: Chapter[];
   };
 };
 
@@ -88,6 +96,22 @@ export const chaptersApi = createApi({
         body,
       }),
     }),
+    findAllChapters: builder.query<Partial<Chapter[]>, PaginationSortInput>({
+      query: (payload) => ({
+        url: "/graphql",
+        method: "POST",
+        body: {
+          query: FIND_ALL_CHAPTERS,
+          varaibles: {
+            paginationInput: payload.paginationInput,
+            sort: payload.sort,
+          },
+        },
+      }),
+      transformResponse: (response: FindAllChapersBody) => {
+        return response.data.findAllChapters;
+      },
+    }),
   }),
 });
 
@@ -95,4 +119,5 @@ export const {
   useFindChapterByMangaIdQuery,
   useFindChapterByIdQuery,
   useCreateChapterForMangaMutation,
+  useFindAllChaptersQuery,
 } = chaptersApi;

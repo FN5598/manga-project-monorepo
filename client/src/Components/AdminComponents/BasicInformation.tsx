@@ -4,6 +4,7 @@ import { useGetAllGenresQuery } from "../../api/genres";
 import LoadingSpinner from "../UI/LoadingSpinner";
 import { emitAlert } from "../..";
 import { useEffect } from "react";
+import { capitalizeFirstLetter } from "../..";
 
 type BasicInformationProps = {
   mangaTitle: string | null;
@@ -80,6 +81,7 @@ export default function BasincInformation({
           Manga Title <span className="text-xs text-gray">required*</span>
         </label>
         <input
+          required
           id="title-input"
           placeholder="e.g. One Piece Naruto ..."
           name="title-input"
@@ -94,6 +96,7 @@ export default function BasincInformation({
             Author <span className="text-xs text-gray">required*</span>
           </label>
           <input
+            required
             id="author-input"
             placeholder="Author Name"
             name="author-input"
@@ -111,13 +114,17 @@ export default function BasincInformation({
             onChange={(e) => setMangaStatus(e.target.value as MangaStatus)}
             className="p-2 border rounded-md bg-milkyWhite"
           >
-            <option value={MangaStatus.ONGOING}>{MangaStatus.ONGOING}</option>
-            <option value={MangaStatus.HIATUS}>{MangaStatus.HIATUS}</option>
+            <option value={MangaStatus.ONGOING}>
+              {capitalizeFirstLetter(MangaStatus.ONGOING)}
+            </option>
+            <option value={MangaStatus.HIATUS}>
+              {capitalizeFirstLetter(MangaStatus.HIATUS)}
+            </option>
             <option value={MangaStatus.COMPLETED}>
-              {MangaStatus.COMPLETED}
+              {capitalizeFirstLetter(MangaStatus.COMPLETED)}
             </option>
             <option value={MangaStatus.CANCELLED}>
-              {MangaStatus.CANCELLED}
+              {capitalizeFirstLetter(MangaStatus.CANCELLED)}
             </option>
           </select>
         </div>

@@ -102,3 +102,15 @@ query MyQuery($mangaTitle: String!) {
   }
 }
 `;
+
+export const FIND_ALL_CHAPTERS = `
+query MyQuery($sort: SortInputType, $paginationInput: PaginationInput) {
+  findAllChapters(sort: $sort, paginationInput: $paginationInput) {
+    _id
+    title
+    chapterNumber
+    updatedAt
+    mangaId
+  }
+}
+`;

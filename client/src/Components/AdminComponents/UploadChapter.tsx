@@ -21,7 +21,7 @@ export default function UploadChapter() {
   const [mangaTitle, setMangaTitle] = useState<string>("");
   const [chosenManga, setChosenManga] = useState<Manga | null>(null);
 
-  const debouncedTitle = useDebounce(mangaTitle?.toLowerCase(), 1000);
+  const debouncedTitle = useDebounce(mangaTitle?.toLowerCase(), 500);
 
   const { data: mangas } = useFindChapterByNameQuery(
     { mangaTitle: debouncedTitle },
@@ -38,10 +38,12 @@ export default function UploadChapter() {
     false;
 
   function checkStates(): null | string {
-    if (!chapterNumber) return "Chapter Number is required input!";
-    if (!chapterTitle) return "Chapter Title is required input!";
-    if (!chapterPages) return "At least 1 page is required!";
     if (!chosenManga) return "Pick existing manga";
+    if (chapterNumber == null) return "Chapter Number is required input!";
+    if (chapterNumber < chosenManga.chaptersCount)
+      return `Chapter already exists! It must be unique!`;
+    if (!chapterTitle) return "Chapter Title is required input!";
+    if (chapterPages.length <= 0) return "At least 1 page is required!";
     return null;
   }
 
@@ -53,6 +55,7 @@ export default function UploadChapter() {
       const states = checkStates();
       if (states) {
         emitAlert(states, "warning");
+        return;
       }
 
       setLoading(true);
@@ -148,12 +151,17 @@ export default function UploadChapter() {
 
           <div className="relative flex flex-1 flex-col">
             <input
+              required
               placeholder="Choose a manga series"
               name="manga-input"
-              className="admin-input-style"
+              className="admin-input-style peer"
               value={mangaTitle ?? ""}
               onChange={(e) => handleInput(e)}
             />
+
+            <p className="text-red-500 text-sm mt-1 hidden peer-invalid:block">
+              Choose manga before uploading chapters!
+            </p>
 
             {showDropdown && (
               <>
