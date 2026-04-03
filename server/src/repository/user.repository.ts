@@ -1,12 +1,23 @@
-import UserModel from "@models/user.model.js";
+import UserModel, { User } from "@models/user.model.js";
 import logger from "@config/logger.js";
+import { ClientSession } from "mongoose";
+import {
+  BadRequestError,
+  ConflictError,
+  InternalRepositoryError,
+  NotFoundError,
+} from "@errors/Error.js";
+import { getErrorMessage } from "@errors/error.utils.js";
 
-export const findUserByEmail = async (email: string) => {
+export const findUserByEmail = async (email: string): Promise<User> => {
   if (!email) {
-    throw new Error("Email is required to find a user");
+    throw new BadRequestError("Email is required to find a user");
   }
   try {
     const user = await UserModel.findOne({ email });
+    if (!user) {
+      throw new NotFoundError("User not Found");
+    }
     return user;
   } catch (error) {
     logger.error("Failed to find user", {
@@ -14,35 +25,55 @@ export const findUserByEmail = async (email: string) => {
       operation: "findUserByEmail",
       email,
     });
+
+    throw new InternalRepositoryError("Failed to find user by email", {
+      message: getErrorMessage(error),
+    });
   }
 };
 
-export const createUser = async (userData: {
-  email: string;
-  password: string;
-}) => {
-  if (!userData.email || !userData.password) {
-    throw new Error("Email and Password are required to create a user");
+export const createUser = async (
+  userData: {
+    email: string;
+    hashedPassword: string;
+    username: string;
+  },
+  session?: ClientSession,
+): Promise<User> => {
+  if (!userData.email || !userData.hashedPassword) {
+    throw new BadRequestError(
+      "Email and Password are required to create a user",
+    );
   }
   try {
-    // TODO hash password before saving
+    const isSession = session ? { session } : {};
+
+    const user = await UserModel.findOne({ email: userData.email });
+
+    if (user) {
+      throw new ConflictError("User with this email already exists");
+    }
+
     const newUser = new UserModel(userData);
-    return await newUser.save();
+    return await newUser.save(isSession);
   } catch (error) {
     logger.error("Failed to create user", {
       error,
       operation: "createUser",
     });
-    throw error;
+    throw new InternalRepositoryError("Failed to create user", {
+      message: getErrorMessage(error),
+    });
   }
 };
 
 export const findUserById = async (userId: string) => {
   if (!userId) {
-    throw new Error("User ID is required to find a user");
+    throw new BadRequestError("User ID is required to find a user");
   }
   try {
     const user = await UserModel.findById(userId);
+    if (!user) throw new NotFoundError("User not found");
     return user;
   } catch (error) {
     logger.error("Failed to fetch user", {
@@ -50,18 +81,20 @@ export const findUserById = async (userId: string) => {
       operation: "findUserById",
       userId,
     });
-    throw error;
+    throw new InternalRepositoryError("Failed to find user", {
+      message: getErrorMessage(error),
+    });
   }
 };
 
 export const deleteUserById = async (userId: string) => {
   if (!userId) {
-    throw new Error("User ID is required to delete a user");
+    throw new BadRequestError("User ID is required to delete a user");
   }
   try {
     const deletedUser = await UserModel.findByIdAndDelete(userId);
     if (!deletedUser) {
-      throw new Error("User not found");
+      throw new NotFoundError("User not found");
     }
     return deletedUser;
   } catch (error) {
@@ -70,7 +103,41 @@ export const deleteUserById = async (userId: string) => {
       operation: "deleteUserById",
       userId,
     });
-    throw error;
+    throw new InternalRepositoryError("Failed to delete user", {
+      message: getErrorMessage(error),
+    });
+  }
+};
+
+export const addRefreshToken = async (
+  refreshToken: string,
+  userId: string,
+  session: ClientSession,
+): Promise<{ ok: boolean }> => {
+  if (!refreshToken) {
+    throw new BadRequestError("Can't set refresh token if none passed!");
+  }
+
+  try {
+    const user = await UserModel.findById(userId).session(session);
+
+    if (!user) {
+      throw new NotFoundError("User not found");
+    }
+
+    user.refreshToken = refreshToken;
+
+    await user.save({ session });
+
+    return { ok: true };
+  } catch (error) {
+    logger.error("Failed to add refresh token to user", {
+      error,
+      refreshToken,
+    });
+    throw new InternalRepositoryError("Failed to add refresh token to user", {
+      message: getErrorMessage(error),
+    });
   }
 };
 
@@ -79,15 +146,16 @@ export const updateUserPassword = async (
   newPassword: string,
 ) => {
   if (!userId || !newPassword) {
-    throw new Error("User ID and new password are required to update password");
+    throw new BadRequestError(
+      "User ID and new password are required to update password",
+    );
   }
   try {
     const user = await UserModel.findById(userId);
     if (!user) {
-      throw new Error("User not found");
+      throw new NotFoundError("User not found");
     }
-    // TODO: Add hashing for password before saving
-    user.passwordHash = newPassword;
+    user.hashedPassword = newPassword;
     return await user.save();
   } catch (error) {
     logger.error("Failed to update user password", {
@@ -95,18 +163,22 @@ export const updateUserPassword = async (
       operation: "updateUserPassword",
       userId,
     });
-    throw error;
+    throw new InternalRepositoryError("Failed to update password", {
+      message: getErrorMessage(error),
+    });
   }
 };
 
 export const updateUserEmail = async (userId: string, newEmail: string) => {
   if (!userId || !newEmail) {
-    throw new Error("User ID and new email are required to update email");
+    throw new BadRequestError(
+      "User ID and new email are required to update email",
+    );
   }
   try {
     const user = await UserModel.findById(userId);
     if (!user) {
-      throw new Error("User not found");
+      throw new NotFoundError("User not found");
     }
     user.email = newEmail;
     return await user.save();
@@ -116,6 +188,8 @@ export const updateUserEmail = async (userId: string, newEmail: string) => {
       operation: "updateUserEmail",
       userId,
     });
-    throw error;
+    throw new InternalRepositoryError("Failed to update user email", {
+      message: getErrorMessage(error),
+    });
   }
 };

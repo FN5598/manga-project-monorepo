@@ -2,8 +2,15 @@ import { SortInputType } from "@resolvers/manga.resolvers.js";
 import logger from "@config/logger.js";
 import ChapterModel, { Chapter } from "@models/chapter.model.js";
 import { PaginationInput } from "@resolvers/manga.resolvers.js";
-import mongoose, { ClientSession, PipelineStage, Types } from "mongoose";
+import mongoose, { ClientSession, PipelineStage } from "mongoose";
 import { DEFAULT_PAGINATION } from "@config/constants.js";
+import {
+  BadRequestError,
+  ConflictError,
+  InternalRepositoryError,
+  NotFoundError,
+} from "@errors/Error.js";
+import { getErrorMessage } from "@errors/error.utils.js";
 
 enum UploadStatus {
   DRAFT = "draft",
@@ -25,25 +32,18 @@ export async function createChapter(
 ): Promise<Chapter> {
   try {
     const { chapterNumber, title, chapterPrefix, pageCount, mangaId } = payload;
-    if (chapterNumber == null || chapterNumber < 1) {
-      throw new Error("Invalid chapterNumber");
-    }
+    if (chapterNumber == null || chapterNumber < 1)
+      throw new BadRequestError("Invalid chapterNumber");
 
-    if (!mangaId) {
-      throw new Error("mangaId is required input!");
-    }
+    if (!mangaId) throw new BadRequestError("mangaId is required input!");
 
-    if (!title.trim()) {
-      throw new Error("Invalid title");
-    }
+    if (!title.trim()) throw new BadRequestError("Invalid title");
 
-    if (!chapterPrefix.trim()) {
-      throw new Error("Invalid chapterPrefix");
-    }
+    if (!chapterPrefix.trim())
+      throw new BadRequestError("Invalid chapterPrefix");
 
-    if (pageCount == null || pageCount < 1) {
-      throw new Error("Invalid pageCount");
-    }
+    if (pageCount == null || pageCount < 1)
+      throw new BadRequestError("Invalid pageCount");
 
     const chapter = new ChapterModel({
       chapterNumber,
@@ -55,20 +55,25 @@ export async function createChapter(
     });
     await chapter.save();
 
+    if (!chapter) throw new NotFoundError("Chapter not found");
     return chapter;
   } catch (error: any) {
     if (error.code === 11000) {
       logger.error("Chapter already exists error", {
         operation: "createChapter",
       });
-      throw new Error("Chapter already exists! Chapter number must be unique");
+      throw new ConflictError(
+        "Chapter already exists! Chapter number must be unique",
+      );
     }
     logger.error("Failed to create a chapter", {
       error,
       operation: "createChapter",
       payload,
     });
-    throw error;
+    throw new InternalRepositoryError("Failed to create chapter", {
+      message: getErrorMessage(error),
+    });
   }
 }
 
@@ -76,7 +81,7 @@ export async function findChaptersByMangaId(
   mangaId: string,
 ): Promise<Chapter[]> {
   try {
-    if (!mangaId) throw new Error("mangaId is required input!");
+    if (!mangaId) throw new BadRequestError("MangaId is required input!");
     let pipeline: PipelineStage[] = [
       {
         $match: { mangaId: new mongoose.Types.ObjectId(mangaId) },
@@ -85,7 +90,7 @@ export async function findChaptersByMangaId(
 
     const chapters = await ChapterModel.aggregate(pipeline);
 
-    if (chapters.length <= 0) return [];
+    if (chapters.length <= 0) throw new NotFoundError("Chapters not found");
 
     return chapters;
   } catch (error) {
@@ -94,7 +99,9 @@ export async function findChaptersByMangaId(
       operation: "findChaptersByMangaId",
       mangaId,
     });
-    throw error;
+    throw new InternalRepositoryError("Faield to find chapters", {
+      message: getErrorMessage(error),
+    });
   }
 }
 
@@ -117,22 +124,24 @@ export async function findAllChapters(
       .limit(limit)
       .skip((page - 1) * limit);
 
-    return chapters || [];
+    if (!chapters) throw new NotFoundError("Chapters not found");
+
+    return chapters;
   } catch (error) {
     logger.error("Failed to find all chapters", {
       error,
       operation: "findAllChapters",
     });
-    throw error;
+    throw new InternalRepositoryError("Failed to find chapters", {
+      message: getErrorMessage(error),
+    });
   }
 }
 
-export async function findChapterById(
-  chapterId: string,
-): Promise<Chapter | null> {
+export async function findChapterById(chapterId: string): Promise<Chapter> {
   try {
     const chapter = await ChapterModel.findById(chapterId);
-    if (!chapter) return null;
+    if (!chapter) throw new NotFoundError("Chapter not found");
 
     return chapter;
   } catch (error) {
@@ -141,7 +150,9 @@ export async function findChapterById(
       operation: "findChapterByMangaId",
       chapterId,
     });
-    throw error;
+    throw new InternalRepositoryError("Failed to find chapter", {
+      message: getErrorMessage(error),
+    });
   }
 }
 
@@ -150,7 +161,7 @@ export async function deleteChaptersByMangaId(
   session: ClientSession,
 ): Promise<{ deletedCount: number; deletedIds: string[] }> {
   try {
-    if (!mangaId) throw new Error("MangaId is reuqired input");
+    if (!mangaId) throw new BadRequestError("MangaId is required input");
 
     const deletedChapters = await ChapterModel.find({
       mangaId,
@@ -173,6 +184,8 @@ export async function deleteChaptersByMangaId(
       operation: "deleteChaptersByMangaId",
       mangaId,
     });
-    throw error;
+    throw new InternalRepositoryError("Failed to delete chapters", {
+      message: getErrorMessage(error),
+    });
   }
 }

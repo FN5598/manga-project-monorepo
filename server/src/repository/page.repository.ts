@@ -2,7 +2,10 @@ import logger from "@config/logger.js";
 import PageModel, { Page } from "@models/page.model.js";
 import { PaginationInput, SortInputType } from "@resolvers/manga.resolvers.js";
 import { ClientSession, PipelineStage, Types } from "mongoose";
-import { DEFAULT_PAGINATION, SortInput } from "@config/constants.js";
+import { DEFAULT_PAGINATION } from "@config/constants.js";
+import { BadRequestError, InternalRepositoryError } from "@errors/Error.js";
+import { getErrorMessage } from "@errors/error.utils.js";
+
 export type CreatePagesPayload = {
   chapterId: string;
   pages: {
@@ -17,8 +20,8 @@ export async function createPages(
   try {
     const { chapterId, pages } = payload;
 
-    if (!chapterId) throw new Error("Chapter id is required");
-    if (pages.length <= 0) throw new Error("Invalid pages payload");
+    if (!chapterId) throw new BadRequestError("Chapter id is required");
+    if (pages.length <= 0) throw new BadRequestError("Invalid pages payload");
 
     const pagesToUpload = pages.map((page, index) => ({
       chapter: new Types.ObjectId(chapterId),
@@ -30,13 +33,15 @@ export async function createPages(
     const newPages = await PageModel.insertMany(pagesToUpload);
 
     return newPages;
-  } catch (error) {
+  } catch (error: unknown) {
     logger.error("Failed to create pages", {
       error,
       opertaion: "createPages",
       payload,
     });
-    throw error;
+    throw new InternalRepositoryError("Failed to create Page", {
+      message: getErrorMessage(error),
+    });
   }
 }
 
@@ -45,7 +50,8 @@ export async function getPagesByChapterId(
   pagination: PaginationInput,
   sort: SortInputType,
 ): Promise<Page[]> {
-  if (!chapterId) throw new Error("chapterId is required to fetch pages!");
+  if (!chapterId)
+    throw new BadRequestError("ChapterId is required to fetch pages!");
   try {
     const page = pagination?.page ?? DEFAULT_PAGINATION.page;
     const limit = pagination?.limit
@@ -80,16 +86,16 @@ export async function getPagesByChapterId(
 
     const chapters = await PageModel.aggregate(pipeline);
 
-    if (chapters.length <= 0) return [];
-
     return chapters;
-  } catch (error) {
+  } catch (error: unknown) {
     logger.error("Failed to get pages for chapter", {
       error,
       operation: "getPagesByChapterId",
       chapterId,
     });
-    throw error;
+    throw new InternalRepositoryError("Failed to get pages by chapter Id", {
+      message: getErrorMessage(error),
+    });
   }
 }
 
@@ -99,7 +105,7 @@ export async function deletePagesByChapterIds(
 ): Promise<{ deletedCount: number; deletedPageIds: string[] }> {
   try {
     if (!Array.isArray(chapterIds) || chapterIds.length <= 0)
-      throw new Error("chapterIds must be a valid input");
+      throw new BadRequestError("ChapterIds must be a valid input");
 
     const deletedPages = await PageModel.find({
       chapter: { $in: chapterIds },
@@ -122,6 +128,8 @@ export async function deletePagesByChapterIds(
       operation: "deletePagesByChapterIds",
       chapterIds,
     });
-    throw error;
+    throw new InternalRepositoryError("Faied to delete page by chapter id", {
+      message: getErrorMessage(error),
+    });
   }
 }
