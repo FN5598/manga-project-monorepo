@@ -1,4 +1,3 @@
-import "dotenv/config";
 // Pagination constants and types
 export type Pagination = {
   page: number;
@@ -8,6 +7,11 @@ export type Pagination = {
 export enum SortInput {
   ASC = "asc",
   DESC = "desc",
+}
+
+export enum FileType {
+  preview = "PREVIEW",
+  page = "PAGE",
 }
 
 export const DEFAULT_PAGINATION: Required<Pagination> = {

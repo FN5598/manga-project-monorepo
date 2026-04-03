@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import { uploadManga } from "@repository/manga.repository.js";
 import logger from "@config/logger.js";
 import * as mangaRepository from "@repository/manga.repository.js";
@@ -9,7 +9,6 @@ import {
   updateMangaSchema,
   uploadMangaSchema,
 } from "src/validators/manga.validators.js";
-import { errorHandler } from "@errors/error.utils.js";
 import mongoose from "mongoose";
 import { InternalControllerError } from "@errors/Error.js";
 
@@ -29,7 +28,11 @@ export type UpdateMangaPayload = {
   }[];
 };
 
-export async function uploadMangaController(req: Request, res: Response) {
+export async function uploadMangaController(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
   try {
     const { mangaData } = validateInput(uploadMangaSchema, req.body);
 
@@ -42,15 +45,15 @@ export async function uploadMangaController(req: Request, res: Response) {
       mangaData: uploadedManga,
     });
   } catch (error) {
-    logger.error("Failed to upload manga to DB", {
-      error,
-      operation: "uploadMangaController",
-    });
-    throw error;
+    next(error);
   }
 }
 
-export async function updateMangaController(req: Request, res: Response) {
+export async function updateMangaController(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
   try {
     const { chapter, pages, manga } = validateInput(
       updateMangaSchema,
@@ -121,6 +124,6 @@ export async function updateMangaController(req: Request, res: Response) {
       chapterId: transactionData.chapterId,
     });
   } catch (error) {
-    errorHandler(error, req, res);
+    next(error);
   }
 }

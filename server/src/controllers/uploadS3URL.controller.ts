@@ -1,12 +1,11 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { MAX_PREVIEW_SIZE } from "@config/constants.js";
+import { FileType, MAX_PREVIEW_SIZE } from "@config/constants.js";
 import { randomUUID } from "crypto";
 import { s3 } from "@config/aws.config.js";
 import logger from "@config/logger.js";
 import { ENV } from "src/validators/env.validators.js";
-import { errorHandler } from "@errors/error.utils.js";
 import { validateInput } from "@validators/validator.utils.js";
 import { uploadImageDataSchema } from "@validators/uploadS3.validator.js";
 
@@ -14,10 +13,6 @@ const ALLOWED_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 
 type AllowedImageUploadTypes = "image/jpeg" | "image/png" | "image/webp";
 
-export enum FileType {
-  preview = "PREVIEW",
-  page = "PAGE",
-}
 
 type ChapterUpload = {
   fileName: string;
@@ -69,7 +64,11 @@ function getPrefix(type: FileType) {
   }
 }
 
-export async function createS3UploadURL(req: Request, res: Response) {
+export async function createS3UploadURL(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
   const isMangaUpload = parseBooleanQuery(req.query.manga);
   const isChapterUpload = parseBooleanQuery(req.query.chapter);
 
@@ -236,6 +235,6 @@ export async function createS3UploadURL(req: Request, res: Response) {
       chapters: chapterUploads,
     });
   } catch (error) {
-    errorHandler(error, req, res);
+    next(error);
   }
 }

@@ -1,0 +1,23 @@
+info:
+  name: Sign Up
+  type: http
+  seq: 6
+
+http:
+  method: POST
+  url: "{{BASE_URL}}/api/auth/sign-up"
+  body:
+    type: json
+    data: |-
+      {
+        "username": "Cross Guild",
+        "email": "guild@cross.ua.com",
+        "password": "crossguild"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

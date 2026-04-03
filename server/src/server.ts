@@ -14,6 +14,7 @@ import { ChapterResolver } from "@resolvers/chapter.resolvers.js";
 import { PageResolver } from "@resolvers/page.resolvers.js";
 import chapterRouter from "@rest/chapter.routes.js";
 import authRouter from "@rest/auth.routes.js";
+import { errorHandler } from "@errors/error.utils.js";
 
 async function main() {
   await connectToDb(); // connect to MongoDB before starting the server to ensure DB is available for resolvers
@@ -45,6 +46,9 @@ async function main() {
   app.use("/api/genres", genresRouter);
   app.use("/api/chapter", chapterRouter);
   app.use("/api/auth", authRouter);
+
+  // ? Custom error handler
+  app.use(errorHandler);
 
   app.listen(4000, () => {
     console.log(

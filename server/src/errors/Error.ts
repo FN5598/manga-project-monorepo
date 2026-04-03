@@ -51,3 +51,9 @@ export class InternalControllerError extends AppError {
     super(500, "INTERNAL_CONTROLLER_ERROR", message);
   }
 }
+
+export class UnauthorizedError extends AppError {
+  constructor(message: string = "Session expired") {
+    super(401, "REFRESH_TOKEN_EXPIRED", message);
+  }
+}

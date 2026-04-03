@@ -1,12 +1,12 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import * as genreRepository from "@repository/genre.repository.js";
 import logger from "@config/logger.js";
-import { errorHandler } from "@errors/error.utils.js";
 
-/**
- * Public endpoint
- */
-export async function getAllGenresController(req: Request, res: Response) {
+export async function getAllGenresController(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
   try {
     const genres = await genreRepository.getAllGenres();
     if (genres) {
@@ -19,6 +19,6 @@ export async function getAllGenresController(req: Request, res: Response) {
       });
     }
   } catch (error) {
-    errorHandler(error, req, res);
+    next(error);
   }
 }

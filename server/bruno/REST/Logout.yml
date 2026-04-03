@@ -1,0 +1,21 @@
+info:
+  name: Logout
+  type: http
+  seq: 9
+
+http:
+  method: POST
+  url: "{{BASE_URL}}/api/auth/logout"
+  body:
+    type: json
+    data: |-
+      {
+        "userId": "{{?userId (69d0200860124058836d974d)}}"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

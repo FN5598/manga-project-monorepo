@@ -1,8 +1,9 @@
+import "reflect-metadata";
 import { z } from "zod";
 import { GraphQLError } from "graphql";
+import { FileType } from "@config/constants.js";
 import logger from "@config/logger.js";
 import { InputValidationError } from "@errors/Error.js";
-import { FileType } from "@controllers/uploadS3URL.controller.js";
 
 export const formatIssues = (error: z.ZodError): FormatReturn[] =>
   error.issues.map((issue) => {

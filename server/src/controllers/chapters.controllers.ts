@@ -1,8 +1,7 @@
 import logger from "@config/logger.js";
-import { Response, Request } from "express";
+import { Response, Request, NextFunction } from "express";
 import * as chapterRepository from "@repository/chapter.repository.js";
 import * as pageRepository from "@repository/page.repository.js";
-import { errorHandler } from "@errors/error.utils.js";
 import { validateInput } from "@validators/validator.utils.js";
 import * as chapterValidator from "@validators/chapter.validators.js";
 import mongoose from "mongoose";
@@ -18,7 +17,11 @@ export type addChapterPayload = {
   }[];
 };
 
-export async function addChapterToMangaController(req: Request, res: Response) {
+export async function addChapterToMangaController(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
   const session = await mongoose.startSession();
   try {
     const { mangaId, chapterTitle, chapterNumber, pages } = validateInput(
@@ -60,7 +63,7 @@ export async function addChapterToMangaController(req: Request, res: Response) {
     });
   } catch (error) {
     await session.abortTransaction();
-    errorHandler(error, req, res);
+    next(error);
   } finally {
     await session.endSession();
   }

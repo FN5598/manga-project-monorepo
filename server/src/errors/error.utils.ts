@@ -1,12 +1,22 @@
-import { Response, Request } from "express";
+import { Response, Request, NextFunction } from "express";
 import { AppError } from "./Error.js";
 import logger from "@config/logger.js";
 
-export function errorHandler(error: unknown, req: Request, res: Response) {
+export function errorHandler(
+  error: unknown,
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  if (res.headersSent) {
+    return next(error);
+  }
+
   if (error instanceof AppError) {
     return res.status(error.statusCode).json({
       message: error.message,
       code: error.code,
+      ...(error.errorInfo ? { errorInfo: error.errorInfo } : {}),
     });
   }
 
