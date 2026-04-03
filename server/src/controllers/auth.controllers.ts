@@ -21,6 +21,7 @@ import {
   UnauthorizedError,
 } from "@errors/Error.js";
 import { UserRole } from "@models/user.model.js";
+import logger from "@config/logger.js";
 
 type SignUpPayload = {
   email: string;
@@ -87,6 +88,11 @@ export async function signUpController(
       responsePayload.refreshToken,
     );
 
+    logger.info("Sign Up controller called", {
+      email,
+      username,
+      hashedPassword,
+    });
     return res.status(201).json({
       message: "Successfully signed up",
     });
@@ -177,6 +183,9 @@ export async function refreshAccessTokenController(
 
     setAccessTokenCookie(res, newAccessToken);
 
+    logger.info("refresh access token controller called", {
+      userId,
+    });
     return res.status(200).json({
       message: "Successfully refreshed access token",
       code: "SUCCESS",
@@ -202,6 +211,9 @@ export async function logoutController(
 
     clearAuthCookies(res);
 
+    logger.info("Logout controller called", {
+      userId,
+    });
     return res.status(200).json({
       message: "Successfully logged out",
     });
