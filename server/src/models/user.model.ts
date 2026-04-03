@@ -1,19 +1,32 @@
-import { prop, getModelForClass, pre } from "@typegoose/typegoose";
+import {
+  prop,
+  getModelForClass,
+  pre,
+  modelOptions,
+  index,
+} from "@typegoose/typegoose";
 import { EMAIL_REGEX } from "../config/regex.js";
 import { Field, ID, ObjectType } from "type-graphql";
 
-enum UserRole {
+export enum UserRole {
   ADMIN = "ADMIN",
   USER = "USER",
   EDITOR = "EDITOR",
 }
 
-pre<User>("save", function () {
+@index({ email: 1 }, { unique: true })
+@modelOptions({
+  schemaOptions: {
+    timestamps: true,
+    collection: "users",
+  },
+})
+@pre<User>("save", function () {
   if (!EMAIL_REGEX.test(this.email)) {
     throw new Error("Invalid email format");
   }
-});
-ObjectType();
+})
+@ObjectType()
 export class User {
   @Field(() => ID)
   readonly _id!: string;
@@ -30,12 +43,14 @@ export class User {
     required: true,
     type: () => String,
   })
-  name!: string;
+  username!: string;
 
   @Field(() => UserRole)
   @prop({
     required: true,
-    type: () => UserRole,
+    type: () => String,
+    enum: UserRole,
+    default: UserRole.USER,
   })
   role!: UserRole;
 
@@ -44,7 +59,12 @@ export class User {
     required: true,
     type: () => String,
   })
-  passwordHash!: string;
+  hashedPassword!: string;
+
+  @prop({
+    type: () => String,
+  })
+  refreshToken?: string;
 
   @Field(() => Date)
   createdAt!: Date;
