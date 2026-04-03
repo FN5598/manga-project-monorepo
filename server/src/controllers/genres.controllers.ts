@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import * as genreRepository from "@repository/genre.repository.js";
 import logger from "@config/logger.js";
+import { errorHandler } from "@errors/error.utils.js";
 
 /**
  * Public endpoint
@@ -18,10 +19,6 @@ export async function getAllGenresController(req: Request, res: Response) {
       });
     }
   } catch (error) {
-    logger.error("Failed to get all genres", {
-      error,
-      operation: "getAllGenresControllers",
-    });
-    throw error;
+    errorHandler(error, req, res);
   }
 }

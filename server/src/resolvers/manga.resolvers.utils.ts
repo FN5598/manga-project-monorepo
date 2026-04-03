@@ -1,6 +1,6 @@
 import { s3 } from "@config/aws.config.js";
 import { DeleteObjectsCommand, ListObjectsV2Command } from "@aws-sdk/client-s3";
-import { S3_BUCKET_NAME } from "@config/constants.js";
+import { ENV } from "src/validators/env.validators.js";
 import logger from "@config/logger.js";
 
 export async function deleteFolderFromS3(prefix: string) {
@@ -9,7 +9,7 @@ export async function deleteFolderFromS3(prefix: string) {
     do {
       const listed = await s3.send(
         new ListObjectsV2Command({
-          Bucket: S3_BUCKET_NAME,
+          Bucket: ENV?.S3_BUCKET_NAME,
           Prefix: prefix,
           ContinuationToken: continuationToken,
         }),
@@ -19,7 +19,7 @@ export async function deleteFolderFromS3(prefix: string) {
       if (contents.length) {
         await s3.send(
           new DeleteObjectsCommand({
-            Bucket: S3_BUCKET_NAME,
+            Bucket: ENV?.S3_BUCKET_NAME,
             Delete: {
               Objects: contents
                 .filter((obj): obj is { Key: string } => !!obj.Key)
@@ -49,7 +49,7 @@ export async function deleteManyFromS3(keys: string[]) {
   try {
     await s3.send(
       new DeleteObjectsCommand({
-        Bucket: S3_BUCKET_NAME,
+        Bucket: ENV?.S3_BUCKET_NAME,
         Delete: {
           Objects: keys.map((Key) => ({ Key })),
         },
@@ -57,7 +57,7 @@ export async function deleteManyFromS3(keys: string[]) {
     );
     logger.debug("Deleted multple objects from S3", {
       keys,
-      bucket: S3_BUCKET_NAME,
+      bucket: ENV?.S3_BUCKET_NAME,
     });
   } catch (error) {
     logger.error("Failed to delete many files from S3", {

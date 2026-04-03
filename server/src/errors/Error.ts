@@ -1,4 +1,5 @@
 interface ErorrInfo {
+  code?: string;
   message: string;
   details?: Record<string, unknown>;
 }
@@ -8,7 +9,7 @@ export class AppError extends Error {
     public statusCode: number,
     public code: string,
     message: string,
-    public errorInfo?: ErorrInfo,
+    public errorInfo?: ErorrInfo | ErorrInfo[],
   ) {
     super(message);
     this.name = "AppError";
@@ -33,8 +34,20 @@ export class BadRequestError extends AppError {
   }
 }
 
+export class InputValidationError extends AppError {
+  constructor(message = "Failed to validate input", errorInfo: ErorrInfo[]) {
+    super(400, "INPUT_VALIDATION_ERROR", message, errorInfo);
+  }
+}
+
 export class InternalRepositoryError extends AppError {
   constructor(message: string, errorInfo: ErorrInfo) {
-    super(500, "INTERNAL_SERVER_ERROR", message, errorInfo);
+    super(500, "INTERNAL_REPOSITORY_ERROR", message, errorInfo);
+  }
+}
+
+export class InternalControllerError extends AppError {
+  constructor(message: string) {
+    super(500, "INTERNAL_CONTROLLER_ERROR", message);
   }
 }

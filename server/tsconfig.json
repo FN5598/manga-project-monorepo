@@ -20,7 +20,9 @@
       "@resolvers/*": ["src/resolvers/*"],
       "@rest/*": ["src/routes/rest/*"],
       "@graphql/*": ["src/routes/graphql/*"],
-      "@tests/*": ["src/tests"]
+      "@tests/*": ["src/tests"],
+      "@validators/*": ["src/validators/*"],
+      "@errors/*": ["src/errors/*"]
     }
   }
 }

@@ -1,10 +1,17 @@
 import { Request, Response } from "express";
-import { S3_BUCKET_NAME } from "@config/constants.js";
 import { uploadManga } from "@repository/manga.repository.js";
 import logger from "@config/logger.js";
 import * as mangaRepository from "@repository/manga.repository.js";
 import * as chapterRepository from "@repository/chapter.repository.js";
 import * as pagesRepository from "@repository/page.repository.js";
+import { validateInput } from "src/validators/validator.utils.js";
+import {
+  updateMangaSchema,
+  uploadMangaSchema,
+} from "src/validators/manga.validators.js";
+import { errorHandler } from "@errors/error.utils.js";
+import mongoose from "mongoose";
+import { InternalControllerError } from "@errors/Error.js";
 
 export type UpdateMangaPayload = {
   manga: {
@@ -23,8 +30,9 @@ export type UpdateMangaPayload = {
 };
 
 export async function uploadMangaController(req: Request, res: Response) {
-  const { mangaData } = req.body; // Get upload request metadata
   try {
+    const { mangaData } = validateInput(uploadMangaSchema, req.body);
+
     const uploadedManga = await uploadManga(mangaData);
     logger.debug("uploadMangaController called", {
       data: uploadedManga,
@@ -44,108 +52,75 @@ export async function uploadMangaController(req: Request, res: Response) {
 
 export async function updateMangaController(req: Request, res: Response) {
   try {
-    const { chapter, pages, manga }: UpdateMangaPayload = req.body;
-    if (!chapter || !manga || !Array.isArray(pages)) {
-      return res
-        .status(400)
-        .json({ message: "Some of required fields are missing!" });
-    }
+    const { chapter, pages, manga } = validateInput(
+      updateMangaSchema,
+      req.body,
+    );
 
-    if (!manga._id) {
-      return res.status(400).json({
-        message: "Missing manga id",
-      });
-    }
+    const transactionData = await mongoose.connection.transaction(
+      async (session) => {
+        // 1. Update manga model
+        const updatedManga = await mangaRepository.updateManga(
+          manga._id,
+          {
+            previewKey: manga.previewKey,
+          },
+          session,
+        );
 
-    if (pages.length === 0) {
-      return res.status(400).json({
-        message: "Pages array cannot be empty",
-      });
-    }
+        logger.debug("Manga updated", {
+          operation: "updateMangaController",
+          updatedManga,
+        });
 
-    if (!pages[0]?.imageKey) {
-      return res.status(400).json({
-        message: "First page imageKey is required",
-      });
-    }
-    // 1. Update manga model
-    const mangaRes = await mangaRepository.updateManga(manga._id, {
-      previewKey: manga.previewKey,
-    });
-    if (!mangaRes) {
-      logger.warn("Manga not found during update", {
-        operation: "updateMangaController",
-        mangaId: manga._id,
-      });
+        const pageCount = pages.length;
+        const chapterPrefix =
+          pages[0].imageKey.split("/").slice(0, -1).join("/") + "/";
 
-      return res.status(404).json({
-        message: "Manga not found",
-      });
-    }
+        // 2. Update Chapter info
+        const createdChapter = await chapterRepository.createChapter(
+          {
+            mangaId: updatedManga._id,
+            pageCount,
+            chapterPrefix,
+            ...chapter,
+          },
+          session,
+        );
 
-    logger.debug("Manga updated", {
-      operation: "updateMangaController",
-      mangaId: manga._id,
-      mangaRes,
-    });
+        logger.debug("Chapter created", {
+          operation: "updateMangaController",
+          createdChapter,
+        });
 
-    const pageCount = pages.length;
-    const chapterPrefix =
-      pages[0].imageKey.split("/").slice(0, -1).join("/") + "/";
+        // 3. Fill in the Pages model
+        const pagesRes = await pagesRepository.createPages(
+          {
+            chapterId: createdChapter._id,
+            pages,
+          },
+          session,
+        );
+        logger.debug("Pages created", {
+          operation: "updateMangaController",
+          pagesCount: Array.isArray(pagesRes) ? pagesRes.length : undefined,
+        });
 
-    // 2. Update Chapter info
-    const chapterRes = await chapterRepository.createChapter({
-      mangaId: mangaRes._id,
-      pageCount,
-      chapterPrefix,
-      ...chapter,
-    });
-    if (!chapterRes?._id) {
-      logger.error("Chapter creation returned invalid result", {
-        operation: "updateMangaController",
-        mangaId: manga._id,
-        chapter,
-      });
+        return { chapterId: createdChapter._id };
+      },
+    );
 
-      return res.status(500).json({
-        message: "Failed to create chapter",
-      });
-    }
-
-    logger.debug("Chapter created", {
-      operation: "updateMangaController",
-      mangaId: manga._id,
-      chapterId: chapterRes._id,
-      chapterRes,
-    });
-
-    // 3. Fill in the Pages model
-    const pagesRes = await pagesRepository.createPages({
-      chapterId: chapterRes._id,
-      pages,
-    });
-    logger.debug("Pages created", {
-      operation: "updateMangaController",
-      mangaId: manga._id,
-      chapterId: chapterRes._id,
-      pagesCount: Array.isArray(pagesRes) ? pagesRes.length : undefined,
-    });
+    if (!transactionData)
+      throw new InternalControllerError(
+        "Update manga transaction completed without response payload",
+      );
 
     return res.status(200).json({
       message: "Successfully updated manga",
       mangaId: manga._id,
-      chapterId: chapterRes._id,
+      chapterId: transactionData.chapterId,
     });
-  } catch (error: any) {
-    if (error.code === 11000) {
-      return res.status(400).json({
-        message: "Manga already exists",
-      });
-    }
-    logger.error("Failed to update manga", {
-      error,
-      operation: "updateMangaController",
-    });
-    throw error;
+  } catch (error) {
+    errorHandler(error, req, res);
   }
 }

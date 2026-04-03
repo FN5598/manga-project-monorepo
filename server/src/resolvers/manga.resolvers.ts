@@ -1,4 +1,4 @@
-import { AWS_REGION, S3_BUCKET_NAME, SortInput } from "../config/constants.js";
+import { SortInput } from "../config/constants.js";
 import * as mangaRepository from "../repository/manga.repository.js";
 import { Manga } from "@models/manga.model.js";
 import {
@@ -17,9 +17,10 @@ import * as chapterRepository from "@repository/chapter.repository.js";
 import * as pagesRepository from "@repository/page.repository.js";
 import logger from "@config/logger.js";
 import mongoose from "mongoose";
+import { ENV } from "src/validators/env.validators.js";
 
 export function getUrlForImage(previewKey: string): string {
-  return `https://${S3_BUCKET_NAME}.s3.${AWS_REGION}.amazonaws.com/${previewKey.split("/").map(encodeURIComponent).join("/")}`;
+  return `https://${ENV?.S3_BUCKET_NAME}.s3.${ENV?.AWS_REGION}.amazonaws.com/${previewKey.split("/").map(encodeURIComponent).join("/")}`;
 }
 
 @InputType()

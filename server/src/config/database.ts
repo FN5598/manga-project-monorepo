@@ -1,8 +1,9 @@
 import mongoose from "mongoose";
 import chalk from "chalk";
+import { ENV } from "src/validators/env.validators.js";
 
 export const connectToDb = async (): Promise<void> => {
-  const uri = process.env.MONGO_URI;
+  const uri = ENV?.MONGO_URI;
   if (!uri) {
     console.error(
       chalk.red("[ERROR]:"),

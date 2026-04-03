@@ -17,6 +17,7 @@ import { getErrorMessage } from "@errors/error.utils.js";
 export async function updateManga(
   mangaId: string,
   updateData: Partial<Manga>,
+  session: ClientSession,
 ): Promise<Manga> {
   if (!mangaId) throw new BadRequestError("MangaId is required input");
   if (!updateData) throw new BadRequestError("Update fields are required");
@@ -25,7 +26,7 @@ export async function updateManga(
       mangaId,
       updateData,
       { new: true },
-    );
+    ).session(session);
     if (!updatedManga) {
       throw new NotFoundError("Manga not found");
     }

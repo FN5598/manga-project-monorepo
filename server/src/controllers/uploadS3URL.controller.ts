@@ -1,10 +1,14 @@
 import { Request, Response } from "express";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { S3_BUCKET_NAME, MAX_PREVIEW_SIZE } from "@config/constants.js";
+import { MAX_PREVIEW_SIZE } from "@config/constants.js";
 import { randomUUID } from "crypto";
 import { s3 } from "@config/aws.config.js";
 import logger from "@config/logger.js";
+import { ENV } from "src/validators/env.validators.js";
+import { errorHandler } from "@errors/error.utils.js";
+import { validateInput } from "@validators/validator.utils.js";
+import { uploadImageDataSchema } from "@validators/uploadS3.validator.js";
 
 const ALLOWED_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 
@@ -23,13 +27,13 @@ type ChapterUpload = {
 };
 
 type UploadImageData = {
-  fileName?: string;
-  contentType?: AllowedImageUploadTypes;
-  mangaId?: string;
-  mangaChapter?: number;
-  size?: number;
-  type?: FileType;
-  chapters?: ChapterUpload[];
+  fileName: string;
+  contentType: AllowedImageUploadTypes;
+  mangaId: string;
+  mangaChapter: number;
+  size: number;
+  type: FileType;
+  chapters: ChapterUpload[];
 };
 
 function parseBooleanQuery(value: unknown): boolean {
@@ -89,7 +93,7 @@ export async function createS3UploadURL(req: Request, res: Response) {
     size,
     type,
     chapters = [],
-  }: UploadImageData = req.body;
+  }: Partial<UploadImageData> = validateInput(uploadImageDataSchema, req.body);
 
   // Shared required fields
   if (!mangaId || mangaChapter == null) {
@@ -165,7 +169,7 @@ export async function createS3UploadURL(req: Request, res: Response) {
         )}/${mangaChapter}/${randomUUID()}.${chapterExt}`;
 
         const chapterCommand = new PutObjectCommand({
-          Bucket: S3_BUCKET_NAME,
+          Bucket: ENV?.S3_BUCKET_NAME,
           Key: chapterKey,
           ContentType: chapter.contentType,
         });
@@ -205,7 +209,7 @@ export async function createS3UploadURL(req: Request, res: Response) {
     )}/${randomUUID()}.${previewExt}`;
 
     const previewCommand = new PutObjectCommand({
-      Bucket: S3_BUCKET_NAME,
+      Bucket: ENV?.S3_BUCKET_NAME,
       Key: previewKey,
       ContentType: contentType,
     });
@@ -232,11 +236,6 @@ export async function createS3UploadURL(req: Request, res: Response) {
       chapters: chapterUploads,
     });
   } catch (error) {
-    logger.error("Failed to create S3 upload URLs", {
-      error,
-      operation: "createS3UploadURL",
-    });
-
-    return res.status(500).json({ message: "Failed to create S3 upload URLs" });
+    errorHandler(error, req, res);
   }
 }

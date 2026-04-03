@@ -11,16 +11,11 @@ http:
     data: |-
       {
         "mangaData": {
-          "title": "One Piece",
-          "author": "Oda",
-          "description": "SUPER AMAZING MANGA TOP BEST COOL",
+          "title": " ",
+          "author": " ",
+          "description": " ",
           "status": "ongoing",
-          "genres": [
-            "69b1a3204cf95764efd309b3",
-            "69b1a3204cf95764efd309b4",
-            "69b1a3204cf95764efd309b5",
-            "69b1a3204cf95764efd309b6"
-          ]
+          "genres": {}
         }
       }
   auth: inherit

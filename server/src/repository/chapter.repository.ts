@@ -29,6 +29,7 @@ export type createChapterPayload = {
 
 export async function createChapter(
   payload: createChapterPayload,
+  session: ClientSession,
 ): Promise<Chapter> {
   try {
     const { chapterNumber, title, chapterPrefix, pageCount, mangaId } = payload;
@@ -45,7 +46,12 @@ export async function createChapter(
     if (pageCount == null || pageCount < 1)
       throw new BadRequestError("Invalid pageCount");
 
-    const chapter = new ChapterModel({
+    const chapter = await ChapterModel.find({ chapterNumber }).session(session);
+
+    if (chapter)
+      throw new ConflictError(`Chapter ${chapterNumber} already exists`);
+
+    const createdChapter = new ChapterModel({
       chapterNumber,
       title,
       storagePrefix: chapterPrefix,
@@ -53,10 +59,10 @@ export async function createChapter(
       uploadStatus: UploadStatus.READY,
       mangaId,
     });
-    await chapter.save();
+    await createdChapter.save({ session });
 
-    if (!chapter) throw new NotFoundError("Chapter not found");
-    return chapter;
+    if (!createdChapter) throw new NotFoundError("Chapter not found");
+    return createdChapter;
   } catch (error: any) {
     if (error.code === 11000) {
       logger.error("Chapter already exists error", {

@@ -16,6 +16,7 @@ export type CreatePagesPayload = {
 
 export async function createPages(
   payload: CreatePagesPayload,
+  session: ClientSession,
 ): Promise<Page[]> {
   try {
     const { chapterId, pages } = payload;
@@ -30,7 +31,7 @@ export async function createPages(
       pageNumber: index + 1,
     }));
 
-    const newPages = await PageModel.insertMany(pagesToUpload);
+    const newPages = await PageModel.insertMany(pagesToUpload, { session });
 
     return newPages;
   } catch (error: unknown) {

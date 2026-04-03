@@ -4,7 +4,6 @@ import { ApolloServer } from "@apollo/server";
 import { expressMiddleware } from "@as-integrations/express4";
 import chalk from "chalk";
 import { connectToDb } from "@config//database.js";
-import dotenv from "dotenv";
 import mangaRouter from "@rest/manga.routes.js";
 import uploadsRouter from "@rest/access.routes.js";
 import cors from "cors";
@@ -14,8 +13,7 @@ import { MangaResolver } from "@resolvers/manga.resolvers.js";
 import { ChapterResolver } from "@resolvers/chapter.resolvers.js";
 import { PageResolver } from "@resolvers/page.resolvers.js";
 import chapterRouter from "@rest/chapter.routes.js";
-
-dotenv.config(); // Load environment variables from .env file
+import authRouter from "@rest/auth.routes.js";
 
 async function main() {
   await connectToDb(); // connect to MongoDB before starting the server to ensure DB is available for resolvers
@@ -46,6 +44,7 @@ async function main() {
   app.use("/api/uploads", uploadsRouter);
   app.use("/api/genres", genresRouter);
   app.use("/api/chapter", chapterRouter);
+  app.use("/api/auth", authRouter);
 
   app.listen(4000, () => {
     console.log(
