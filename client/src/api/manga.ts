@@ -73,6 +73,7 @@ export const mangaApi = createApi({
 
   baseQuery: fetchBaseQuery({
     baseUrl: `${BASE_URL}`,
+    credentials: "include",
   }),
 
   endpoints: (builder) => ({

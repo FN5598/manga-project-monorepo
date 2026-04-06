@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Suspense, lazy } from "react";
 import { ToastContainer, Zoom } from "react-toastify";
 
+const Signup = lazy(() => import("./Pages/SignupPage"));
 const Login = lazy(() => import("./Pages/LoginPage"));
 const DiscoverPage = lazy(() => import("./Pages/DiscoverPage"));
 const MangaPage = lazy(() => import("./Pages/MangaPage"));
@@ -37,6 +38,7 @@ function App() {
         <Suspense>
           <Routes>
             <Route path="discover" element={<DiscoverPage />} />
+            <Route path="/sign-up" element={<Signup />} />
             <Route path="/login" element={<Login />} />
             <Route path="/manga/:mangaId" element={<MangaPage />} />
             <Route

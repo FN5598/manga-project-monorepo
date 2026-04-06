@@ -1,6 +1,6 @@
 import type React from "react";
 import { useState } from "react";
-import { useLoginMutation } from "../api/auth";
+import { useSignUpMutation } from "../api/auth";
 import { emitAlert } from "..";
 import type { ApiError } from "../Components/AdminComponents/UploadManga";
 import { useNavigate } from "react-router-dom";
@@ -27,19 +27,21 @@ function getErrorMessage(error: unknown) {
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const [trigger] = useLoginMutation();
+  const [trigger] = useSignUpMutation();
 
   function checkInputs(): null | string {
-    if (!email) return "Email is required for login";
-    if (!password) return "Password is required for login";
+    if (!email) return "Email is required for sign up";
+    if (!username) return "Username is required for sign up!";
+    if (!password) return "Password is required for sign up";
     return null;
   }
 
-  async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (loading) return;
     const inputs = checkInputs();
@@ -53,6 +55,7 @@ export default function LoginPage() {
       const response = await trigger({
         email,
         password,
+        username,
       }).unwrap();
 
       emitAlert(`${response.message || "message"}`, "info");
@@ -69,6 +72,9 @@ export default function LoginPage() {
     switch (name) {
       case "email-input":
         setEmail(value);
+        break;
+      case "username-input":
+        setUsername(value);
         break;
       case "password-input":
         setPassword(value);
@@ -93,7 +99,7 @@ export default function LoginPage() {
 
       <div className="relative z-10 w-full max-w-md text-center">
         <div className="mb-5 inline-flex rounded-full bg-[#f2d43d] px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm">
-          MangaDictionary Login
+          MangaDictionary Signup
         </div>
 
         <h1 className="mb-8 text-5xl font-extrabold tracking-tight text-[#0b1730]">
@@ -114,6 +120,19 @@ export default function LoginPage() {
                 type="email"
                 name="email-input"
                 value={email}
+                onChange={(e) => handleInput(e)}
+                className="h-12 w-full rounded-xl border border-transparent bg-white px-4 text-slate-700 outline-none ring-0 placeholder:text-slate-400 focus:border-slate-300"
+              />
+            </div>
+
+            <div>
+              <label className="mb-2 block text-sm font-medium text-slate-600">
+                Username
+              </label>
+              <input
+                type="text"
+                name="username-input"
+                value={username}
                 onChange={(e) => handleInput(e)}
                 className="h-12 w-full rounded-xl border border-transparent bg-white px-4 text-slate-700 outline-none ring-0 placeholder:text-slate-400 focus:border-slate-300"
               />
@@ -153,7 +172,7 @@ export default function LoginPage() {
               type="submit"
               className="h-12 w-full rounded-xl bg-[#07122e] text-base font-semibold text-white shadow-[0_10px_24px_rgba(7,18,46,0.28)] transition hover:translate-y-px cursor-pointer"
             >
-              Login
+              Sign Up
             </button>
 
             <div className="py-1">

@@ -53,6 +53,7 @@ export const chaptersApi = createApi({
 
   baseQuery: fetchBaseQuery({
     baseUrl: BASE_URL,
+    credentials: "include",
   }),
 
   endpoints: (builder) => ({

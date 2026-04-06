@@ -48,12 +48,18 @@ export default function Header({ sticky }: HeaderProps) {
           </div>
 
           <div className="hidden items-center gap-3 lg:flex">
-            <button className="rounded-xl px-4 py-2 font-semibold text-slate-700 transition hover:bg-slate-100 cursor-pointer">
+            <NavLink
+              to="/login"
+              className="rounded-xl px-4 py-2 font-semibold text-slate-700 transition hover:bg-slate-100 cursor-pointer"
+            >
               Log In
-            </button>
-            <button className="rounded-xl bg-slate-950 px-4 py-2 font-semibold text-white transition hover:bg-slate-800 cursor-pointer">
+            </NavLink>
+            <NavLink
+              to="/sign-up"
+              className="rounded-xl bg-slate-950 px-4 py-2 font-semibold text-white transition hover:bg-slate-800 cursor-pointer"
+            >
               Sign Up
-            </button>
+            </NavLink>
           </div>
 
           <button
@@ -110,12 +116,18 @@ export default function Header({ sticky }: HeaderProps) {
             </nav>
 
             <div className="mt-auto flex flex-col gap-3 border-t border-slate-200 pt-5">
-              <button className="rounded-xl px-4 py-3 font-semibold text-slate-700 transition hover:bg-slate-100">
+              <NavLink
+                to="/login"
+                className="rounded-xl px-4 py-3 font-semibold text-slate-700 transition hover:bg-slate-100"
+              >
                 Log In
-              </button>
-              <button className="rounded-xl bg-slate-950 px-4 py-3 font-semibold text-white transition hover:bg-slate-800">
+              </NavLink>
+              <NavLink
+                to="sign-up"
+                className="rounded-xl bg-slate-950 px-4 py-3 font-semibold text-white transition hover:bg-slate-800"
+              >
                 Sign Up
-              </button>
+              </NavLink>
             </div>
           </div>
         </div>
