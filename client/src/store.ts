@@ -4,6 +4,7 @@ import { awsApi } from "./api/S3";
 import { mangaApi } from "./api/manga";
 import { chaptersApi } from "./api/chapter";
 import { pagesApi } from "./api/page";
+import { authApi } from "./api/auth";
 
 export const store = configureStore({
   reducer: {
@@ -12,6 +13,7 @@ export const store = configureStore({
     [mangaApi.reducerPath]: mangaApi.reducer,
     [chaptersApi.reducerPath]: chaptersApi.reducer,
     [pagesApi.reducerPath]: pagesApi.reducer,
+    [authApi.reducerPath]: authApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
@@ -20,5 +22,6 @@ export const store = configureStore({
       mangaApi.middleware,
       chaptersApi.middleware,
       pagesApi.middleware,
+      authApi.middleware,
     ),
 });

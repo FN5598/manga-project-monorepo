@@ -15,6 +15,7 @@ import { PageResolver } from "@resolvers/page.resolvers.js";
 import chapterRouter from "@rest/chapter.routes.js";
 import authRouter from "@rest/auth.routes.js";
 import { errorHandler } from "@errors/error.utils.js";
+import cookieParser from "cookie-parser";
 
 async function main() {
   await connectToDb(); // connect to MongoDB before starting the server to ensure DB is available for resolvers
@@ -38,6 +39,7 @@ async function main() {
     }),
   );
   app.use(express.json()); // required for parsing application/json
+  app.use(cookieParser());
   app.use("/graphql", expressMiddleware(server));
 
   // Rest routes

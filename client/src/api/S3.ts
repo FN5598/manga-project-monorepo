@@ -49,6 +49,7 @@ export const awsApi = createApi({
 
   baseQuery: fetchBaseQuery({
     baseUrl: `${BASE_URL}api`,
+    credentials: "include",
   }),
 
   endpoints: (builder) => ({

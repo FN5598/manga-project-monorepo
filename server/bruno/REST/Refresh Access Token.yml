@@ -13,7 +13,7 @@ http:
     type: json
     data: |-
       {
-        "userId": "{{?userId (69d0200860124058836d974d)}}"
+        "userId": "{{?userId (69d3864f468e26ba212d9d36)}}"
       }
   auth: inherit
 

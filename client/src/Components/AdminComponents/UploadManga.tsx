@@ -21,6 +21,12 @@ export type ApiError = {
   status?: number;
   data?: {
     message?: string;
+    code?: string;
+    errorInfo?: {
+      field: string;
+      code: string;
+      message: string;
+    };
   };
 };
 

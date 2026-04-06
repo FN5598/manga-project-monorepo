@@ -3,9 +3,11 @@ import {
   uploadMangaController,
   updateMangaController,
 } from "../../controllers/manga.controllers.js";
+import { adminMiddleware } from "src/middleware/access.middleware.js";
 
 const router = express.Router();
-// TODO add admin middleware
+
+router.use(adminMiddleware);
 
 router.post("/upload-chapter", uploadMangaController);
 

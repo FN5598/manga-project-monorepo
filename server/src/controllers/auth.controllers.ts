@@ -188,7 +188,6 @@ export async function refreshAccessTokenController(
     });
     return res.status(200).json({
       message: "Successfully refreshed access token",
-      code: "SUCCESS",
     });
   } catch (error) {
     next(error);
