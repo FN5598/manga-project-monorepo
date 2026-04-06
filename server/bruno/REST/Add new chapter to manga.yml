@@ -10,7 +10,7 @@ http:
     type: json
     data: |-
       {
-        "mangaId": "{{?mangaId}}",
+        "mangaId": "{{?mangaId (69bdca94922dbd5822cebed9)}}",
         "chapterTitle": "Beginning",
         "chapterNumber": 200,
         "pages": [{

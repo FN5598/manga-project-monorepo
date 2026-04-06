@@ -35,7 +35,7 @@ export class BadRequestError extends AppError {
 }
 
 export class InputValidationError extends AppError {
-  constructor(message = "Failed to validate input", errorInfo: ErorrInfo[]) {
+  constructor(message = "Failed to validate input", errorInfo: ErorrInfo) {
     super(400, "INPUT_VALIDATION_ERROR", message, errorInfo);
   }
 }
@@ -54,6 +54,12 @@ export class InternalControllerError extends AppError {
 
 export class UnauthorizedError extends AppError {
   constructor(message: string = "Session expired") {
-    super(401, "REFRESH_TOKEN_EXPIRED", message);
+    super(401, "UNAUTHORIZED", message);
+  }
+}
+
+export class ForbiddenError extends AppError {
+  constructor(message: string = "not enough access") {
+    super(401, "FORBIDDEN", message);
   }
 }

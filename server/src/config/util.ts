@@ -14,10 +14,13 @@ type TokenType = "access" | "refresh";
 const ISSUER = "manga-auth";
 const ACCESS_AUDIENCE = "manga-access";
 const REFRESH_AUDIENCE = "manga-refresh";
-const isProd = process.env.NODE_ENV === "production";
+const isProd = ENV.NODE_ENV === "production";
 
 const accessSecret = new TextEncoder().encode(ENV.JWT_ACCESS_SECRET);
 const refreshSecret = new TextEncoder().encode(ENV.JWT_REFRESH_TOKEN);
+
+const accessCookieName = isProd ? "__Host-access_token" : "access_token";
+const refreshCookieName = isProd ? "__Host-refresh_token" : "refresh_token";
 
 export const JWT = {
   signJWT: async (
@@ -55,16 +58,34 @@ export const JWT = {
   },
 
   async verifyJWTAccessToken(token: string, userId: string) {
-    const { payload } = await jwtVerify(token, accessSecret, {
-      issuer: ISSUER,
-      subject: userId,
-      audience: ACCESS_AUDIENCE,
-      algorithms: ["HS256"],
-      typ: "JWT",
-      maxTokenAge: "15m",
-    });
+    try {
+      const { payload } = await jwtVerify(token, accessSecret, {
+        issuer: ISSUER,
+        subject: userId,
+        audience: ACCESS_AUDIENCE,
+        algorithms: ["HS256"],
+        typ: "JWT",
+        maxTokenAge: "15m",
+      });
 
-    return payload;
+      return { ok: true, ...payload };
+    } catch (error) {
+      if (error instanceof errors.JWTExpired) {
+        return {
+          ok: false,
+          type: "expired",
+          message: error.message,
+          payload: error.payload,
+        };
+      }
+      if (error instanceof errors.JWTInvalid) {
+        return {
+          ok: false,
+          type: "invalid",
+          message: error.message,
+        };
+      }
+    }
   },
 
   async verifyJWTRefreshToken(token: string, userId: string) {
@@ -100,7 +121,7 @@ export const JWT = {
 };
 
 export function setAccessTokenCookie(res: Response, accessToken: string) {
-  res.cookie("__Host-access_token", accessToken, {
+  res.cookie(accessCookieName, accessToken, {
     httpOnly: true,
     secure: isProd,
     sameSite: "lax",
@@ -114,7 +135,8 @@ export function setAuthCookies(
   accessToken: string,
   refreshToken: string,
 ) {
-  res.cookie("__Host-access_token", accessToken, {
+  console.log("Setting cookies", isProd);
+  res.cookie(accessCookieName, accessToken, {
     httpOnly: true,
     secure: isProd,
     sameSite: "lax",
@@ -122,7 +144,7 @@ export function setAuthCookies(
     maxAge: 15 * 60 * 1000, // 15 minutes
   });
 
-  res.cookie("__Host-refresh_token", refreshToken, {
+  res.cookie(refreshCookieName, refreshToken, {
     httpOnly: true,
     secure: isProd,
     sameSite: "strict",
@@ -132,14 +154,14 @@ export function setAuthCookies(
 }
 
 export function clearAuthCookies(res: Response) {
-  res.clearCookie("__Host-access_token", {
+  res.clearCookie(accessCookieName, {
     httpOnly: true,
     secure: isProd,
     sameSite: "lax",
     path: "/",
   });
 
-  res.clearCookie("__Host-refresh_token", {
+  res.clearCookie(refreshCookieName, {
     httpOnly: true,
     secure: isProd,
     sameSite: "strict",

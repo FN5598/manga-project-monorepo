@@ -53,7 +53,7 @@ export function validateInput<T>(schema: z.ZodType<T>, input: unknown) {
       input,
     });
 
-    throw new InputValidationError("Failed to validate input", issues);
+    throw new InputValidationError("Failed to validate input", issues[0]);
   }
 
   return result.data;
