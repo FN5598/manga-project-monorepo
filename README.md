@@ -1,4 +1,4 @@
-## Manga images upload toS3
+## Manga images upload to S3
 
 ### FE sends file metadata to BE to validate files and generate S3 upload URL, this allowed FE to directly upload data to S3
 
