@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import chalk from "chalk";
-import { ENV } from "src/validators/env.validators.js";
+import { ENV } from "@validators/env.validators.js";
 
 export const connectToDb = async (): Promise<void> => {
   const uri = ENV?.MONGO_URI;

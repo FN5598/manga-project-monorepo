@@ -5,7 +5,7 @@ import { FileType, MAX_PREVIEW_SIZE } from "@config/constants.js";
 import { randomUUID } from "crypto";
 import { s3 } from "@config/aws.config.js";
 import logger from "@config/logger.js";
-import { ENV } from "src/validators/env.validators.js";
+import { ENV } from "@validators/env.validators.js";
 import { validateInput } from "@validators/validator.utils.js";
 import { uploadImageDataSchema } from "@validators/uploadS3.validator.js";
 import { BadRequestError, FileTooLargeError } from "@errors/Error.js";

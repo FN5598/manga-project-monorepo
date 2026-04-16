@@ -52,7 +52,7 @@ export class UnauthorizedError extends AppError {
 }
 
 export class ForbiddenError extends AppError {
-  constructor(message: string, errorInfo: ErorrInfo) {
+  constructor(message: string, errorInfo?: ErorrInfo) {
     super(403, "FORBIDDEN", message, errorInfo);
   }
 }

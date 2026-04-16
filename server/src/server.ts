@@ -15,7 +15,7 @@ import { PageResolver } from "@resolvers/page.resolvers.js";
 import chapterRouter from "@rest/chapter.routes.js";
 import authRouter from "@rest/auth.routes.js";
 import cookieParser from "cookie-parser";
-import { errorHandler } from "./middleware/error.middleware.js";
+import { errorHandler } from "@middlewares/error.middleware.js";
 
 async function main() {
   await connectToDb(); // connect to MongoDB before starting the server to ensure DB is available for resolvers
@@ -52,7 +52,7 @@ async function main() {
   // ? Custom error handler
   app.use(errorHandler);
 
-  app.listen(4000, () => {
+  app.listen(4000, "0.0.0.0", () => {
     console.log(
       chalk.green("[Server running]:"),
       chalk.blue("http://localhost:4000/"),

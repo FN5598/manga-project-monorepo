@@ -1,0 +1,16 @@
+node_modules
+dist
+.git
+.gitignore
+Dockerfile
+compose.yaml
+npm-debug.log
+pnpm-debug.log
+yarn-error.log
+
+bruno
+package-lock.json
+yarn.lock
+
+.env
+.env.*

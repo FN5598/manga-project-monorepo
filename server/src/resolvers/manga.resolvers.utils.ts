@@ -1,6 +1,6 @@
 import { s3 } from "@config/aws.config.js";
 import { DeleteObjectsCommand, ListObjectsV2Command } from "@aws-sdk/client-s3";
-import { ENV } from "src/validators/env.validators.js";
+import { ENV } from "@validators/env.validators.js";
 import logger from "@config/logger.js";
 import { InternalError } from "@errors/Error.js";
 import { getErrorInfo } from "@errors/error.utils.js";

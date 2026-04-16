@@ -23,6 +23,7 @@ import {
 import {
   nonEmptyString,
   paginationSchema,
+  paginationSortSchema,
   PaginationType,
   validateGraphQLInput,
 } from "@validators/validator.utils.js";
@@ -39,9 +40,9 @@ export class MangaResolver {
     @Arg("sort", () => SortInputType, { nullable: true })
     sort?: SortInput,
   ): Promise<Manga[]> {
-    const parsedData: PaginationType = validateGraphQLInput(paginationSchema, {
-      sort,
+    const parsedData = validateGraphQLInput(paginationSortSchema, {
       paginationInput,
+      sort,
     });
 
     logger.debug("findAllMangas resolver called", {
@@ -80,16 +81,16 @@ export class MangaResolver {
     @Arg("mangaUploadInput", () => MangaUploadInput)
     mangaUploadInput: MangaUploadInput,
   ): Promise<Manga> {
-    const parsedData = validateGraphQLInput(
+    const { mangaData } = validateGraphQLInput(
       uploadMangaSchema,
       mangaUploadInput,
     );
 
     logger.debug("uploadManga resolver called", {
-      mangaUploadInput: parsedData,
+      mangaUploadInput: mangaData,
     });
 
-    return mangaRepository.uploadManga(parsedData);
+    return mangaRepository.uploadManga(mangaData);
   }
 
   // TODO change flow to Page -> Chapter -> Manga

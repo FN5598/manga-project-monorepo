@@ -4,11 +4,11 @@ import logger from "@config/logger.js";
 import * as mangaRepository from "@repository/manga.repository.js";
 import * as chapterRepository from "@repository/chapter.repository.js";
 import * as pagesRepository from "@repository/page.repository.js";
-import { validateInput } from "src/validators/validator.utils.js";
+import { validateInput } from "@validators/validator.utils.js";
 import {
   updateMangaSchema,
   uploadMangaSchema,
-} from "src/validators/manga.validators.js";
+} from "@validators/manga.validators.js";
 import mongoose from "mongoose";
 import { InternalError } from "@errors/Error.js";
 

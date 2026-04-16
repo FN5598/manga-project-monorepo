@@ -19,11 +19,12 @@ export async function adminMiddleware(
       userId,
     });
 
-    if (!access_token) throw new UnauthorizedError();
+    if (!access_token) throw new UnauthorizedError("Acccess token expired");
     if (!userId) throw new UnauthorizedError("Users cannot use admin routes");
 
     const user = await userRepository.findUserById(userId);
-    if (user.role !== UserRole.ADMIN) throw new ForbiddenError();
+    if (user.role !== UserRole.ADMIN)
+      throw new ForbiddenError("Only admins can access this route");
 
     await JWT.verifyJWTAccessToken(access_token, userId);
     next();
