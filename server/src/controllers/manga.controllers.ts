@@ -10,7 +10,7 @@ import {
   uploadMangaSchema,
 } from "src/validators/manga.validators.js";
 import mongoose from "mongoose";
-import { InternalControllerError } from "@errors/Error.js";
+import { InternalError } from "@errors/Error.js";
 
 export type UpdateMangaPayload = {
   manga: {
@@ -114,7 +114,7 @@ export async function updateMangaController(
     );
 
     if (!transactionData)
-      throw new InternalControllerError(
+      throw new InternalError(
         "Update manga transaction completed without response payload",
       );
 

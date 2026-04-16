@@ -2,6 +2,8 @@ import { SignJWT, errors, jwtVerify } from "jose";
 import { ENV } from "@validators/env.validators.js";
 import { UserRole } from "@models/user.model.js";
 import type { Response } from "express";
+import { PaginationInput } from "@resolvers/resolver.utils.js";
+import { DEFAULT_PAGINATION } from "./constants.js";
 
 type SignJWTPayload = {
   userId: string;
@@ -167,4 +169,17 @@ export function clearAuthCookies(res: Response) {
     sameSite: "strict",
     path: "/auth/refresh",
   });
+}
+
+export function getDefaultPagination(
+  pagination?: PaginationInput,
+): Required<PaginationInput> {
+  const page = pagination?.page ?? DEFAULT_PAGINATION.page;
+  const limit = pagination?.limit
+    ? pagination.limit > DEFAULT_PAGINATION.limit
+      ? DEFAULT_PAGINATION.limit
+      : pagination.limit
+    : DEFAULT_PAGINATION.limit;
+
+  return { page, limit };
 }

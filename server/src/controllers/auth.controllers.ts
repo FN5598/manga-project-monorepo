@@ -17,7 +17,7 @@ import argon2 from "argon2";
 import mongoose from "mongoose";
 import {
   BadRequestError,
-  InternalControllerError,
+  InternalError,
   UnauthorizedError,
 } from "@errors/Error.js";
 import { UserRole } from "@models/user.model.js";
@@ -77,7 +77,7 @@ export async function signUpController(
     );
 
     if (!responsePayload) {
-      throw new InternalControllerError(
+      throw new InternalError(
         "Signup transaction completed without response payload",
       );
     }
@@ -157,13 +157,13 @@ export async function refreshAccessTokenController(
       if (!user.refreshToken) {
         clearAuthCookies(res);
 
-        throw new UnauthorizedError();
+        throw new UnauthorizedError("Refresh token expired. Log in again");
       }
     }
 
     const token = refreshToken || user?.refreshToken;
     const payload = await JWT.verifyJWTRefreshToken(token, userId);
-    if (!payload) throw new InternalControllerError("Failed to decrypt jwt");
+    if (!payload) throw new InternalError("Failed to decrypt jwt");
 
     if (payload?.ok !== true) {
       clearAuthCookies(res);
@@ -171,7 +171,7 @@ export async function refreshAccessTokenController(
         case "expired":
           throw new UnauthorizedError("Refresh token expired. Log in again");
         case "invalid":
-          throw new UnauthorizedError();
+          throw new UnauthorizedError("Invalid refresh token");
       }
     }
 

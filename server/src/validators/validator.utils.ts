@@ -1,9 +1,14 @@
 import "reflect-metadata";
 import { z } from "zod";
-import { GraphQLError } from "graphql";
-import { FileType } from "@config/constants.js";
+import { FileType, SortInput } from "@config/constants.js";
 import logger from "@config/logger.js";
 import { InputValidationError } from "@errors/Error.js";
+
+type FormatReturn = {
+  message: string;
+  code: string;
+  fiield?: string;
+};
 
 export const formatIssues = (error: z.ZodError): FormatReturn[] =>
   error.issues.map((issue) => {
@@ -15,45 +20,30 @@ export const formatIssues = (error: z.ZodError): FormatReturn[] =>
     };
   });
 
-export function validateOrThrowGraphQL<T>(
+export function validateGraphQLInput<T>(
   schema: z.ZodSchema<T>,
   input: unknown,
 ): T {
   const result = schema.safeParse(input);
+
   if (!result.success) {
-    const issues = formatIssues(result.error);
-    logger.error(`Validatation error`, {
-      issues,
-      input,
+    const issue: FormatReturn = formatIssues(result.error)[0];
+
+    logger.info("Failed to validate input", {
+      issue,
     });
-    throw new GraphQLError("Invalid input", {
-      extensions: {
-        code: "BAD_USER_INPUT",
-        issues,
-      },
-    });
+    throw new InputValidationError(issue);
   }
   return result.data;
 }
-
-type FormatReturn = {
-  message: string;
-  code: string;
-  fiield?: string;
-};
 
 export function validateInput<T>(schema: z.ZodType<T>, input: unknown) {
   const result = schema.safeParse(input);
 
   if (!result.success) {
-    const issues: FormatReturn[] = formatIssues(result.error);
+    const issue: FormatReturn = formatIssues(result.error)[0];
 
-    logger.error("Validation error", {
-      issues,
-      input,
-    });
-
-    throw new InputValidationError("Failed to validate input", issues[0]);
+    throw new InputValidationError(issue);
   }
 
   return result.data;
@@ -76,3 +66,28 @@ export const contentTypeSchema = z.enum([
 ]);
 
 export const fileTypeSchema = z.enum([FileType.preview, FileType.page]);
+
+export const sortEnumSchema = z.enum([SortInput.ASC, SortInput.DESC]);
+export const sortFieldEnum = z.enum(["createdAt"]);
+
+export const sortSchema = z.object({
+  sort: z
+    .object({
+      sortBy: sortEnumSchema,
+      field: sortFieldEnum,
+    })
+    .optional(),
+});
+
+export const paginationSchema = z.object({
+  paginationInput: z
+    .object({
+      page: nonNegativeNumber.optional(),
+      limit: nonNegativeNumber.optional(),
+    })
+    .optional(),
+});
+
+export const paginationSortSchema = paginationSchema.extend(sortSchema.shape);
+
+export type PaginationType = z.infer<typeof paginationSchema>;

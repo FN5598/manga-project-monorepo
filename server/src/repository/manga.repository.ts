@@ -1,18 +1,19 @@
-import { DEFAULT_PAGINATION, SortInput } from "@config/constants.js";
+import { DEFAULT_PAGINATION } from "@config/constants.js";
 import MangaModel, { Manga } from "@models/manga.model.js";
 import logger from "@config/logger.js";
 import {
   MangaUploadInput,
   PaginationInput,
-} from "@resolvers/manga.resolvers.js";
+} from "@resolvers/resolver.utils.js";
 import { ClientSession, PipelineStage } from "mongoose";
 import { escapeRegex } from "@config/regex.js";
 import {
   BadRequestError,
-  InternalRepositoryError,
+  InternalError,
   NotFoundError,
 } from "@errors/Error.js";
 import { getErrorMessage } from "@errors/error.utils.js";
+import { SortInputType } from "@resolvers/resolver.utils.js";
 
 export async function updateManga(
   mangaId: string,
@@ -37,7 +38,7 @@ export async function updateManga(
       operation: "updateManga",
       mangaId,
     });
-    throw new InternalRepositoryError("Failed to update manga", {
+    throw new InternalError("Failed to update manga", {
       message: getErrorMessage(error),
     });
   }
@@ -55,15 +56,15 @@ export async function uploadManga(mangaData: MangaUploadInput): Promise<Manga> {
       operation: "uploadManga",
       mangaData,
     });
-    throw new InternalRepositoryError("Failed to upload manga", {
+    throw new InternalError("Failed to upload manga", {
       message: getErrorMessage(error),
     });
   }
 }
 
 export async function findAllMangas(
-  paginationInput: PaginationInput | undefined,
-  sort: SortInput = SortInput.DESC,
+  paginationInput?: PaginationInput | undefined,
+  sort?: SortInputType,
 ): Promise<Manga[] | []> {
   try {
     const page = paginationInput?.page ?? DEFAULT_PAGINATION.page;
@@ -73,13 +74,14 @@ export async function findAllMangas(
         : paginationInput.limit
       : DEFAULT_PAGINATION.limit;
 
-    const sortOrder = sort === "asc" ? 1 : -1;
+    const sortOrder = sort?.sortBy === "asc" ? 1 : -1;
+    const sortField = sort?.field ?? "createdAt";
 
     // 1. Add pagination
     let pipeline: PipelineStage[] = [
       {
         $sort: {
-          createdAt: sortOrder,
+          [sortField]: sortOrder,
         },
       },
       {
@@ -142,7 +144,7 @@ export async function findAllMangas(
       error,
       operation: "findAllMangas",
     });
-    throw new InternalRepositoryError("Failed to find mangas", {
+    throw new InternalError("Failed to find mangas", {
       message: getErrorMessage(error),
     });
   }
@@ -163,7 +165,7 @@ export async function findMangaById(mangaId: string): Promise<Manga> {
       operation: "findMangaById",
       mangaId,
     });
-    throw new InternalRepositoryError("Failed to find manga", {
+    throw new InternalError("Failed to find manga", {
       message: getErrorMessage(error),
     });
   }
@@ -191,7 +193,7 @@ export async function deleteMangaById(
       operation: "deleteMangaById",
       mangaId,
     });
-    throw new InternalRepositoryError("Failed to delete manga", {
+    throw new InternalError("Failed to delete manga", {
       message: getErrorMessage(error),
     });
   }
@@ -251,7 +253,7 @@ export async function findMangaByTitle(mangaTitle: string): Promise<Manga[]> {
       operation: "findMangaByTitle",
       mangaTitle,
     });
-    throw new InternalRepositoryError("Failed to find manga", {
+    throw new InternalError("Failed to find manga", {
       message: getErrorMessage(error),
     });
   }

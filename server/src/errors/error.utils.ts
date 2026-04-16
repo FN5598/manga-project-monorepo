@@ -1,33 +1,26 @@
-import { Response, Request, NextFunction } from "express";
-import { AppError } from "./Error.js";
-import logger from "@config/logger.js";
-
-export function errorHandler(
-  error: unknown,
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) {
-  if (res.headersSent) {
-    return next(error);
-  }
-
-  if (error instanceof AppError) {
-    return res.status(error.statusCode).json({
-      message: error.message,
-      code: error.code,
-      ...(error.errorInfo ? { errorInfo: error.errorInfo } : {}),
-    });
-  }
-
-  logger.error("Unhandled error", { error });
-
-  return res.status(500).json({
-    message: "Something went wrong",
-    code: "INTERNAL_SERVER_ERROR",
-  });
-}
-
 export function getErrorMessage(error: unknown): string {
   return error instanceof Error ? error.message : "Unknown error";
+}
+
+interface errorShape {
+  errorName: string;
+  message: string;
+  cause?: unknown;
+  stack?: string;
+}
+
+export function getErrorInfo(error: unknown): errorShape {
+  if (error instanceof Error) {
+    return {
+      errorName: error.name,
+      message: error.message,
+      cause: error.cause,
+      stack: error.stack,
+    };
+  }
+
+  return {
+    errorName: "Unknown error",
+    message: "Unknown error occured",
+  };
 }

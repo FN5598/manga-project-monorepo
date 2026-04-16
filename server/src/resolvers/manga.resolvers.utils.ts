@@ -2,6 +2,8 @@ import { s3 } from "@config/aws.config.js";
 import { DeleteObjectsCommand, ListObjectsV2Command } from "@aws-sdk/client-s3";
 import { ENV } from "src/validators/env.validators.js";
 import logger from "@config/logger.js";
+import { InternalError } from "@errors/Error.js";
+import { getErrorInfo } from "@errors/error.utils.js";
 
 export async function deleteFolderFromS3(prefix: string) {
   try {
@@ -41,6 +43,11 @@ export async function deleteFolderFromS3(prefix: string) {
       prefix,
       operation: "deleteFolderFromS3",
     });
+
+    throw new InternalError(
+      "Failed to delete folder from S3",
+      getErrorInfo(error),
+    );
   }
 }
 
@@ -65,5 +72,10 @@ export async function deleteManyFromS3(keys: string[]) {
       operation: "deleteManyFromS3",
       keys,
     });
+
+    throw new InternalError(
+      "Failed to delete many files from S3",
+      getErrorInfo(error),
+    );
   }
 }

@@ -24,15 +24,15 @@ export const connectToDb = async (): Promise<void> => {
       chalk.red("[DB ERROR] Connection error:"),
       err instanceof Error ? err.message : err,
     );
-    process.exit(1); // Exit on DB connection error to prevent server from running without DB access
+    process.exit(1); // * Exit on DB connection error to prevent server from running without DB access
   });
 
   mongoose.connection.on("disconnected", () => {
     console.warn(chalk.yellow("[DB] MongoDB connection disconnected"));
-    process.exit(1); // Exit if DB connection is lost after initial connection
+    process.exit(1); // * Exit if DB connection is lost after initial connection
   });
 
-  // Prevent open connections on server termination
+  // ? Prevent open connections on server termination
   process.on("SIGINT", async () => {
     await mongoose.connection.close();
     console.log(chalk.yellow("[DB] Connection closed due to app termination"));
@@ -40,7 +40,7 @@ export const connectToDb = async (): Promise<void> => {
   });
 
   await mongoose.connect(uri, {
-    serverSelectionTimeoutMS: 5000, // 5 seconds timeout for initial connection
+    serverSelectionTimeoutMS: 5000, // * 5 seconds timeout for initial connection
     autoIndex: process.env.NODE_ENV !== "production",
   });
 

@@ -33,7 +33,8 @@ graphql:
           "page": 1
         },
         "sort": {
-          "sortBy": "asc"
+          "sortBy": "asc",
+          "field": "createdAt"
         }
       }
   auth: inherit

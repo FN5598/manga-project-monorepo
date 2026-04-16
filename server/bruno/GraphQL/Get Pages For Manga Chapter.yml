@@ -29,7 +29,8 @@ graphql:
       {
         "chapterId": "{{?chapterId}}",
         "sort": {
-          "sortBy": "asc"
+          "sortBy": "asc",
+          "field": "createdAt"
         },
         "paginationInput": {
           "limit": 10,
