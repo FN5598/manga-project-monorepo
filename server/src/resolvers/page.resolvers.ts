@@ -1,9 +1,14 @@
 import { Page } from "@models/page.model.js";
 import { Resolver, Query, Arg, FieldResolver, Root } from "type-graphql";
-import { PaginationInput, SortInputType } from "./manga.resolvers.js";
+import {
+  PaginationInput,
+  SortInputType,
+  getUrlForImage,
+} from "./resolver.utils.js";
 import * as pageRepository from "@repository/page.repository.js";
 import logger from "@config/logger.js";
-import { getUrlForImage } from "./manga.resolvers.js";
+import { validateGraphQLInput } from "@validators/validator.utils.js";
+import { getPagesSchema } from "@validators/pages.validators.js";
 
 @Resolver(() => Page)
 export class PageResolver {
@@ -14,15 +19,22 @@ export class PageResolver {
     paginationInput: PaginationInput,
     @Arg("sort", () => SortInputType, { nullable: true }) sort: SortInputType,
   ): Promise<Page[]> {
-    logger.debug("getPagesByChapterId resolver called", {
+    const parsedData = validateGraphQLInput(getPagesSchema, {
       chapterId,
       paginationInput,
       sort,
     });
+
+    logger.debug("getPagesByChapterId resolver called", {
+      chapterId: parsedData.chapterId,
+      paginationInput: parsedData.paginationInput,
+      sort: parsedData.sort,
+    });
+
     return await pageRepository.getPagesByChapterId(
-      chapterId,
-      paginationInput,
-      sort,
+      parsedData.chapterId,
+      parsedData.paginationInput,
+      parsedData.sort,
     );
   }
 

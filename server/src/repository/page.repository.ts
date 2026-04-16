@@ -1,10 +1,10 @@
 import logger from "@config/logger.js";
 import PageModel, { Page } from "@models/page.model.js";
-import { PaginationInput, SortInputType } from "@resolvers/manga.resolvers.js";
+import { PaginationInput, SortInputType } from "@resolvers/resolver.utils.js";
 import { ClientSession, PipelineStage, Types } from "mongoose";
-import { DEFAULT_PAGINATION } from "@config/constants.js";
-import { BadRequestError, InternalRepositoryError } from "@errors/Error.js";
+import { BadRequestError, InternalError } from "@errors/Error.js";
 import { getErrorMessage } from "@errors/error.utils.js";
+import { getDefaultPagination } from "@config/util.js";
 
 export type CreatePagesPayload = {
   chapterId: string;
@@ -40,7 +40,7 @@ export async function createPages(
       opertaion: "createPages",
       payload,
     });
-    throw new InternalRepositoryError("Failed to create Page", {
+    throw new InternalError("Failed to create Page", {
       message: getErrorMessage(error),
     });
   }
@@ -48,22 +48,18 @@ export async function createPages(
 
 export async function getPagesByChapterId(
   chapterId: string,
-  pagination: PaginationInput,
-  sort: SortInputType,
+  pagination?: PaginationInput,
+  sort?: SortInputType,
 ): Promise<Page[]> {
   if (!chapterId)
     throw new BadRequestError("ChapterId is required to fetch pages!");
   try {
-    const page = pagination?.page ?? DEFAULT_PAGINATION.page;
-    const limit = pagination?.limit
-      ? pagination.limit > DEFAULT_PAGINATION.limit
-        ? DEFAULT_PAGINATION.limit
-        : pagination.limit
-      : DEFAULT_PAGINATION.limit;
+    const { limit, page } = getDefaultPagination(pagination);
 
     let pipeline: PipelineStage[] = [];
 
     const sortBy = sort?.sortBy === "asc" ? -1 : 1;
+    const sortField = sort?.field ?? "createdAt";
 
     // 1. add pagination and sorting
     pipeline.push(
@@ -74,7 +70,7 @@ export async function getPagesByChapterId(
       },
       {
         $sort: {
-          pageNumber: sortBy,
+          [sortField]: sortBy,
         },
       },
       {
@@ -94,7 +90,7 @@ export async function getPagesByChapterId(
       operation: "getPagesByChapterId",
       chapterId,
     });
-    throw new InternalRepositoryError("Failed to get pages by chapter Id", {
+    throw new InternalError("Failed to get pages by chapter Id", {
       message: getErrorMessage(error),
     });
   }
@@ -129,7 +125,7 @@ export async function deletePagesByChapterIds(
       operation: "deletePagesByChapterIds",
       chapterIds,
     });
-    throw new InternalRepositoryError("Faied to delete page by chapter id", {
+    throw new InternalError("Faied to delete page by chapter id", {
       message: getErrorMessage(error),
     });
   }

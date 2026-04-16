@@ -1,4 +1,4 @@
-import logger from "@config/logger.js";
+import { InvalidEnvConfiguration } from "@errors/Error.js";
 import dotenv from "dotenv";
 import { z } from "zod";
 
@@ -13,19 +13,14 @@ const envSchema = z.object({
   NODE_ENV: z.string().trim().min(1),
 });
 
+// ! Parse envs before using any, don't use logger since it's an env dependency
 const parsed = envSchema.safeParse(process.env);
 
 if (!parsed.success) {
-  const issues = parsed.error.issues.map((issue) => ({
-    code: issue.code,
-    path: issue.path,
-    input: issue.input,
-    message: issue.message,
-  }));
-  logger.error("Invalid environment variables", {
-    issues,
+  throw new InvalidEnvConfiguration("Set up envs as shown in env.example.md", {
+    message: "Some of env variables are missing",
   });
-  throw new Error();
 }
 
+// ? Export global parsed env variable used throuhgout the app
 export const ENV = parsed.data;

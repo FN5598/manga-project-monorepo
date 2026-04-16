@@ -2,7 +2,12 @@ import { Resolver, Arg, InputType, Query } from "type-graphql";
 import * as chapterRepository from "@repository/chapter.repository.js";
 import { Chapter } from "@models/chapter.model.js";
 import logger from "@config/logger.js";
-import { PaginationInput, SortInputType } from "./manga.resolvers.js";
+import { PaginationInput, SortInputType } from "./resolver.utils.js";
+import {
+  nonEmptyString,
+  paginationSortSchema,
+  validateGraphQLInput,
+} from "@validators/validator.utils.js";
 
 @Resolver(() => Chapter)
 export class ChapterResolver {
@@ -10,17 +15,26 @@ export class ChapterResolver {
   async findChaptersByMangaId(
     @Arg("mangaId", () => String) mangaId: string,
   ): Promise<Chapter[]> {
+    const parsedMangaId = validateGraphQLInput(nonEmptyString, mangaId);
+
     logger.debug("findChapterByMangaId resolver called", {
-      mangaId,
+      mangaId: parsedMangaId,
     });
-    return await chapterRepository.findChaptersByMangaId(mangaId);
+
+    return await chapterRepository.findChaptersByMangaId(parsedMangaId);
   }
 
   @Query(() => Chapter)
   async findChapterById(
     @Arg("chapterId", () => String) chapterId: string,
-  ): Promise<Chapter | null> {
-    return await chapterRepository.findChapterById(chapterId);
+  ): Promise<Chapter> {
+    const parsedChapterId = validateGraphQLInput(nonEmptyString, chapterId);
+
+    logger.debug("findChapterById resolver called", {
+      chapterId: parsedChapterId,
+    });
+
+    return await chapterRepository.findChapterById(parsedChapterId);
   }
 
   @Query(() => [Chapter])
@@ -29,10 +43,19 @@ export class ChapterResolver {
     @Arg("paginationInput", () => PaginationInput, { nullable: true })
     paginationInput: PaginationInput,
   ): Promise<Chapter[]> {
-    logger.debug("findAllChapters resolver called", {
-      sort,
+    const parsedData = validateGraphQLInput(paginationSortSchema, {
       paginationInput,
+      sort,
     });
-    return await chapterRepository.findAllChapters(sort, paginationInput);
+
+    logger.debug("findAllChapters resolver called", {
+      sort: parsedData.sort,
+      paginationInput: parsedData.paginationInput,
+    });
+
+    return await chapterRepository.findAllChapters(
+      parsedData.sort,
+      parsedData.paginationInput,
+    );
   }
 }

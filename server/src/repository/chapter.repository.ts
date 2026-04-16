@@ -1,16 +1,15 @@
-import { SortInputType } from "@resolvers/manga.resolvers.js";
 import logger from "@config/logger.js";
 import ChapterModel, { Chapter } from "@models/chapter.model.js";
-import { PaginationInput } from "@resolvers/manga.resolvers.js";
 import mongoose, { ClientSession, PipelineStage } from "mongoose";
 import { DEFAULT_PAGINATION } from "@config/constants.js";
 import {
   BadRequestError,
   ConflictError,
-  InternalRepositoryError,
+  InternalError,
   NotFoundError,
 } from "@errors/Error.js";
 import { getErrorMessage } from "@errors/error.utils.js";
+import { PaginationInput, SortInputType } from "@resolvers/resolver.utils.js";
 
 enum UploadStatus {
   DRAFT = "draft",
@@ -70,6 +69,9 @@ export async function createChapter(
       });
       throw new ConflictError(
         "Chapter already exists! Chapter number must be unique",
+        {
+          message: getErrorMessage(error),
+        },
       );
     }
     logger.error("Failed to create a chapter", {
@@ -77,7 +79,7 @@ export async function createChapter(
       operation: "createChapter",
       payload,
     });
-    throw new InternalRepositoryError("Failed to create chapter", {
+    throw new InternalError("Failed to create chapter", {
       message: getErrorMessage(error),
     });
   }
@@ -105,15 +107,15 @@ export async function findChaptersByMangaId(
       operation: "findChaptersByMangaId",
       mangaId,
     });
-    throw new InternalRepositoryError("Faield to find chapters", {
+    throw new InternalError("Faield to find chapters", {
       message: getErrorMessage(error),
     });
   }
 }
 
 export async function findAllChapters(
-  sort: SortInputType,
-  paginationInput: PaginationInput,
+  sort?: SortInputType,
+  paginationInput?: PaginationInput,
 ): Promise<Chapter[]> {
   try {
     const page = paginationInput?.page ?? DEFAULT_PAGINATION.page;
@@ -138,7 +140,7 @@ export async function findAllChapters(
       error,
       operation: "findAllChapters",
     });
-    throw new InternalRepositoryError("Failed to find chapters", {
+    throw new InternalError("Failed to find chapters", {
       message: getErrorMessage(error),
     });
   }
@@ -156,7 +158,7 @@ export async function findChapterById(chapterId: string): Promise<Chapter> {
       operation: "findChapterByMangaId",
       chapterId,
     });
-    throw new InternalRepositoryError("Failed to find chapter", {
+    throw new InternalError("Failed to find chapter", {
       message: getErrorMessage(error),
     });
   }
@@ -190,7 +192,7 @@ export async function deleteChaptersByMangaId(
       operation: "deleteChaptersByMangaId",
       mangaId,
     });
-    throw new InternalRepositoryError("Failed to delete chapters", {
+    throw new InternalError("Failed to delete chapters", {
       message: getErrorMessage(error),
     });
   }

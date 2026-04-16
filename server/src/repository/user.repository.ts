@@ -4,7 +4,7 @@ import { ClientSession } from "mongoose";
 import {
   BadRequestError,
   ConflictError,
-  InternalRepositoryError,
+  InternalError,
   NotFoundError,
 } from "@errors/Error.js";
 import { getErrorMessage } from "@errors/error.utils.js";
@@ -26,7 +26,7 @@ export const findUserByEmail = async (email: string): Promise<User> => {
       email,
     });
 
-    throw new InternalRepositoryError("Failed to find user by email", {
+    throw new InternalError("Failed to find user by email", {
       message: getErrorMessage(error),
     });
   }
@@ -61,7 +61,7 @@ export const createUser = async (
       error,
       operation: "createUser",
     });
-    throw new InternalRepositoryError("Failed to create user", {
+    throw new InternalError("Failed to create user", {
       message: getErrorMessage(error),
     });
   }
@@ -81,7 +81,7 @@ export const findUserById = async (userId: string) => {
       operation: "findUserById",
       userId,
     });
-    throw new InternalRepositoryError("Failed to find user", {
+    throw new InternalError("Failed to find user", {
       message: getErrorMessage(error),
     });
   }
@@ -103,7 +103,7 @@ export const deleteUserById = async (userId: string) => {
       operation: "deleteUserById",
       userId,
     });
-    throw new InternalRepositoryError("Failed to delete user", {
+    throw new InternalError("Failed to delete user", {
       message: getErrorMessage(error),
     });
   }
@@ -135,7 +135,7 @@ export const addRefreshToken = async (
       error,
       refreshToken,
     });
-    throw new InternalRepositoryError("Failed to add refresh token to user", {
+    throw new InternalError("Failed to add refresh token to user", {
       message: getErrorMessage(error),
     });
   }
@@ -163,7 +163,7 @@ export const updateUserPassword = async (
       operation: "updateUserPassword",
       userId,
     });
-    throw new InternalRepositoryError("Failed to update password", {
+    throw new InternalError("Failed to update password", {
       message: getErrorMessage(error),
     });
   }
@@ -188,7 +188,7 @@ export const updateUserEmail = async (userId: string, newEmail: string) => {
       operation: "updateUserEmail",
       userId,
     });
-    throw new InternalRepositoryError("Failed to update user email", {
+    throw new InternalError("Failed to update user email", {
       message: getErrorMessage(error),
     });
   }
