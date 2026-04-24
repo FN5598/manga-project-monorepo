@@ -47,7 +47,7 @@ export async function createChapter(
 
     const chapter = await ChapterModel.find({ chapterNumber }).session(session);
 
-    if (chapter)
+    if (chapter.length >= 1)
       throw new ConflictError(`Chapter ${chapterNumber} already exists`);
 
     const createdChapter = new ChapterModel({

@@ -141,8 +141,8 @@ export async function refreshAccessTokenController(
   try {
     const { userId } = validateInput(refreshAccessTokenSchema, req.body);
 
-    const accessToken = req.cookies?.accessToken;
-    const refreshToken = req.cookies?.refreshToken;
+    const accessToken = req.cookies?.access_token;
+    const refreshToken = req.cookies?.refresh_token;
 
     if (accessToken) {
       return res.status(200).json({
@@ -157,19 +157,19 @@ export async function refreshAccessTokenController(
       if (!user.refreshToken) {
         clearAuthCookies(res);
 
-        throw new UnauthorizedError("Refresh token expired. Log in again");
+        throw new UnauthorizedError("Refresh token expired.");
       }
     }
 
     const token = refreshToken || user?.refreshToken;
-    const payload = await JWT.verifyJWTRefreshToken(token, userId);
+    const payload = await JWT.verifyJWTRefreshToken(token);
     if (!payload) throw new InternalError("Failed to decrypt jwt");
 
     if (payload?.ok !== true) {
       clearAuthCookies(res);
       switch (payload.type) {
         case "expired":
-          throw new UnauthorizedError("Refresh token expired. Log in again");
+          throw new UnauthorizedError("Refresh token expired.");
         case "invalid":
           throw new UnauthorizedError("Invalid refresh token");
       }

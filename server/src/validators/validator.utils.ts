@@ -65,6 +65,8 @@ export const contentTypeSchema = z.enum([
   "image/webp",
 ]);
 
+export const nodeEnvSchema = z.enum(["development", "production"]);
+
 export const fileTypeSchema = z.enum([FileType.preview, FileType.page]);
 
 export const sortEnumSchema = z.enum([SortInput.ASC, SortInput.DESC]);

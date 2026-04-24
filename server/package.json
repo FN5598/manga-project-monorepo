@@ -10,8 +10,8 @@
     "dev": "pnpm exec tsx watch ./src/server.ts",
     "build": "tsc && tsc-alias",
     "start": "node ./dist/server.js",
-    "dev:build-compose": "docker compose up --build",
-    "dev:shutdown": "docker compose down && docker compose ps"
+    "dev:build-compose": "docker compose up --build -d",
+    "dev:shutdown": "docker compose down -v && docker compose ps"
   },
   "keywords": [],
   "author": "",

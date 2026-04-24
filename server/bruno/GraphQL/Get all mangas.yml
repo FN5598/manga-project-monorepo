@@ -29,7 +29,7 @@ graphql:
     variables: |-
       {
         "paginationInput": {
-          "limit": 0,
+          "limit": 10,
           "page": 1
         },
         "sort": {

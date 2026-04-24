@@ -24,6 +24,7 @@ export async function addChapterToMangaController(
 ) {
   const session = await mongoose.startSession();
   try {
+    session.startTransaction();
     const { mangaId, chapterTitle, chapterNumber, pages } = validateInput(
       chapterValidator.addChapterToMangaSchema,
       req.body,
@@ -62,7 +63,9 @@ export async function addChapterToMangaController(
       message: "Successfully created new chapter",
     });
   } catch (error) {
-    await session.abortTransaction();
+    if (session.inTransaction()) {
+      await session.abortTransaction();
+    }
     next(error);
   } finally {
     await session.endSession();

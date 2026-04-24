@@ -59,65 +59,74 @@ export const JWT = {
     });
   },
 
-  async verifyJWTAccessToken(token: string, userId: string) {
+  async verifyJWTAccessToken(token: string) {
     try {
       const { payload } = await jwtVerify(token, accessSecret, {
         issuer: ISSUER,
-        subject: userId,
         audience: ACCESS_AUDIENCE,
         algorithms: ["HS256"],
         typ: "JWT",
         maxTokenAge: "15m",
       });
 
-      return { ok: true, ...payload };
+      return { ok: true as const, userId: payload.sub as string, payload };
     } catch (error) {
       if (error instanceof errors.JWTExpired) {
         return {
-          ok: false,
-          type: "expired",
+          ok: false as const,
+          type: "expired" as const,
           message: error.message,
           payload: error.payload,
         };
       }
       if (error instanceof errors.JWTInvalid) {
         return {
-          ok: false,
-          type: "invalid",
+          ok: false as const,
+          type: "invalid" as const,
           message: error.message,
         };
       }
+
+      return {
+        ok: false as const,
+        type: "unknown" as const,
+        message: "Failed to verify access token",
+      };
     }
   },
 
-  async verifyJWTRefreshToken(token: string, userId: string) {
+  async verifyJWTRefreshToken(token: string) {
     try {
       const { payload } = await jwtVerify(token, refreshSecret, {
         issuer: ISSUER,
         audience: REFRESH_AUDIENCE,
-        subject: userId,
         algorithms: ["HS256"],
         typ: "JWT",
         maxTokenAge: "7d",
       });
 
-      return { ok: true, ...payload };
+      return { ok: true as const, userId: payload.aud, payload };
     } catch (error) {
       if (error instanceof errors.JWTExpired) {
         return {
-          ok: false,
-          type: "expired",
+          ok: false as const,
+          type: "expired" as const,
           message: error.message,
           payload: error.payload,
         };
       }
       if (error instanceof errors.JWTInvalid) {
         return {
-          ok: false,
-          type: "invalid",
+          ok: false as const,
+          type: "invalid" as const,
           message: error.message,
         };
       }
+      return {
+        ok: false as const,
+        type: "unknown" as const,
+        message: "Failed to verify access token",
+      };
     }
   },
 };
@@ -150,7 +159,7 @@ export function setAuthCookies(
     httpOnly: true,
     secure: isProd,
     sameSite: "strict",
-    path: "/auth/refresh",
+    path: "/",
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   });
 }

@@ -11,9 +11,9 @@ http:
     data: |-
       {
         "mangaData": {
-          "title": " ",
-          "author": " ",
-          "description": " ",
+          "title": "Piecer",
+          "author": "Piercer",
+          "description": "hello world world hello",
           "status": "ongoing",
           "genres": {}
         }

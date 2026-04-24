@@ -159,7 +159,7 @@ export async function createS3UploadURL(
         )}/${mangaChapter}/${randomUUID()}.${chapterExt}`;
 
         const chapterCommand = new PutObjectCommand({
-          Bucket: ENV?.S3_BUCKET_NAME,
+          Bucket: ENV.S3_BUCKET_NAME,
           Key: chapterKey,
           ContentType: chapter.contentType,
         });
@@ -199,7 +199,7 @@ export async function createS3UploadURL(
     )}/${randomUUID()}.${previewExt}`;
 
     const previewCommand = new PutObjectCommand({
-      Bucket: ENV?.S3_BUCKET_NAME,
+      Bucket: ENV.S3_BUCKET_NAME,
       Key: previewKey,
       ContentType: contentType,
     });

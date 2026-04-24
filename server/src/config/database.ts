@@ -3,7 +3,7 @@ import chalk from "chalk";
 import { ENV } from "@validators/env.validators.js";
 
 export const connectToDb = async (): Promise<void> => {
-  const uri = ENV?.MONGO_URI;
+  const uri = ENV.MONGO_URI;
   if (!uri) {
     console.error(
       chalk.red("[ERROR]:"),

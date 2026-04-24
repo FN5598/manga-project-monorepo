@@ -4,8 +4,10 @@ services:
     container_name: nginx
     ports:
       - "8000:80"
+    environment:
+      PORT: 4000
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx.conf.template:/etc/nginx/templates/default.conf.template:ro
     depends_on:
       - app
 
@@ -18,19 +20,76 @@ services:
     command: sh -c "corepack enable && pnpm install --frozen-lockfile && pnpm run dev"
     expose:
       - "4000"
-    environment:
-      NODE_ENV: development
-      PORT: 4000
-      MONGO_URI: mongodb://mongodb:27017/manga_db
+    env_file:
+      - .env.docker
+    depends_on:
+      mongo-seed:
+        condition: service_completed_successfully
+      minio-seed:
+        condition: service_completed_successfully
+
+  mongo-seed:
+    image: mongo:7
+    depends_on:
+      mongo-rs-init:
+        condition: service_completed_successfully
+    volumes:
+      - ./dev-data/mongo/seed.js:/seed.js:ro
+    entrypoint:
+      ["mongosh", "mongodb://mongodb:27017/db?replicaSet=rs0", "/seed.js"]
+    restart: "no"
+  mongo-rs-init:
+    image: mongo:7
     depends_on:
       - mongodb
+    volumes:
+      - ./dev-data/mongo/mongo-init-replica.sh:/mongo-init-replica.sh:ro
+    entrypoint: ["/bin/sh", "/mongo-init-replica.sh"]
+    restart: "no"
 
   mongodb:
     image: mongo:7
+    container_name: mongodb
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all", "--quiet"]
     ports:
       - "27017:27017"
     volumes:
       - mongo_data:/data/db
+    healthcheck:
+      test:
+        ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  minio-seed:
+    image: minio/mc
+    depends_on:
+      - minio
+    volumes:
+      - ./dev-data/minio-seed:/seed:ro
+    entrypoint: >
+      /bin/sh -c "
+      until mc alias set local http://minio:9000 minioadmin minioadmin; do sleep 2; done;
+      mc mb --ignore-existing local/manga-project-bucket;
+      mc anonymous set public local/manga-project-bucket;
+      mc cp --recursive /seed/ local/manga-project-bucket/;
+      "
+    restart: "no"
+
+  minio:
+    image: minio/minio
+    container_name: minio
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"
+      - "9002:9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    volumes:
+      - minio_data:/data
 
 volumes:
   mongo_data:
+  minio_data:
