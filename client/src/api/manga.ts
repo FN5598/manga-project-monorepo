@@ -12,11 +12,7 @@ import {
   FIND_MANGA_BY_NAME,
   GET_ALL_MANGAS,
 } from "./queries/graphql";
-
-type uploadMangaResponse = {
-  mangaData: UploadMangaReponse;
-  message: string;
-};
+import { type PaginationSortInput } from "../index.types";
 
 export type Manga = {
   _id: string;
@@ -36,24 +32,15 @@ export type Manga = {
   updatedAt: string;
 };
 
-type getAllMangaResponse = {
+type UploadMangaResponse = {
+  mangaData: UploadMangaReponse;
+  message: string;
+};
+
+type GetAllMangaResponse = {
   data: {
     findAllMangas: Manga[];
   };
-};
-
-export type PaginationInput = {
-  limit: number;
-  page?: number;
-};
-
-export type SortInput = {
-  sortBy: "asc" | "desc";
-};
-
-export type PaginationSortInput = {
-  paginationInput?: PaginationInput;
-  sort?: SortInput;
 };
 
 type FindMangaByIdResponse = {
@@ -62,10 +49,18 @@ type FindMangaByIdResponse = {
   };
 };
 
-type findMangaByNameBody = {
+type FindMangaByNameBody = {
   data: {
     findMangaByName: Manga[];
   };
+};
+
+type GetMangaById = {
+  mangaId: string;
+};
+
+type FindChapterByName = {
+  mangaTitle: string;
 };
 
 export const mangaApi = createApi({
@@ -78,7 +73,7 @@ export const mangaApi = createApi({
 
   endpoints: (builder) => ({
     uploadManga: builder.mutation<
-      uploadMangaResponse,
+      UploadMangaResponse,
       { mangaData: UploadMangaPayload }
     >({
       query: (body) => ({
@@ -99,7 +94,7 @@ export const mangaApi = createApi({
           },
         },
       }),
-      transformResponse: (response: getAllMangaResponse) => {
+      transformResponse: (response: GetAllMangaResponse) => {
         return response.data.findAllMangas;
       },
     }),
@@ -110,7 +105,7 @@ export const mangaApi = createApi({
         body,
       }),
     }),
-    getMangaById: builder.query<Manga, { mangaId: string }>({
+    getMangaById: builder.query<Manga, GetMangaById>({
       query: (payload) => ({
         url: "graphql",
         method: "POST",
@@ -125,7 +120,7 @@ export const mangaApi = createApi({
         return response.data.findMangaById;
       },
     }),
-    findChapterByName: builder.query<Manga[], { mangaTitle: string }>({
+    findChapterByName: builder.query<Manga[], FindChapterByName>({
       query: (payload) => ({
         url: "graphql",
         method: "POST",
@@ -136,7 +131,7 @@ export const mangaApi = createApi({
           },
         },
       }),
-      transformResponse: (response: findMangaByNameBody) => {
+      transformResponse: (response: FindMangaByNameBody) => {
         return response.data.findMangaByName;
       },
     }),

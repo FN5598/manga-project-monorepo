@@ -1,5 +1,6 @@
 import { Clock } from "lucide-react";
-import { Sort, timeAgo } from "..";
+import { getErrorMessage, timeAgo } from "..";
+import { Sort } from "../index.types";
 import LoadingSpinner from "./UI/LoadingSpinner";
 import { NavLink } from "react-router-dom";
 import { useFindAllChaptersQuery } from "../api/chapter";
@@ -22,7 +23,7 @@ export default function LatestchapterUpdates() {
       </div>
       <div className="border border-slate-400 rounded-xl">
         {isLoading && <LoadingSpinner />}
-        {error && <div>Error</div>}
+        {error && <div>{getErrorMessage(error)}</div>}
         {!isLoading &&
           !error &&
           chapters &&

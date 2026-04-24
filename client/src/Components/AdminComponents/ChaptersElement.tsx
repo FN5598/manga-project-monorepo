@@ -125,7 +125,7 @@ export default function ChaptersElement({
       <div className="flex flex-row gap-2 relative items-center">
         <Layers3 className="text-gray" />
         <h1 className="text-xl font-semibold text-gray">Chapters & Pages</h1>
-        <label className="absolute right-0 text-black font-semibold text-gray">
+        <label className="absolute right-0 text-black font-semibold">
           Bulk Upload
         </label>
       </div>
@@ -148,7 +148,7 @@ export default function ChaptersElement({
           />
         </div>
 
-        <div className="flex flex-col flex-[2]">
+        <div className="flex flex-col flex-2">
           <label htmlFor="chapter-title" className="admin-label">
             Chapter Title <span className="text-xs text-gray">required*</span>
           </label>

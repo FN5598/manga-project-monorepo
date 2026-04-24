@@ -2,7 +2,7 @@ import { NavLink } from "react-router-dom";
 import { useGetAllMangasQuery } from "../api/manga";
 import LoadingSpinner from "./UI/LoadingSpinner";
 import { BookOpen } from "lucide-react";
-import { Sort } from "..";
+import { Sort } from "../index.types";
 import { capitalizeFirstLetter } from "..";
 
 export default function FeaturedMangaCard() {

@@ -48,7 +48,7 @@ export default function MangaPage() {
                     <img
                       src={manga.previewUrl}
                       alt={manga.title}
-                      className="h-[220px] w-[160px] rounded-2xl object-cover shadow-xl ring-4 ring-white transition duration-300 md:h-[280px] md:w-[200px] hover:scale-[1.02]"
+                      className="h-55 w-40 rounded-2xl object-cover shadow-xl ring-4 ring-white transition duration-300 md:h-70 md:w-50 hover:scale-[1.02]"
                     />
                   </div>
 
@@ -121,7 +121,7 @@ export default function MangaPage() {
                 </div>
               ) : (
                 <div className="overflow-x-auto">
-                  <table className="w-full min-w-[700px] border-collapse text-left">
+                  <table className="w-full min-w-175 border-collapse text-left">
                     <thead className="bg-zinc-50">
                       <tr className="text-xs uppercase tracking-wide text-zinc-500">
                         <th className="px-4 py-4 font-semibold sm:px-6">#</th>

@@ -1,7 +1,7 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { BASE_URL } from "../routes";
 import { GET_PAGES_BY_CHAPTER_ID } from "./queries/graphql";
-import { type SortInput, type PaginationInput } from "./manga";
+import type { PaginationInput, SortInput } from "../index.types";
 
 export type Page = {
   _id: string;

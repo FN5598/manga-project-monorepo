@@ -4,14 +4,13 @@ import PublishButtons from "./PublishButtons";
 import { Search } from "lucide-react";
 import { useDebounce } from "../../hooks/useDebounce";
 import { useFindChapterByNameQuery, type Manga } from "../../api/manga";
-import { emitAlert } from "../..";
+import { emitAlert, getErrorMessage } from "../..";
 import { useSignS3BucketUploadUrlMutation, type SignBody } from "../../api/S3";
 import {
   useCreateChapterForMangaMutation,
   type addChapterPayload,
 } from "../../api/chapter";
 import { FileType } from "./manga.utils";
-import { type ApiError } from "./UploadManga";
 
 export default function UploadChapter() {
   const [chapterNumber, setChapterNumber] = useState<number | null>(null);
@@ -110,8 +109,7 @@ export default function UploadChapter() {
       // 6. Reset states after sending successfull request
       clearAllStates();
     } catch (error) {
-      const err = error as ApiError;
-      emitAlert(err.data?.message ?? "Request failed", "error");
+      emitAlert(getErrorMessage(error), "error", 2500);
     } finally {
       setLoading(false);
     }

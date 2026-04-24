@@ -21,7 +21,7 @@ export default function DiscoverMangaCard() {
         </NavLink>
         <NavLink
           to="/browse"
-          className="flex border border-1 border-white text-white p-2 pr-6 pl-6 rounded-xl font-semibold cursor-pointer transition hover:bg-white/10 active:scale-[0.98]"
+          className="flex border border-white text-white p-2 pr-6 pl-6 rounded-xl font-semibold cursor-pointer transition hover:bg-white/10 active:scale-[0.98]"
         >
           Browse Catalog
         </NavLink>

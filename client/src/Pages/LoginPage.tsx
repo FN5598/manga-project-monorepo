@@ -2,28 +2,8 @@ import type React from "react";
 import { useState } from "react";
 import { useLoginMutation } from "../api/auth";
 import { emitAlert } from "..";
-import type { ApiError } from "../Components/AdminComponents/UploadManga";
 import { useNavigate } from "react-router-dom";
-
-function getErrorMessage(error: unknown) {
-  const apiError = error as ApiError;
-  const errorInfo = apiError.data?.errorInfo;
-
-  console.log("errorInfo:", errorInfo);
-  if (errorInfo?.field && errorInfo.message) {
-    return `${errorInfo.field} ${errorInfo.message}`;
-  }
-
-  if (apiError.data?.message) {
-    return apiError.data.message;
-  }
-
-  if (error instanceof Error && error.message) {
-    return error.message;
-  }
-
-  return "Request failed";
-}
+import { getErrorMessage } from "..";
 
 export default function LoginPage() {
   const navigate = useNavigate();

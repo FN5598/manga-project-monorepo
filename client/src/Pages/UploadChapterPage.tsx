@@ -4,6 +4,7 @@ import UploadChapter from "../Components/AdminComponents/UploadChapter";
 import { useNavigate, useParams } from "react-router-dom";
 import LoadingSpinnerPage from "../Components/UI/LoadingPage";
 import { useEffect, useRef } from "react";
+import { emitAlert, getErrorMessage } from "..";
 
 export default function UploadChapterPage() {
   const navigate = useNavigate();
@@ -27,7 +28,7 @@ export default function UploadChapterPage() {
       try {
         await refresh({ userId: adminId! }).unwrap();
       } catch (error) {
-        console.error("Refresh failed", error);
+        emitAlert(getErrorMessage(error), "error", 2500);
         navigate("/discover");
       }
     }

@@ -5,7 +5,14 @@ import {
   FIND_CHAPTER_BY_ID,
   FIND_CHAPTERS_BY_MANGA_ID,
 } from "./queries/graphql";
-import type { PaginationSortInput } from "./manga";
+import type { PaginationSortInput } from "../index.types";
+
+export enum UploadStatus {
+  DRAFT = "draft",
+  UPLOADING = "uploading",
+  READY = "ready",
+  FAILED = "failed",
+}
 
 type Chapter = {
   _id: string;
@@ -14,9 +21,28 @@ type Chapter = {
   title: string;
   storagePrefix: string;
   pageCount: number;
-  uploadStatus: string; //  TODO make enum
+  uploadStatus: UploadStatus;
   createdAt: string;
   updatedAt: string;
+};
+
+export type addChapterPayload = {
+  mangaId: string;
+  chapterTitle: string;
+  chapterNumber: number;
+  pages: {
+    imageKey: string;
+    fileName: string;
+    fileSize: number;
+  }[];
+};
+
+export type FindChapterByMangaIdInput = {
+  mangaId: string;
+};
+
+export type FindChapterById = {
+  chapterId: string;
 };
 
 type FindChaptersResponseBody = {
@@ -37,17 +63,6 @@ type FindAllChapersBody = {
   };
 };
 
-export type addChapterPayload = {
-  mangaId: string;
-  chapterTitle: string;
-  chapterNumber: number;
-  pages: {
-    imageKey: string;
-    fileName: string;
-    fileSize: number;
-  }[];
-};
-
 export const chaptersApi = createApi({
   reducerPath: "chaptersApi",
 
@@ -57,7 +72,7 @@ export const chaptersApi = createApi({
   }),
 
   endpoints: (builder) => ({
-    findChapterByMangaId: builder.query<Chapter[], { mangaId: string }>({
+    findChapterByMangaId: builder.query<Chapter[], FindChapterByMangaIdInput>({
       query: (payload) => ({
         url: "/graphql",
         method: "POST",
@@ -72,7 +87,7 @@ export const chaptersApi = createApi({
         return response.data.findChaptersByMangaId;
       },
     }),
-    findChapterById: builder.query<Chapter, { chapterId: string }>({
+    findChapterById: builder.query<Chapter, FindChapterById>({
       query: (payload) => ({
         url: "graphql",
         method: "POST",

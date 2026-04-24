@@ -12,7 +12,11 @@ type LoginInput = {
   email: string;
 };
 
-type SignUpResponse = {
+type RefreshTokenInput = {
+  userId: string;
+};
+
+type Response = {
   message: string;
   code?: string;
   errorInfo?: {
@@ -31,21 +35,21 @@ export const authApi = createApi({
   }),
 
   endpoints: (builder) => ({
-    signUp: builder.mutation<SignUpResponse, SignUpInput>({
+    signUp: builder.mutation<Response, SignUpInput>({
       query: (body) => ({
         url: "sign-up",
         method: "POST",
         body,
       }),
     }),
-    login: builder.mutation<SignUpResponse, LoginInput>({
+    login: builder.mutation<Response, LoginInput>({
       query: (body) => ({
         url: "login",
         method: "POST",
         body,
       }),
     }),
-    refreshAccessToken: builder.mutation<SignUpResponse, { userId: string }>({
+    refreshAccessToken: builder.mutation<Response, RefreshTokenInput>({
       query: (body) => ({
         url: "refresh",
         method: "POST",

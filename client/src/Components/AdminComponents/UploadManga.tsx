@@ -9,26 +9,13 @@ import {
 import BasincInformation from "./BasicInformation";
 import CoverImage from "./CoverImage";
 import ChaptersElement from "./ChaptersElement";
-import { emitAlert } from "../..";
+import { emitAlert, getErrorMessage } from "../..";
 import { useSignS3BucketUploadUrlMutation } from "../../api/S3";
 import {
   useUpdateMangaMutation,
   useUploadMangaMutation,
 } from "../../api/manga";
 import PublishButtons from "./PublishButtons";
-
-export type ApiError = {
-  status?: number;
-  data?: {
-    message?: string;
-    code?: string;
-    errorInfo?: {
-      field: string;
-      code: string;
-      message: string;
-    };
-  };
-};
 
 export function UploadManga() {
   const [mangaTitle, setMangaTitle] = useState<string | null>(null);
@@ -172,8 +159,7 @@ export function UploadManga() {
       // 6. Reset states after sending successfull request
       clearAllStates();
     } catch (error) {
-      const err = error as ApiError;
-      emitAlert(err.data?.message ?? "Request failed", "error");
+      emitAlert(getErrorMessage(error), "error", 2500);
     } finally {
       setLoading(false);
     }
@@ -184,7 +170,7 @@ export function UploadManga() {
       <h1 className="text-3xl font-semibold md:text-4xl">Upload Manga</h1>
 
       <div className="mt-6 flex flex-wrap items-start gap-4 md:gap-6">
-        <div className="flex min-w-[300px] flex-1 flex-col gap-6">
+        <div className="flex min-w-75 flex-1 flex-col gap-6">
           <BasincInformation
             mangaTitle={mangaTitle}
             setMangaTitle={setMangaTitle}
@@ -210,7 +196,7 @@ export function UploadManga() {
           />
         </div>
 
-        <div className="flex w-full max-w-[340px] flex-col gap-5">
+        <div className="flex w-full max-w-85 flex-col gap-5">
           <CoverImage
             preview={preview}
             setPreview={setPreview}

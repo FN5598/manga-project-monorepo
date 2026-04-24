@@ -25,7 +25,7 @@ export default function PublishButtons({
                       `}
       >
         {loading && (
-          <span className="flex-shrink-0 animate-pulse">
+          <span className="shrink-0 animate-pulse">
             <LoadingSpinner />
           </span>
         )}

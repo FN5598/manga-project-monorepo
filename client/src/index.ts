@@ -1,14 +1,7 @@
 import { toast, Zoom, type ToastPosition, type Theme } from "react-toastify";
-import type { MangaStatus } from "./Components/AdminComponents/manga.utils";
+import { type ApiError } from "./index.types";
 
 export const NUMBER_REGEX = /^[0-9]+$/;
-
-type AlertType = "info" | "success" | "warning" | "error";
-
-export enum Sort {
-  ASC = "asc",
-  DESC = "desc",
-}
 
 const createToastOptions = (
   position: ToastPosition,
@@ -32,6 +25,8 @@ const toastMap = {
   error: toast.error,
 } as const;
 
+type AlertType = "info" | "success" | "warning" | "error";
+
 /**
  *   Helper functions to make consistent alerts across app
  *
@@ -52,41 +47,6 @@ export function emitAlert(
 ) {
   const options = createToastOptions(position, autoClose, theme);
   return toastMap[type](message, options);
-}
-/**
- * Used to store data in localstorage consistenly
- */
-export function saveToLocalStorage(
-  data: Record<string, unknown>,
-  itemName: string,
-): boolean {
-  try {
-    const transformedData = JSON.stringify(data);
-    localStorage.setItem(itemName, transformedData);
-    return true;
-  } catch (e) {
-    console.log(e);
-    return false;
-  }
-}
-
-export type DraftData = {
-  mangaTitle: string | null;
-  mangaStatus: MangaStatus;
-  authorName: string | null;
-  chapterNumber: number | null;
-  chapterTitle: string | null;
-  mangaDescription: string | null;
-  preview: string | null;
-  previewFileData: File | null;
-};
-
-export function getItemFromLocalStorage(itemName: string) {
-  const item = localStorage.getItem(itemName);
-  if (item) {
-    return JSON.parse(item);
-  }
-  return null;
 }
 
 export function timeAgo(dateString: string) {
@@ -111,11 +71,36 @@ export function timeAgo(dateString: string) {
   const days = Math.floor(hours / 24);
   return `${days} day${days !== 1 ? "s" : ""} ago`;
 }
-
+/**
+ * Used to get path dynamically in header
+ *
+ * @param name pathname can be capital and with spaces
+ * @returns lowercased name with dashes instead of spaces
+ */
 export function getPath(name: string): string {
   return `/${name.toLowerCase().trim().replace(/\s+/g, "-")}`;
 }
 
 export function capitalizeFirstLetter(str: string): string {
   return str[0].toUpperCase() + str.slice(1);
+}
+
+export function getErrorMessage(error: unknown) {
+  const apiError = error as ApiError;
+  const errorInfo = apiError.data?.errorInfo;
+
+  console.log("errorInfo:", errorInfo);
+  if (errorInfo?.field && errorInfo.message) {
+    return `${errorInfo.field} ${errorInfo.message}`;
+  }
+
+  if (apiError.data?.message) {
+    return apiError.data.message;
+  }
+
+  if (error instanceof Error && error.message) {
+    return error.message;
+  }
+
+  return "Request failed";
 }

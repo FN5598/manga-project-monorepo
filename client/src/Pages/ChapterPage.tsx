@@ -5,11 +5,7 @@ import ReaderPage from "../Components/UI/PageReader";
 import { useFindChapterByIdQuery } from "../api/chapter";
 import { useLazyGetPagesByChapterIdQuery } from "../api/page";
 import { useParams } from "react-router-dom";
-
-type Page = {
-  _id: string;
-  pageUrl: string;
-};
+import { type Page } from "../index.types";
 
 const LIMIT = 10;
 

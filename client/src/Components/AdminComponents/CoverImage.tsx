@@ -23,7 +23,7 @@ export default function CoverImage({
   }
 
   return (
-    <div className="flex flex-col gap-2 rounded p-5 rounded-xl bg-white shadow-md min-h-125 w-full">
+    <div className="flex flex-col gap-2 rounded p-5 bg-white shadow-md min-h-125 w-full">
       <label className="text-xl font-semibold text-gray">
         Cover Image <span className="text-xs text-gray">required*</span>
       </label>
