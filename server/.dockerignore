@@ -1,17 +1,25 @@
+
+# Folders
 node_modules
 dist
-.git
-.gitignore
-Dockerfile
-compose.yaml
+coverage
+/src/tests
+bruno
+
+# Logs
 npm-debug.log
 pnpm-debug.log
 yarn-error.log
 
-bruno
+# lock and docker files
 package-lock.json
 yarn.lock
+Dockerfile
+compose.yaml
 
+# Hidden .* files
 .env
 .env.*
-!.env.docker
+!.env.docker 
+.git
+.gitignore
