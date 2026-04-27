@@ -112,14 +112,12 @@ pnpm build
 
 ## How to launch the full app
 
-From one terminal, start the backend stack:
+Follow these instructions:
 
 ```bash
 cd server
 pnpm dev:build-compose
 ```
-
-From another terminal, start the frontend:
 
 ```bash
 cd client
