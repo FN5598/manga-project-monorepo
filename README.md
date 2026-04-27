@@ -1,35 +1,129 @@
-## Manga images upload to S3
+# Manga Project Monorepo
 
-### FE sends file metadata to BE to validate files and generate S3 upload URL, this allowed FE to directly upload data to S3
+Full-stack manga application with a React client and a TypeScript backend.
 
-**Pros**
+## Prerequisites
 
-- BE does not stream file bytes
-- Lower BE CPU/memory pressure
-- Lower latency
-- Scales better for many concurrent uploads
+Install these before running the project locally:
 
-**Cons**
+- Node.js 24.x
+- pnpm 10.x
+- Docker Desktop, or Docker Engine with Docker Compose
+- Git
 
-- More care needed around validation, key naming, expiration, and post-upload confirmation
+If you use `nvm`, install and activate Node first:
 
-### FE -> BE -> S3
+```bash
+nvm install 24
+nvm use 24
+```
 
-**Pros**
+Enable pnpm with Corepack, or install pnpm globally:
 
-- BE can inspect every file before forwarding
-- Easier to centralize auth, rate limits, antivirus/scanning hooks, buisness rules
-- Bucket can stay full private
+```bash
+corepack enable
+corepack prepare pnpm@10.30.3 --activate
+```
 
-**Cons**
+Check your versions:
 
-- BE handles all file traffic
-- More compute, more memory, more timeouts/retries to manage
-- Paying for bytes that could have directly went to S3
+```bash
+node --version
+pnpm --version
+docker --version
+docker compose version
+```
 
-## Current implementation is FE -> S3
+## Repository Layout
 
-**Why**
+```text
+client/  React frontend
+server/  TypeScript backend
+```
 
-- Cost, sending 7mil PUT requests to S3 costs around 35$, adding more Compute power on BE Server will cost way above that
-- Easier to scale
+## Backend Setup
+
+Install backend dependencies:
+
+```bash
+cd server
+pnpm install
+```
+
+Create a local environment file:
+
+```bash
+cp .env.example .env.docker
+```
+
+Review `.env` and make sure values match your local Docker services.
+
+Start the backend dependencies and backend app with Docker Compose:
+
+```bash
+pnpm dev:build-compose
+```
+
+Stop and remove the Docker Compose services:
+
+```bash
+pnpm dev:shutdown
+```
+
+Run the backend directly in development mode:
+
+```bash
+pnpm dev
+```
+
+Build the backend:
+
+```bash
+pnpm build
+```
+
+Run backend tests:
+
+```bash
+pnpm test
+pnpm test:coverage
+```
+
+## Client Setup
+
+Install frontend dependencies:
+
+```bash
+cd client
+pnpm install
+```
+
+Run the frontend development server:
+
+```bash
+pnpm dev
+```
+
+Build the frontend:
+
+```bash
+pnpm build
+```
+
+## Typical Local Workflow
+
+From one terminal, start the backend stack:
+
+```bash
+cd server
+pnpm dev:build-compose
+```
+
+From another terminal, start the frontend:
+
+```bash
+cd client
+pnpm dev
+```
+
+Use `server/.env.example` as the source of truth for required backend environment variables.
