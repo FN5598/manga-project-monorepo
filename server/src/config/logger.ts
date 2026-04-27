@@ -1,4 +1,3 @@
-import { ENV } from "@validators/env.validators.js";
 import chalk from "chalk";
 
 type LogLevel = "debug" | "info" | "warn" | "error";
@@ -113,6 +112,7 @@ export class Logger {
    * @param meta - data to log exm. { email: test@example.com }
    */
   private log(level: LogLevel, message: string, meta?: LogMeta) {
+    if (process.env.LOGS === "false") return;
     const timestamp = new Date().toISOString();
 
     let error: SerializedError | undefined;
@@ -124,7 +124,7 @@ export class Logger {
       cleanedMeta = rest;
     }
 
-    if (ENV.NODE_ENV === "production") {
+    if (process.env.NODE_ENV === "production") {
       this.formatJsonLog(timestamp, level, message, cleanedMeta, error);
       return;
     }

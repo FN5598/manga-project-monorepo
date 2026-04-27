@@ -25,8 +25,8 @@
       "@validators/*": ["./src/validators/*"],
       "@errors/*": ["./src/errors/*"],
       "@middlewares/*": ["./src/middlewares/*"]
-    }
+    },
+    "types": ["node", "jest"]
   },
-
-  "include": ["src"]
+  "include": ["src", "src/tests/*"]
 }

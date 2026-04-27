@@ -146,7 +146,6 @@ export function setAuthCookies(
   accessToken: string,
   refreshToken: string,
 ) {
-  console.log("Setting cookies", isProd);
   res.cookie(accessCookieName, accessToken, {
     httpOnly: true,
     secure: isProd,
