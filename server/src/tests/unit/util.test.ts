@@ -99,7 +99,7 @@ describe("util config helpers", () => {
     } as never);
 
     const token = await JWT.signJWTAccessToken({
-      userId: "user1",
+      userId: "user-1",
       role: UserRole.USER,
     });
 
