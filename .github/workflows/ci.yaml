@@ -9,7 +9,7 @@ on:
 
 jobs:
   server:
-    name: Server
+    name: Server-Backend
     runs-on: ubuntu-latest
 
     defaults:
