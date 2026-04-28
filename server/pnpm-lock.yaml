@@ -32,7 +32,7 @@ importers:
         version: 3.1006.0
       '@typegoose/typegoose':
         specifier: ^13.2.1
-        version: 13.2.1(mongoose@9.2.3)
+        version: 13.2.1(mongoose@9.2.4)
       argon2:
         specifier: ^0.44.0
         version: 0.44.0
@@ -58,8 +58,8 @@ importers:
         specifier: ^6.2.2
         version: 6.2.2
       mongoose:
-        specifier: ^9.2.3
-        version: 9.2.3
+        specifier: ^9.2.4
+        version: 9.2.4
       reflect-metadata:
         specifier: ^0.2.2
         version: 0.2.2
@@ -874,8 +874,8 @@ packages:
   '@jridgewell/trace-mapping@0.3.9':
     resolution: {integrity: sha512-3Belt6tdc8bPgAtbcmdtNJlirVoTmEb5e2gC94PnkwEW9jI6CAHUeoG85tjWP5WquqfavoMtMwiG4P926ZKKuQ==}
 
-  '@mongodb-js/saslprep@1.4.6':
-    resolution: {integrity: sha512-y+x3H1xBZd38n10NZF/rEBlvDOOMQ6LKUTHqr8R9VkJ+mmQOYtJFxIlkkK8fZrtOiL6VixbOBWMbZGBdal3Z1g==}
+  '@mongodb-js/saslprep@1.4.9':
+    resolution: {integrity: sha512-RXSxsokhAF/4nWys8An8npsqOI33Ex1Hlzqjw2pZOO+GKtMAR2noGnUdsFiGwsaO/xXI+56mtjTmDA3JXJsvmA==}
 
   '@nodable/entities@2.1.0':
     resolution: {integrity: sha512-nyT7T3nbMyBI/lvr6L5TyWbFJAI9FTgVRakNoBqCD+PmID8DzFrrNdLLtHMwMszOtqZa8PAOV24ZqDnQrhQINA==}
@@ -2438,8 +2438,8 @@ packages:
       socks:
         optional: true
 
-  mongoose@9.2.3:
-    resolution: {integrity: sha512-4XFKKkXUOsdY+p07eJyio4mk0rzZOT4n5r5tLqZNeRZ/IsS68vS8Szw8uShX4p7S687XGGc+MFAp+6K1OIN0aw==}
+  mongoose@9.2.4:
+    resolution: {integrity: sha512-XNh+jiztVMddDFDCv8TWxVxi/rGx+0FfsK3Ftj6hcYzEmhTcos2uC144OJRmUFPHSu3hJr6Pgip++Ab2+Da35Q==}
     engines: {node: '>=20.19.0'}
 
   mpath@0.9.0:
@@ -4200,7 +4200,7 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  '@mongodb-js/saslprep@1.4.6':
+  '@mongodb-js/saslprep@1.4.9':
     dependencies:
       sparse-bitfield: 3.0.3
 
@@ -4601,11 +4601,11 @@ snapshots:
 
   '@tsconfig/node16@1.0.4': {}
 
-  '@typegoose/typegoose@13.2.1(mongoose@9.2.3)':
+  '@typegoose/typegoose@13.2.1(mongoose@9.2.4)':
     dependencies:
       lodash: 4.18.1
       loglevel: 1.9.2
-      mongoose: 9.2.3
+      mongoose: 9.2.4
       reflect-metadata: 0.2.2
       semver: 7.7.4
       tslib: 2.8.1
@@ -6130,11 +6130,11 @@ snapshots:
 
   mongodb@7.0.0:
     dependencies:
-      '@mongodb-js/saslprep': 1.4.6
+      '@mongodb-js/saslprep': 1.4.9
       bson: 7.2.0
       mongodb-connection-string-url: 7.0.1
 
-  mongoose@9.2.3:
+  mongoose@9.2.4:
     dependencies:
       kareem: 3.2.0
       mongodb: 7.0.0
