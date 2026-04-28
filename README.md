@@ -110,7 +110,7 @@ Build the frontend:
 pnpm build
 ```
 
-## Typical Local Workflow
+## How to launch the full app
 
 From one terminal, start the backend stack:
 
