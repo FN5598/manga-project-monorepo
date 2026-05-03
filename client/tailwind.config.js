@@ -2,7 +2,7 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        dark: "rgb(16,25,30)",
+        dark: "rgb(67,67,67)",
       },
     },
   },
