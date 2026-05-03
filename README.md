@@ -1,4 +1,4 @@
-# Manga Project Monorepo
+#Manga Project Monorepo
 
 Full-stack manga application with a React client and a TypeScript backend.
 
@@ -55,6 +55,9 @@ Create a local environment file:
 ```bash
 cp .env.example .env.docker
 ```
+
+### To set up client server completely
+- Make sure to create .env file
 
 Review `.env` and make sure values match your local Docker services.
 
