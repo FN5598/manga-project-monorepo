@@ -1,4 +1,4 @@
-#Manga Project Monorepo
+# Manga Project Monorepo
 
 Full-stack manga application with a React client and a TypeScript backend.
 
