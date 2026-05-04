@@ -66,7 +66,10 @@ export class FileTooLargeError extends AppError {
  * * 5xx Error codes
  */
 export class InvalidEnvConfiguration extends AppError {
-  constructor(message: string, errorInfo: ErorrInfo) {
+  constructor(
+    message: string = "Invalid enviroment variables config",
+    errorInfo?: ErorrInfo,
+  ) {
     super(500, "INVALID_ENV_CONFIGURATION", message, errorInfo);
   }
 }

@@ -12,8 +12,9 @@
     "test": "jest --runInBand",
     "test:coverage": "jest --coverage --verbose --runInBand",
     "start": "node ./dist/server.js",
-    "dev:build-compose": "docker compose up --build -d",
-    "dev:shutdown": "docker compose down -v && docker compose ps"
+    "dev:build-compose": "docker compose -f compose.yaml up --build -d",
+    "prod:build-compose": "docker compose -f compose.prod.yaml up --build -d",
+    "docker:shutdown": "docker compose down -v && docker compose ps"
   },
   "keywords": [],
   "author": "",
@@ -21,7 +22,9 @@
   "dependencies": {
     "@apollo/server": "^5.4.0",
     "@as-integrations/express4": "^1.1.2",
+    "@aws-lambda-powertools/parameters": "^2.33.0",
     "@aws-sdk/client-s3": "^3.1006.0",
+    "@aws-sdk/client-secrets-manager": "^3.1041.0",
     "@aws-sdk/s3-request-presigner": "^3.1006.0",
     "@typegoose/typegoose": "^13.2.1",
     "argon2": "^0.44.0",
