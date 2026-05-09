@@ -80,6 +80,16 @@ coverage/
 temp/
 
 # ------------------------------
+# Terraform
+# ------------------------------
+
+**/.terraform/*
+*.tfvars
+!*.tfvars.example
+crash.log
+crash.*.log
+
+# ------------------------------
 # Editors / IDE
 # ------------------------------
 

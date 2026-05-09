@@ -2,13 +2,15 @@ import { getSecret } from "@aws-lambda-powertools/parameters/secrets";
 import { InvalidEnvConfiguration } from "@errors/Error.js";
 import dotenv from "dotenv";
 import { z } from "zod";
-import { nodeEnvSchema, nonEmptyString } from "./validator.utils.js";
+import { nonEmptyString } from "./validator.utils.js";
 
 if (!process.env.MONGO_URI) {
   dotenv.config();
 }
 
 const ONE_WEEK_IN_SECONDS = 60 * 60 * 24 * 7;
+const AWS_REGION = process.env.AWS_REGION ?? "eu-central-1";
+process.env.AWS_REGION = AWS_REGION;
 
 const baseSchema = z.object({
   AWS_REGION: nonEmptyString.default("eu-central-1"),
@@ -18,18 +20,19 @@ const baseSchema = z.object({
   JWT_REFRESH_TOKEN: nonEmptyString.default("change-refresh-secret"),
   PORT: z.coerce.number().default(4000),
   MONGO_URI: nonEmptyString,
-  AWS_ACCESS_KEY_ID: nonEmptyString,
-  AWS_SECRET_ACCESS_KEY: nonEmptyString,
+  CORS_ORIGIN: nonEmptyString.default("http://localhost:5173"),
 });
 
 const developmentSchema = baseSchema.extend({
-  NODE_ENV: nodeEnvSchema.default("development"),
+  NODE_ENV: z.literal("development").default("development"),
+  AWS_ACCESS_KEY_ID: nonEmptyString,
+  AWS_SECRET_ACCESS_KEY: nonEmptyString,
   S3_ENDPOINT: nonEmptyString,
   S3_FORCE_PATH_STYLE: z.coerce.boolean().default(true),
 });
 
 const productionSchema = baseSchema.extend({
-  NODE_ENV: nodeEnvSchema.default("production"),
+  NODE_ENV: z.literal("production").default("production"),
 
   S3_ENDPOINT: nonEmptyString.optional(),
   S3_FORCE_PATH_STYLE: z.coerce.boolean().optional(),
