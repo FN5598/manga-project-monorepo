@@ -34,13 +34,18 @@ async function main() {
 
   app.use(
     cors({
-      origin: "http://localhost:5173",
+      origin: ENV.CORS_ORIGIN.split(",").map((origin) => origin.trim()),
       methods: ["GET", "POST", "PUT", "DELETE"],
       credentials: true,
     }),
   );
   app.use(express.json()); // required for parsing application/json
   app.use(cookieParser());
+
+  app.get("/healthz", (_req, res) => {
+    res.status(200).json({ status: "ok" });
+  });
+
   app.use("/graphql", expressMiddleware(server));
 
   // Rest routes
