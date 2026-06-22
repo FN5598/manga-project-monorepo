@@ -6,7 +6,11 @@ import {
   PaginationInput,
   SortInputType,
 } from "@resolvers/resolver.utils.js";
-import { InputValidationError } from "@errors/Error.js";
+import {
+  ForbiddenError,
+  InputValidationError,
+  UnauthorizedError,
+} from "@errors/Error.js";
 
 jest.mock("@resolvers/manga.resolvers.utils.js", () => ({
   __esModule: true,
@@ -59,6 +63,7 @@ import {
 import { Manga } from "@models/manga.model.js";
 import { MangaStatus } from "@validators/manga.validators.js";
 import { SortInput } from "@config/constants.js";
+import { UserRole } from "@models/user.model.js";
 
 const mockedMangaRepository = MangaRepository as jest.Mocked<
   typeof MangaRepository
@@ -70,6 +75,13 @@ const mockedChapterRepository = ChapterRepository as jest.Mocked<
   typeof ChapterRepository
 >;
 let resolver: MangaResolver;
+const adminContext = {
+  user: { userId: "admin-id", role: UserRole.ADMIN },
+};
+const userContext = {
+  user: { userId: "user-id", role: UserRole.USER },
+};
+const anonymousContext = { user: null };
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -148,8 +160,24 @@ describe("Manga resolver", () => {
     });
   });
   describe("deleteManga", () => {
+    test("Should throw - UnauthorizedError if user is not authenticated", async () => {
+      await expect(
+        resolver.deleteManga(anonymousContext, "manga-id"),
+      ).rejects.toThrow(UnauthorizedError);
+
+      expect(mockedMongoose.startSession).not.toHaveBeenCalled();
+    });
+
+    test("Should throw - ForbiddenError if user is not an admin", async () => {
+      await expect(
+        resolver.deleteManga(userContext, "manga-id"),
+      ).rejects.toThrow(ForbiddenError);
+
+      expect(mockedMongoose.startSession).not.toHaveBeenCalled();
+    });
+
     test("Should throw - InputValidationError if mangaId is missing", async () => {
-      await expect(resolver.deleteManga("")).rejects.toThrow(
+      await expect(resolver.deleteManga(adminContext, "")).rejects.toThrow(
         InputValidationError,
       );
 
@@ -178,7 +206,9 @@ describe("Manga resolver", () => {
         new Error("Rejects"),
       );
 
-      await expect(resolver.deleteManga(mangaId)).rejects.toThrow("Rejects");
+      await expect(
+        resolver.deleteManga(adminContext, mangaId),
+      ).rejects.toThrow("Rejects");
 
       expect(mockedMongoose.startSession).toHaveBeenCalled();
 
@@ -228,7 +258,7 @@ describe("Manga resolver", () => {
         deletedChapters,
       );
 
-      const result = await resolver.deleteManga(mangaId);
+      const result = await resolver.deleteManga(adminContext, mangaId);
 
       expect(mockedMongoose.startSession).toHaveBeenCalled();
 
@@ -282,7 +312,7 @@ describe("Manga resolver", () => {
         deletedPageIds: ["page-id"],
       });
 
-      const result = await resolver.deleteManga(mangaId);
+      const result = await resolver.deleteManga(adminContext, mangaId);
 
       expect(mockedResolverUtils.deleteFolderFromS3).toHaveBeenNthCalledWith(
         1,
@@ -297,12 +327,40 @@ describe("Manga resolver", () => {
     });
   });
   describe("uploadManga", () => {
+    test("Should throw - UnauthorizedError if user is not authenticated", async () => {
+      const mangaUploadInput = {
+        title: "some-title",
+        author: "Some-author",
+        status: MangaStatus.COMPLETED,
+      } satisfies MangaUploadInput;
+
+      await expect(
+        resolver.uploadManga(anonymousContext, mangaUploadInput),
+      ).rejects.toThrow(UnauthorizedError);
+
+      expect(mockedMangaRepository.createManga).not.toHaveBeenCalled();
+    });
+
+    test("Should throw - ForbiddenError if user is not an admin", async () => {
+      const mangaUploadInput = {
+        title: "some-title",
+        author: "Some-author",
+        status: MangaStatus.COMPLETED,
+      } satisfies MangaUploadInput;
+
+      await expect(
+        resolver.uploadManga(userContext, mangaUploadInput),
+      ).rejects.toThrow(ForbiddenError);
+
+      expect(mockedMangaRepository.createManga).not.toHaveBeenCalled();
+    });
+
     test("Should throw - InputValidationError if mangaData is invalid", async () => {
       const mangaUploadInput = { a: "aaaa" } as unknown as MangaUploadInput;
 
-      await expect(resolver.uploadManga(mangaUploadInput)).rejects.toThrow(
-        InputValidationError,
-      );
+      await expect(
+        resolver.uploadManga(adminContext, mangaUploadInput),
+      ).rejects.toThrow(InputValidationError);
 
       expect(mockedMangaRepository.createManga).not.toHaveBeenCalled();
     });
@@ -320,7 +378,7 @@ describe("Manga resolver", () => {
       } as unknown as Manga;
       mockedMangaRepository.createManga.mockResolvedValue(createdManga);
 
-      const result = await resolver.uploadManga(mangaUploadInput);
+      const result = await resolver.uploadManga(adminContext, mangaUploadInput);
 
       expect(mockedMangaRepository.createManga).toHaveBeenCalledWith({
         ...mangaUploadInput,

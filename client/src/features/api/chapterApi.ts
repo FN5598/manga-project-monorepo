@@ -73,7 +73,7 @@ export const chaptersApi = apiSlice.injectEndpoints({
         method: "POST",
         body: {
           query: FIND_ALL_CHAPTERS,
-          varaibles: {
+          variables: {
             paginationInput: payload.paginationInput,
             sort: payload.sort,
           },

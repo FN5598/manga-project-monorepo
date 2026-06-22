@@ -1,10 +1,11 @@
 import { useParams, NavLink } from "react-router-dom";
 import { BookOpen, Bookmark, ChevronRight } from "lucide-react";
-import { useGetMangaByIdQuery } from "../features/manga";
+import { useGetMangaByIdQuery } from "@api/mangaApi";
 import { useFindChapterByMangaIdQuery } from "../../features/api/chapterApi";
 import LoadingSpinner from "../../shared/LoadingSpinner";
 import Header from "../../shared/Header";
 import { timeAgo } from "../../lib";
+import { skipToken } from "@reduxjs/toolkit/query";
 
 export default function MangaPage() {
   const { mangaId } = useParams();
@@ -13,13 +14,13 @@ export default function MangaPage() {
     data: manga,
     isLoading: isLoadingManga,
     error: errorManga,
-  } = useGetMangaByIdQuery({ mangaId: mangaId! });
+  } = useGetMangaByIdQuery(mangaId ? mangaId : skipToken);
 
   const {
     data: chapters,
     isLoading: isLoadingChapters,
     error: errorChapters,
-  } = useFindChapterByMangaIdQuery({ mangaId: mangaId! });
+  } = useFindChapterByMangaIdQuery(mangaId ? mangaId : skipToken);
 
   const isLoading = isLoadingManga || isLoadingChapters;
   const error = errorManga || errorChapters;

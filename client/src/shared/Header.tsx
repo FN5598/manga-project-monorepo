@@ -16,6 +16,7 @@ import { useLogoutMutation } from "@api/authApi";
 import { useAppSelector } from "@store";
 import { getPath } from "@lib/index";
 import { MyLibraryTabs } from "@appTypes/index";
+import { handleError } from "@lib/error";
 
 const navItems = [
   { label: "Discover", icon: <House className="h-4 w-4" /> },
@@ -38,8 +39,8 @@ export default function Header({ sticky }: HeaderProps) {
     try {
       const res = await logoutTrigger().unwrap();
       emitAlert(res.message, "info");
-    } catch (e) {
-      emitAlert("TODO ADD ERROR HANDLING", "error");
+    } catch (error) {
+      handleError(error);
     } finally {
       navigate("/discover");
     }

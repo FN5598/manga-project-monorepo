@@ -1,7 +1,7 @@
 import { Layers3, CloudUpload } from "lucide-react";
 import { useCallback, useEffect, useMemo } from "react";
 import { useDropzone, type FileRejection } from "react-dropzone";
-import { NUMBER_REGEX, emitAlert } from "../../lib";
+import { NUMBER_REGEX, emitAlert } from "@lib/alerts";
 
 type ChapterElementProps = {
   setChapterNumber: React.Dispatch<React.SetStateAction<number | null>>;

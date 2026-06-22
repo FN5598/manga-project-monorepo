@@ -130,7 +130,6 @@ export class IUserRepository implements IUserInterface {
     } catch (error) {
       logger.error("Failed to add refresh token to user", {
         error,
-        refreshToken,
       });
       throw error;
     }

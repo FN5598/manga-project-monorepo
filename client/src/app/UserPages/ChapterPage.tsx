@@ -3,10 +3,11 @@ import Header from "../../shared/Header";
 import LoadingSpinner from "../../shared/LoadingSpinner";
 import ReaderPage from "../../shared/PageReader";
 import { useFindChapterByIdQuery } from "../../features/api/chapterApi";
-import { useLazyGetPagesByChapterIdQuery } from "../features/page";
+import { useLazyGetPagesByChapterIdQuery } from "@api/pageApi";
 import { useParams } from "react-router-dom";
-import { type Page } from "../index.types";
-import { saveVisitedMangasToLocalStorage } from "../../lib";
+import { type Page } from "@appTypes/Page";
+import { saveVisitedMangasToLocalStorage } from "@lib/localStorage";
+import { skipToken } from "@reduxjs/toolkit/query";
 
 const LIMIT = 10;
 
@@ -24,7 +25,7 @@ export default function ChapterPage() {
     data: chapter,
     error: errorChapter,
     isLoading: isLoadingChapter,
-  } = useFindChapterByIdQuery({ chapterId: chapterId! }, { skip: !chapterId });
+  } = useFindChapterByIdQuery(chapterId ? chapterId : skipToken);
 
   const [getPagesTrigger, { error: errorPages }] =
     useLazyGetPagesByChapterIdQuery();

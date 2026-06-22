@@ -12,6 +12,7 @@ import {
 } from "@api/chapterApi";
 import { emitAlert } from "@lib/alerts";
 import { FileType } from "@appTypes/Manga";
+import { handleError } from "@lib/error";
 
 export default function UploadChapter() {
   const [chapterNumber, setChapterNumber] = useState<number | null>(null);
@@ -109,7 +110,7 @@ export default function UploadChapter() {
       // 6. Reset states after sending successfull request
       clearAllStates();
     } catch (error) {
-      emitAlert("TODO ADD ERROR HANDLING", "error", 2500);
+      handleError(error);
     } finally {
       setLoading(false);
     }

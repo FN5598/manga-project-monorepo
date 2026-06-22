@@ -1,6 +1,8 @@
 import {
+  accessCookieName,
   clearAuthCookies,
   JWT,
+  refreshCookieName,
   setAccessTokenCookie,
   setAuthCookies,
 } from "@config/util.js";
@@ -65,7 +67,6 @@ export async function signUpController(
         return {
           accessToken,
           refreshToken,
-          userId: createdUser._id.toString(),
           createdUser,
         };
       },
@@ -86,10 +87,12 @@ export async function signUpController(
     logger.info("Sign Up controller called", {
       email,
       username,
-      hashedPassword,
     });
     return res.status(201).json({
-      message: "Successfully signed up",
+      data: {
+        message: "Successfully signed up",
+        user: responsePayload.createdUser,
+      },
     });
   } catch (error) {
     next(error);
@@ -140,8 +143,8 @@ export async function refreshAccessTokenController(
 ) {
   logger.info("Refreshing token");
   try {
-    const accessToken = req.cookies?.access_token;
-    const refreshToken = req.cookies?.refresh_token;
+    const accessToken = req.cookies[accessCookieName];
+    const refreshToken = req.cookies[refreshCookieName];
 
     if (accessToken) {
       const accessTokenPayload = await JWT.verifyJWTAccessToken(accessToken);
@@ -213,8 +216,8 @@ export async function logoutController(
   next: NextFunction,
 ) {
   try {
-    const accessToken = req.cookies?.access_token;
-    const refreshToken = req.cookies?.refresh_token;
+    const accessToken = req.cookies[accessCookieName];
+    const refreshToken = req.cookies[refreshCookieName];
     if (!accessToken && !refreshToken)
       throw new UnauthorizedError("No credentials");
 

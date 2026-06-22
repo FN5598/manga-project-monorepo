@@ -24,6 +24,7 @@ import { useNavigate, useLocation, NavLink } from "react-router-dom";
 import { useAppSelector } from "@store";
 import { getDateFromISOString } from "@lib/index";
 import { MyLibraryTabs } from "@appTypes/index";
+import { handleError } from "@lib/error";
 
 function isMyLibraryTab(value: string | null): value is MyLibraryTabs {
   return Object.values(MyLibraryTabs).includes(value as MyLibraryTabs);
@@ -72,8 +73,8 @@ export default function MyLibrarypage() {
     try {
       const response = await deleteUserAccountTrigger(user._id).unwrap();
       emitAlert(`Successfully deleted account ${response.username}`, "info");
-    } catch (e) {
-      emitAlert("TODO ADD ERROR HANDLING", "error");
+    } catch (error) {
+      handleError(error);
     } finally {
       setDeleteAccount(false);
       navigate("/discover", { replace: true });

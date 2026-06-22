@@ -1,4 +1,5 @@
 import { SortInput } from "@config/constants.js";
+import { UserRole } from "@models/user.model.js";
 import { ENV } from "@validators/env.validators.js";
 import { InputType, Field, Int, registerEnumType } from "type-graphql";
 
@@ -66,4 +67,13 @@ export class MangaUploadInput {
 
   @Field(() => String)
   status!: string;
+}
+
+export interface MinimalUser {
+  userId: string;
+  role: UserRole;
+}
+
+export interface GraphQLContext {
+  user: MinimalUser | null;
 }

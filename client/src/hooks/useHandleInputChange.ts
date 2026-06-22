@@ -1,6 +1,6 @@
 import type React from "react";
 
-export default function useHandleInputChange<T>(
+export default function handleInputChange<T>(
   e: React.ChangeEvent<HTMLInputElement>,
   setState: React.Dispatch<React.SetStateAction<T>>,
 ): void {

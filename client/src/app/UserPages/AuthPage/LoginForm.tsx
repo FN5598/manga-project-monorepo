@@ -2,7 +2,7 @@ import { Label } from "@components/ui/label";
 import { Input } from "@components/ui/input";
 import type { LoginForm } from "@appTypes/index";
 import { useState, type SetStateAction } from "react";
-import useHandleInputChange from "@hooks/useHandleInputChange";
+import handleInputChange from "@hooks/useHandleInputChange";
 import { setUserGlobalState } from "@globalState/userSlice";
 import { handleError } from "@lib/error";
 import type React from "react";
@@ -24,7 +24,7 @@ export default function LoginForm({ loading, setLoading }: LoginFormProps) {
   const [loginForm, setLoginForm] = useState<LoginForm>();
   const [isVisiblePassword, setIsVisibilePassword] = useState(false);
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) =>
-    useHandleInputChange(e, setLoginForm);
+    handleInputChange(e, setLoginForm);
   const [loginTrigger] = useLoginMutation();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();

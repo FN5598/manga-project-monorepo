@@ -21,8 +21,10 @@ const isProd = ENV.NODE_ENV === "production";
 const accessSecret = new TextEncoder().encode(ENV.JWT_ACCESS_SECRET);
 const refreshSecret = new TextEncoder().encode(ENV.JWT_REFRESH_TOKEN);
 
-const accessCookieName = isProd ? "__Host-access_token" : "access_token";
-const refreshCookieName = isProd ? "__Host-refresh_token" : "refresh_token";
+export const accessCookieName = isProd ? "__Host-access_token" : "access_token";
+export const refreshCookieName = isProd
+  ? "__Host-refresh_token"
+  : "refresh_token";
 
 export const JWT = {
   signJWT: async (
