@@ -6,20 +6,27 @@ import { useLazyGetAllMangasQuery } from "@api/mangaApi";
 import { MangaFilterFields } from "@appTypes/index";
 import { useDebounce } from "@hooks/useDebounce";
 import { useSearchParams } from "react-router-dom";
-import useHandleInputChange from "@hooks/useHandleInputChange";
 import { Input } from "@components/ui/input";
 import GenresSortCard from "./GenresSortCard";
 import PageLimitButtons from "./PageLimitButtons";
 
 export default function BrowsePage() {
-  const [searchParams] = useSearchParams();
-  const [mangaTitle, setMangaTitle] = useState<string>("");
-  const tab = searchParams.get("tab");
-  const [activeGenres, setActiveGenres] = useState<string[] | null>(
-    tab ? [tab] : [],
+  function transformGenresParams(param: string): string[] {
+    if (!param) return [];
+
+    return param.substring(0, param.length).split(", ");
+  }
+
+  const [searchParams, setSearchParams] = useSearchParams();
+  const genreParams = searchParams.get("genres");
+  const titleParam = searchParams.get("title");
+  const pageParam = searchParams.get("page");
+  const [mangaTitle, setMangaTitle] = useState<string>(
+    titleParam ? titleParam : "",
   );
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) =>
-    useHandleInputChange(e, setMangaTitle);
+  const [activeGenres, setActiveGenres] = useState<string[] | null>(
+    genreParams ? transformGenresParams(genreParams) : [],
+  );
 
   const {
     data: genres = [],
@@ -28,10 +35,15 @@ export default function BrowsePage() {
     isError: isGenresError,
   } = useGetAllGenresQuery();
 
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(
+    pageParam ? (Number.isNaN(pageParam) ? Number(pageParam) : 1) : 1,
+  );
   const limit = 10;
 
-  const debouncedTitle = useDebounce(mangaTitle?.toLowerCase(), 500);
+  const debouncedTitle = useDebounce(
+    typeof mangaTitle === "string" ? mangaTitle.toLowerCase() : "",
+    500,
+  );
   const [
     getAllMangas,
     { data: mangaPage, isFetching: isMangasLoading, error: isMangasError },
@@ -39,6 +51,29 @@ export default function BrowsePage() {
   const mangas = mangaPage?.mangas ?? [];
   const mangaCount = mangaPage?.mangaCount ?? 0;
   const totalPages = Math.ceil((mangaCount ?? 0) / limit);
+
+  function updateSearchParams() {
+    setSearchParams(
+      (params) => {
+        if (debouncedTitle) {
+          params.set("title", debouncedTitle);
+        } else {
+          params.delete("title");
+        }
+
+        if (activeGenres) {
+          params.set("genres", activeGenres.toString());
+        } else {
+          params.delete("genres");
+        }
+
+        params.set("page", String(page));
+
+        return params;
+      },
+      { replace: true },
+    );
+  }
 
   useEffect(() => {
     getAllMangas({
@@ -57,6 +92,8 @@ export default function BrowsePage() {
         },
       ],
     });
+
+    updateSearchParams();
   }, [getAllMangas, debouncedTitle, activeGenres, page]);
 
   return (
@@ -73,9 +110,9 @@ export default function BrowsePage() {
         <section className="relative flex flex-1 flex-col">
           <Input
             placeholder={`Search for manga titles, authors or characters`}
-            name="manga-input"
+            name="mangaTitle"
             value={mangaTitle ?? ""}
-            onChange={handleChange}
+            onChange={(e) => setMangaTitle(e.target.value)}
           />
         </section>
 

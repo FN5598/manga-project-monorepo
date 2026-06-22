@@ -5,7 +5,9 @@ import InitialAuth from "@app/InitialAuth";
 import AdminMiddleware from "@app/AdminPages/AdminMiddleware";
 
 const AuthPage = lazy(() => import("@app/UserPages/AuthPage"));
-const DiscoverPage = lazy(() => import("@app/UserPages/DiscoverPage"));
+const DiscoverPage = lazy(
+  () => import("@app/UserPages/DiscoverPage/DiscoverPage"),
+);
 const MangaPage = lazy(() => import("@app/UserPages/MangaPage"));
 const CommunityPage = lazy(() => import("@app/UserPages/CommunityPage"));
 const BrowsePage = lazy(() => import("@app/UserPages/BrowsePage/BrowsePage"));

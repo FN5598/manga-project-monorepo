@@ -26,7 +26,9 @@ export default function GenresSortCard({
       return setActiveGenres(updatedGenres);
     }
 
-    return setActiveGenres((prev) => [...prev, genre._id]);
+    return setActiveGenres((prev) =>
+      prev !== null ? [...prev, genre._id] : [],
+    );
   }
 
   if (isError) return <div>Something went wrong</div>;
