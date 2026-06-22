@@ -4,27 +4,24 @@ import { clearUserGlobalState } from "@globalState/userSlice";
 import { emitAlert } from "@lib/alerts";
 import LoadingPage from "@shared/LoadingPage";
 import { useEffect } from "react";
-import { Outlet, useNavigate } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
 import { useAppDispatch } from "@store";
 
 export default function AdminMiddleware() {
-  const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { data, isLoading, isError } = useGetCurrentUserQuery();
-
-  function handleFailure() {
-    emitAlert("Failed to verify User role", "error", 2500);
-    dispatch(clearUserGlobalState());
-    navigate("/discover");
-  }
+  const isAdmin = data?.user.role === UserType.ADMIN;
+  const accessDenied = !isLoading && (isError || !isAdmin);
 
   useEffect(() => {
-    if (isError) handleFailure;
-  }, [navigate, dispatch, isError]);
+    if (!accessDenied) return;
+
+    dispatch(clearUserGlobalState());
+    emitAlert("You do not have permission to access the admin area", "error", 2500);
+  }, [accessDenied, dispatch]);
 
   if (isLoading) return <LoadingPage />;
+  if (accessDenied) return <Navigate replace to="/discover" />;
 
-  if (!data || !data.user || !data.user.role) handleFailure;
-
-  if (data?.user.role === UserType.ADMIN) return <Outlet />;
+  return <Outlet />;
 }

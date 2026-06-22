@@ -13,6 +13,7 @@ import { emitAlert } from "@lib/alerts";
 import { useSignS3BucketUploadUrlMutation } from "@api/S3";
 import { useUpdateMangaMutation, useUploadMangaMutation } from "@api/mangaApi";
 import PublishButtons from "../../../shared/AdminPages/PublishButtons";
+import { handleError } from "@lib/error";
 
 export default function UploadManga() {
   const [mangaTitle, setMangaTitle] = useState<string | null>(null);
@@ -156,7 +157,7 @@ export default function UploadManga() {
       // 6. Reset states after sending successfull request
       clearAllStates();
     } catch (error) {
-      emitAlert("TODO ADD ERROR HANDLING", "error", 2500);
+      handleError(error);
     } finally {
       setLoading(false);
     }

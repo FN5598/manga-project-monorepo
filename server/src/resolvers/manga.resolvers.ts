@@ -7,6 +7,7 @@ import {
   Mutation,
   FieldResolver,
   Root,
+  Ctx,
 } from "type-graphql";
 import * as resolversUtils from "@resolvers/manga.resolvers.utils.js";
 import {
@@ -22,6 +23,7 @@ import {
   getUrlForImage,
   MangaUploadInput,
   MangaFilterTypes,
+  GraphQLContext,
 } from "./resolver.utils.js";
 import {
   filterSchema,
@@ -30,6 +32,8 @@ import {
   validateGraphQLInput,
 } from "@validators/validator.utils.js";
 import { uploadMangaSchemaGQL } from "@validators/manga.validators.js";
+import { ForbiddenError, UnauthorizedError } from "@errors/Error.js";
+import { UserRole } from "@models/user.model.js";
 
 @Resolver(() => Manga)
 export class MangaResolver {
@@ -83,9 +87,16 @@ export class MangaResolver {
 
   @Mutation(() => Manga)
   async uploadManga(
+    @Ctx() context: GraphQLContext,
     @Arg("mangaUploadInput", () => MangaUploadInput)
     mangaUploadInput: MangaUploadInput,
   ): Promise<Manga> {
+    if (!context.user)
+      throw new UnauthorizedError("Must be authorized to access this route");
+
+    if (context.user.role !== UserRole.ADMIN)
+      throw new ForbiddenError("You do not have permission to access route");
+
     const mangaData = validateGraphQLInput(
       uploadMangaSchemaGQL,
       mangaUploadInput,
@@ -101,8 +112,15 @@ export class MangaResolver {
   // TODO change flow to Page -> Chapter -> Manga
   @Mutation(() => Manga)
   async deleteManga(
+    @Ctx() context: GraphQLContext,
     @Arg("mangaId", () => String) mangaId: string,
   ): Promise<Manga> {
+    if (!context.user)
+      throw new UnauthorizedError("Must be authorized to access this route");
+
+    if (context.user.role !== UserRole.ADMIN)
+      throw new ForbiddenError("You do not have permission to access route");
+
     const parsedMangaId = validateGraphQLInput(nonEmptyString, mangaId);
 
     const session = await mongoose.startSession();

@@ -1,6 +1,6 @@
 import type { SerializedError } from "@reduxjs/toolkit";
 import { capitalizeFirstLetter } from "../lib";
-import type { Manga } from "../../features/manga";
+import type { Manga } from "@appTypes/Manga";
 import LoadingSpinner from "./LoadingSpinner";
 import { BookOpen } from "lucide-react";
 import { NavLink } from "react-router-dom";

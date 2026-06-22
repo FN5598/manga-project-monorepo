@@ -1,6 +1,7 @@
 import type { Genre } from "@appTypes/Genres";
 import LoadingSpinner from "@shared/LoadingSpinner";
 import { Funnel } from "lucide-react";
+import type React from "react";
 import type { SetStateAction } from "react";
 
 type GenresSortCardProps = {
@@ -10,6 +11,7 @@ type GenresSortCardProps = {
   isError: boolean;
   activeGenres: string[] | null;
   setActiveGenres: React.Dispatch<SetStateAction<string[] | null>>;
+  setPage?: React.Dispatch<SetStateAction<number>>;
 };
 
 export default function GenresSortCard({
@@ -19,11 +21,17 @@ export default function GenresSortCard({
   isError,
   activeGenres,
   setActiveGenres,
+  setPage,
 }: GenresSortCardProps) {
   function handleGenreClick(genre: Genre) {
     if (activeGenres && activeGenres.some((g) => g === genre._id)) {
       const updatedGenres = activeGenres.filter((g) => g !== genre._id); // delete it from array
       return setActiveGenres(updatedGenres);
+    }
+
+    // For pagination inputs, reset page to 1 on genre change
+    if (setPage) {
+      setPage(1);
     }
 
     return setActiveGenres((prev) =>

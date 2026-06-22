@@ -4,7 +4,7 @@ import React from "react";
 import { emitAlert } from "@lib/alerts";
 import { useNavigate } from "react-router-dom";
 import { useSignUpMutation } from "@api/authApi";
-import useHandleInputChange from "@hooks/useHandleInputChange";
+import handleInputChange from "@hooks/useHandleInputChange";
 import { Label } from "@components/ui/label";
 import { Input } from "@components/ui/input";
 import { ButtonGroup } from "@components/ui/button-group";
@@ -34,7 +34,7 @@ export default function SignUpForm({ loading, setLoading }: SignUpFormProps) {
     useState<PasswordVerification>();
   const navigate = useNavigate();
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) =>
-    useHandleInputChange(e, setSignUpForm);
+    handleInputChange(e, setSignUpForm);
   const [signUpTrigger] = useSignUpMutation();
   const [isVisiblePassword, setIsVisibilePassword] = useState(false);
 

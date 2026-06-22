@@ -6,7 +6,7 @@ import {
   InternalError,
   UnauthorizedError,
 } from "@errors/Error.js";
-import { clearAuthCookies, JWT } from "@config/util.js";
+import { accessCookieName, clearAuthCookies, JWT } from "@config/util.js";
 import logger from "@config/logger.js";
 
 export async function adminMiddleware(
@@ -15,11 +15,9 @@ export async function adminMiddleware(
   next: NextFunction,
 ) {
   try {
-    const access_token = req.cookies.access_token;
+    const access_token = req.cookies[accessCookieName];
 
-    logger.info("Admin middleware run", {
-      access_token,
-    });
+    logger.info("Admin middleware run");
 
     if (!access_token) throw new UnauthorizedError("Acccess token expired");
 

@@ -36,7 +36,7 @@ export default function BrowsePage() {
   } = useGetAllGenresQuery();
 
   const [page, setPage] = useState(
-    pageParam ? (Number.isNaN(pageParam) ? Number(pageParam) : 1) : 1,
+    pageParam ? (Number.isNaN(Number(pageParam)) ? Number(pageParam) : 1) : 1,
   );
   const limit = 10;
 
@@ -51,29 +51,6 @@ export default function BrowsePage() {
   const mangas = mangaPage?.mangas ?? [];
   const mangaCount = mangaPage?.mangaCount ?? 0;
   const totalPages = Math.ceil((mangaCount ?? 0) / limit);
-
-  function updateSearchParams() {
-    setSearchParams(
-      (params) => {
-        if (debouncedTitle) {
-          params.set("title", debouncedTitle);
-        } else {
-          params.delete("title");
-        }
-
-        if (activeGenres) {
-          params.set("genres", activeGenres.toString());
-        } else {
-          params.delete("genres");
-        }
-
-        params.set("page", String(page));
-
-        return params;
-      },
-      { replace: true },
-    );
-  }
 
   useEffect(() => {
     getAllMangas({
@@ -93,8 +70,26 @@ export default function BrowsePage() {
       ],
     });
 
-    updateSearchParams();
-  }, [getAllMangas, debouncedTitle, activeGenres, page]);
+    setSearchParams(
+      (params) => {
+        if (debouncedTitle) {
+          params.set("title", debouncedTitle);
+        } else {
+          params.delete("title");
+        }
+
+        if (activeGenres?.length) {
+          params.set("genres", activeGenres.toString());
+        } else {
+          params.delete("genres");
+        }
+
+        params.set("page", String(page));
+        return params;
+      },
+      { replace: true },
+    );
+  }, [getAllMangas, debouncedTitle, activeGenres, page, setSearchParams]);
 
   return (
     <>
@@ -112,7 +107,10 @@ export default function BrowsePage() {
             placeholder={`Search for manga titles, authors or characters`}
             name="mangaTitle"
             value={mangaTitle ?? ""}
-            onChange={(e) => setMangaTitle(e.target.value)}
+            onChange={(e) => {
+              setMangaTitle(e.target.value);
+              setPage(1); // Reset page input change
+            }}
           />
         </section>
 
@@ -123,6 +121,7 @@ export default function BrowsePage() {
           isError={isGenresError}
           activeGenres={activeGenres}
           setActiveGenres={setActiveGenres}
+          setPage={setPage}
         />
 
         <section className="space-y-4">

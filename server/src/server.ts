@@ -19,6 +19,9 @@ import { errorHandler } from "@middlewares/error.middleware.js";
 import { ENV } from "@validators/env.validators.js";
 import userRouter from "@rest/user.routes.js";
 import { UserResolver } from "@resolvers/user.resolver.js";
+import { accessCookieName, JWT } from "@config/util.js";
+import { GraphQLContext } from "@resolvers/resolver.utils.js";
+import { UserRole } from "@models/user.model.js";
 
 async function main() {
   await connectToDb(); // connect to MongoDB before starting the server to ensure DB is available for resolvers
@@ -50,7 +53,25 @@ async function main() {
       .json({ status: "ok", uptime: process.uptime().toFixed(3) + " s" });
   });
 
-  app.use("/graphql", expressMiddleware(server));
+  app.use(
+    "/graphql",
+    expressMiddleware(server, {
+      context: async ({ req }): Promise<GraphQLContext> => {
+        const token = req.cookies[accessCookieName];
+        if (!token) return { user: null };
+
+        const result = await JWT.verifyJWTAccessToken(token);
+
+        if (!result.ok) return { user: null };
+        return {
+          user: {
+            userId: result.userId,
+            role: result.role as UserRole,
+          },
+        };
+      },
+    }),
+  );
 
   // Rest routes
   app.use("/manga", mangaRouter);
