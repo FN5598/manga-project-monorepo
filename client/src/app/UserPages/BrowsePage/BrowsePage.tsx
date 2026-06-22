@@ -89,17 +89,7 @@ export default function BrowsePage() {
       },
       { replace: true },
     );
-
-    // Reset page after each new request
-    setPage(1);
-  }, [
-    getAllMangas,
-    debouncedTitle,
-    activeGenres,
-    page,
-    setSearchParams,
-    setPage,
-  ]);
+  }, [getAllMangas, debouncedTitle, activeGenres, page, setSearchParams]);
 
   return (
     <>
@@ -117,7 +107,10 @@ export default function BrowsePage() {
             placeholder={`Search for manga titles, authors or characters`}
             name="mangaTitle"
             value={mangaTitle ?? ""}
-            onChange={(e) => setMangaTitle(e.target.value)}
+            onChange={(e) => {
+              setMangaTitle(e.target.value);
+              setPage(1); // Reset page input change
+            }}
           />
         </section>
 
@@ -128,6 +121,7 @@ export default function BrowsePage() {
           isError={isGenresError}
           activeGenres={activeGenres}
           setActiveGenres={setActiveGenres}
+          setPage={setPage}
         />
 
         <section className="space-y-4">
