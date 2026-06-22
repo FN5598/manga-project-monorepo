@@ -17,12 +17,14 @@ import authRouter from "@rest/auth.routes.js";
 import cookieParser from "cookie-parser";
 import { errorHandler } from "@middlewares/error.middleware.js";
 import { ENV } from "@validators/env.validators.js";
+import userRouter from "@rest/user.routes.js";
+import { UserResolver } from "@resolvers/user.resolver.js";
 
 async function main() {
   await connectToDb(); // connect to MongoDB before starting the server to ensure DB is available for resolvers
 
   const schema = await buildSchema({
-    resolvers: [MangaResolver, ChapterResolver, PageResolver],
+    resolvers: [MangaResolver, ChapterResolver, PageResolver, UserResolver],
   });
   const server = new ApolloServer({
     schema,
@@ -43,7 +45,9 @@ async function main() {
   app.use(cookieParser());
 
   app.get("/healthz", (_req, res) => {
-    res.status(200).json({ status: "ok" });
+    res
+      .status(200)
+      .json({ status: "ok", uptime: process.uptime().toFixed(3) + " s" });
   });
 
   app.use("/graphql", expressMiddleware(server));
@@ -54,6 +58,7 @@ async function main() {
   app.use("/api/genres", genresRouter);
   app.use("/api/chapter", chapterRouter);
   app.use("/api/auth", authRouter);
+  app.use("/user", userRouter);
 
   // ? Custom error handler
   app.use(errorHandler);

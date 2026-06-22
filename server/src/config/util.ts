@@ -69,7 +69,12 @@ export const JWT = {
         maxTokenAge: "15m",
       });
 
-      return { ok: true as const, userId: payload.sub as string, payload };
+      return {
+        ok: true as const,
+        userId: payload.sub as string,
+        role: payload.role,
+        ...payload,
+      };
     } catch (error) {
       if (error instanceof errors.JWTExpired) {
         return {
@@ -105,7 +110,12 @@ export const JWT = {
         maxTokenAge: "7d",
       });
 
-      return { ok: true as const, userId: payload.aud, payload };
+      return {
+        ok: true as const,
+        userId: payload.sub as string,
+        role: payload.role,
+        ...payload,
+      };
     } catch (error) {
       if (error instanceof errors.JWTExpired) {
         return {
@@ -175,7 +185,7 @@ export function clearAuthCookies(res: Response) {
     httpOnly: true,
     secure: isProd,
     sameSite: "strict",
-    path: "/auth/refresh",
+    path: "/",
   });
 }
 

@@ -87,7 +87,7 @@ describe("util config helpers", () => {
     );
     expect(res.clearCookie).toHaveBeenCalledWith(
       "refresh_token",
-      expect.objectContaining({ path: "/auth/refresh" }),
+      expect.objectContaining({ path: "/" }),
     );
   });
 

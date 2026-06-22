@@ -6,7 +6,7 @@ import {
   index,
 } from "@typegoose/typegoose";
 import { EMAIL_REGEX } from "../config/regex.js";
-import { Field, ID, ObjectType } from "type-graphql";
+import { Field, ID, ObjectType, registerEnumType } from "type-graphql";
 
 export enum UserRole {
   ADMIN = "ADMIN",
@@ -14,11 +14,27 @@ export enum UserRole {
   EDITOR = "EDITOR",
 }
 
+registerEnumType(UserRole, {
+  name: "UserRole",
+});
+
 @index({ email: 1 }, { unique: true })
 @modelOptions({
   schemaOptions: {
     timestamps: true,
     collection: "users",
+    toJSON: {
+      transform: (_doc, ret) => {
+        delete ret.hashedPassword;
+        return ret;
+      },
+    },
+    toObject: {
+      transform: (_doc, ret) => {
+        delete ret.hashedPassword;
+        return ret;
+      },
+    },
   },
 })
 @pre<User>("save", function () {
@@ -54,10 +70,10 @@ export class User {
   })
   role!: UserRole;
 
-  @Field(() => String)
   @prop({
     required: true,
     type: () => String,
+    select: false,
   })
   hashedPassword!: string;
 

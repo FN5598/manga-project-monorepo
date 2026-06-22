@@ -1,6 +1,6 @@
 import { SortInput } from "@config/constants.js";
 import { ENV } from "@validators/env.validators.js";
-import { InputType, Field, Int } from "type-graphql";
+import { InputType, Field, Int, registerEnumType } from "type-graphql";
 
 export function getUrlForImage(key: string): string {
   const encodedKey = key.split("/").map(encodeURIComponent).join("/");
@@ -27,6 +27,27 @@ export class SortInputType {
 
   @Field(() => String)
   field!: "createdAt";
+}
+
+export enum MangaFilterFields {
+  STATUS = "status",
+  GENRES = "genres",
+  AUTHOR = "author",
+  TITLE = "title",
+  ID = "_id",
+}
+
+registerEnumType(MangaFilterFields, {
+  name: "MangaFilterFields",
+});
+
+@InputType()
+export class MangaFilterTypes {
+  @Field(() => MangaFilterFields)
+  field!: MangaFilterFields;
+
+  @Field(() => [String])
+  value!: string[];
 }
 
 @InputType()

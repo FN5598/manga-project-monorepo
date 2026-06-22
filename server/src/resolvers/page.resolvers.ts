@@ -5,7 +5,7 @@ import {
   SortInputType,
   getUrlForImage,
 } from "./resolver.utils.js";
-import * as pageRepository from "@repository/page.repository.js";
+import { PageRepository } from "@repository/index.js";
 import logger from "@config/logger.js";
 import { validateGraphQLInput } from "@validators/validator.utils.js";
 import { getPagesSchema } from "@validators/pages.validators.js";
@@ -31,7 +31,7 @@ export class PageResolver {
       sort: parsedData.sort,
     });
 
-    return await pageRepository.getPagesByChapterId(
+    return await PageRepository.getPagesByChapterId(
       parsedData.chapterId,
       parsedData.paginationInput,
       parsedData.sort,

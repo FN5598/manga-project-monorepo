@@ -1,14 +1,11 @@
 info:
-  name: Logout
+  name: Get current user
   type: http
-  seq: 9
+  seq: 10
 
 http:
-  method: POST
-  url: "{{BASE_URL}}/api/auth/logout"
-  body:
-    type: json
-    data: ""
+  method: GET
+  url: "{{BASE_URL}}/user/me"
   auth: inherit
 
 settings:

@@ -1,5 +1,4 @@
 import { SortInput } from "../config/constants.js";
-import * as mangaRepository from "../repository/manga.repository.js";
 import { Manga } from "@models/manga.model.js";
 import {
   Arg,
@@ -9,9 +8,12 @@ import {
   FieldResolver,
   Root,
 } from "type-graphql";
-import * as resolversUtils from "./manga.resolvers.utils.js";
-import * as chapterRepository from "@repository/chapter.repository.js";
-import * as pagesRepository from "@repository/page.repository.js";
+import * as resolversUtils from "@resolvers/manga.resolvers.utils.js";
+import {
+  ChapterRepository,
+  MangaRepository,
+  PageRepository,
+} from "@repository/index.js";
 import logger from "@config/logger.js";
 import mongoose from "mongoose";
 import {
@@ -19,17 +21,15 @@ import {
   SortInputType,
   getUrlForImage,
   MangaUploadInput,
+  MangaFilterTypes,
 } from "./resolver.utils.js";
 import {
+  filterSchema,
   nonEmptyString,
-  paginationSchema,
   paginationSortSchema,
-  PaginationType,
   validateGraphQLInput,
 } from "@validators/validator.utils.js";
-import { InternalError } from "@errors/Error.js";
-import { getErrorInfo } from "@errors/error.utils.js";
-import { uploadMangaSchema } from "@validators/manga.validators.js";
+import { uploadMangaSchemaGQL } from "@validators/manga.validators.js";
 
 @Resolver(() => Manga)
 export class MangaResolver {
@@ -39,20 +39,25 @@ export class MangaResolver {
     paginationInput?: PaginationInput,
     @Arg("sort", () => SortInputType, { nullable: true })
     sort?: SortInput,
+    @Arg("filters", () => [MangaFilterTypes], { nullable: true })
+    filters?: MangaFilterTypes[],
   ): Promise<Manga[]> {
     const parsedData = validateGraphQLInput(paginationSortSchema, {
       paginationInput,
       sort,
+      filters,
     });
 
     logger.debug("findAllMangas resolver called", {
       paginationInput: parsedData.paginationInput,
       sort: parsedData.sort,
+      filters: parsedData.filters,
     });
 
-    return await mangaRepository.findAllMangas(
+    return await MangaRepository.findAllMangas(
       parsedData.paginationInput,
       parsedData.sort,
+      parsedData.filters,
     );
   }
 
@@ -73,7 +78,7 @@ export class MangaResolver {
       mangaId: parsedMangaId,
     });
 
-    return await mangaRepository.findMangaById(parsedMangaId);
+    return await MangaRepository.findMangaById(parsedMangaId);
   }
 
   @Mutation(() => Manga)
@@ -81,8 +86,8 @@ export class MangaResolver {
     @Arg("mangaUploadInput", () => MangaUploadInput)
     mangaUploadInput: MangaUploadInput,
   ): Promise<Manga> {
-    const { mangaData } = validateGraphQLInput(
-      uploadMangaSchema,
+    const mangaData = validateGraphQLInput(
+      uploadMangaSchemaGQL,
       mangaUploadInput,
     );
 
@@ -90,7 +95,7 @@ export class MangaResolver {
       mangaUploadInput: mangaData,
     });
 
-    return mangaRepository.uploadManga(mangaData);
+    return MangaRepository.createManga(mangaData);
   }
 
   // TODO change flow to Page -> Chapter -> Manga
@@ -107,7 +112,7 @@ export class MangaResolver {
       let deletedPages!: { deletedCount: number; deletedPageIds: string[] };
       await session.withTransaction(async () => {
         // 1. Delete manga from DB
-        deletedManga = await mangaRepository.deleteMangaById(
+        deletedManga = await MangaRepository.deleteMangaById(
           parsedMangaId,
           session,
         );
@@ -116,7 +121,7 @@ export class MangaResolver {
           deletedManga,
         });
 
-        deletedChapters = await chapterRepository.deleteChaptersByMangaId(
+        deletedChapters = await ChapterRepository.deleteChaptersByMangaId(
           parsedMangaId,
           session,
         );
@@ -125,7 +130,7 @@ export class MangaResolver {
           deletedChapters,
         });
 
-        deletedPages = await pagesRepository.deletePagesByChapterIds(
+        deletedPages = await PageRepository.deletePagesByChapterIds(
           deletedChapters.deletedIds,
           session,
         );
@@ -158,7 +163,7 @@ export class MangaResolver {
         error,
       });
 
-      throw new InternalError("Failed to delete manga", getErrorInfo(error));
+      throw error;
     } finally {
       await session.endSession();
     }
@@ -175,6 +180,19 @@ export class MangaResolver {
       mangaTitle: parsedTitle,
     });
 
-    return await mangaRepository.findMangaByTitle(parsedTitle);
+    return await MangaRepository.findMangaByTitle(parsedTitle);
+  }
+
+  @Query(() => Number)
+  async countMangas(
+    @Arg("filters", () => [MangaFilterTypes], { nullable: true })
+    filters?: MangaFilterTypes[],
+  ): Promise<number> {
+    const parsedData = validateGraphQLInput(filterSchema, { filters });
+    logger.debug("countMangas resolver called", {
+      filters: parsedData.filters,
+    });
+
+    return await MangaRepository.countMangas(parsedData.filters);
   }
 }

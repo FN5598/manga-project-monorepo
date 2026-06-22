@@ -16,7 +16,7 @@ export const s3 =
       })
     : new S3Client({
         ...sharedConfig,
-        endpoint: ENV.S3_ENDPOINT,
+        endpoint: ENV.S3_PUBLIC_ENDPOINT,
         forcePathStyle: ENV.S3_FORCE_PATH_STYLE,
         credentials: {
           accessKeyId: ENV.AWS_ACCESS_KEY_ID,

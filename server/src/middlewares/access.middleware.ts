@@ -1,12 +1,12 @@
 import { Request, Response, NextFunction } from "express";
-import * as userRepository from "@repository/user.repository.js";
+import { UserRepository } from "@repository/index.js";
 import { UserRole } from "@models/user.model.js";
 import {
   ForbiddenError,
   InternalError,
   UnauthorizedError,
 } from "@errors/Error.js";
-import { JWT } from "@config/util.js";
+import { clearAuthCookies, JWT } from "@config/util.js";
 import logger from "@config/logger.js";
 
 export async function adminMiddleware(
@@ -27,7 +27,12 @@ export async function adminMiddleware(
 
     if (!payload) throw new InternalError("Failed to verify payload");
 
-    const user = await userRepository.findUserById(payload.userId!);
+    if (payload.ok !== true) {
+      clearAuthCookies(res);
+      throw new UnauthorizedError("Invalid access token");
+    }
+
+    const user = await UserRepository.findUserById(payload.userId!);
 
     if (!user || !user.role || user.role !== UserRole.ADMIN)
       throw new ForbiddenError("Only admins can access this route");

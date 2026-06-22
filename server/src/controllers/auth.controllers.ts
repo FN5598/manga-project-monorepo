@@ -4,15 +4,10 @@ import {
   setAccessTokenCookie,
   setAuthCookies,
 } from "@config/util.js";
-import {
-  loginSchema,
-  logoutSchema,
-  refreshAccessTokenSchema,
-  signUpSchema,
-} from "@validators/auth.validators.js";
+import { loginSchema, signUpSchema } from "@validators/auth.validators.js";
 import { validateInput } from "@validators/validator.utils.js";
 import { Request, Response, NextFunction } from "express";
-import * as userRepository from "@repository/user.repository.js";
+import { UserRepository } from "@repository/index.js";
 import argon2 from "argon2";
 import mongoose from "mongoose";
 import {
@@ -44,7 +39,7 @@ export async function signUpController(
 
     const responsePayload = await mongoose.connection.transaction(
       async (session) => {
-        const createdUser = await userRepository.createUser(
+        const createdUser = await UserRepository.createUser(
           {
             email,
             username,
@@ -61,7 +56,7 @@ export async function signUpController(
         const accessToken = await JWT.signJWTAccessToken(tokenPayload);
         const refreshToken = await JWT.signJWTRefreshToken(tokenPayload);
 
-        await userRepository.addRefreshToken(
+        await UserRepository.updateRefreshToken(
           refreshToken,
           createdUser._id,
           session,
@@ -106,17 +101,18 @@ export async function loginController(
   res: Response,
   next: NextFunction,
 ) {
+  logger.info("Logging in user");
   try {
     const { password, email } = validateInput(loginSchema, req.body);
 
-    const user = await userRepository.findUserByEmail(email);
+    const user = await UserRepository.findUserByEmail(email, true);
 
     const isPasswordMatch = await argon2.verify(user.hashedPassword, password);
 
     if (!isPasswordMatch) throw new BadRequestError("Incorrect credentials");
 
     const tokenPayload = {
-      userId: user._id,
+      userId: user._id.toString(),
       role: user.role,
     };
 
@@ -126,7 +122,11 @@ export async function loginController(
     setAuthCookies(res, accessToken, refreshToken);
 
     return res.status(200).json({
-      message: "Successfully logged in",
+      data: {
+        message: "Successfully logged in",
+        isLoggedIn: true,
+        user,
+      },
     });
   } catch (error) {
     next(error);
@@ -138,31 +138,30 @@ export async function refreshAccessTokenController(
   res: Response,
   next: NextFunction,
 ) {
+  logger.info("Refreshing token");
   try {
-    const { userId } = validateInput(refreshAccessTokenSchema, req.body);
-
     const accessToken = req.cookies?.access_token;
     const refreshToken = req.cookies?.refresh_token;
 
     if (accessToken) {
+      const accessTokenPayload = await JWT.verifyJWTAccessToken(accessToken);
+
+      if (accessTokenPayload.ok !== true) {
+        clearAuthCookies(res);
+        throw new UnauthorizedError("Invalid access token");
+      }
+
       return res.status(200).json({
-        message: "Access cookie still exists",
+        data: {
+          message: "Access cookie still exists",
+          isLoggedIn: true,
+          userId: accessTokenPayload.userId,
+          role: accessTokenPayload.role,
+        },
       });
     }
 
-    // ? Avoid making DB call
-    let user;
-    if (!refreshToken) {
-      user = await userRepository.findUserById(userId);
-      if (!user.refreshToken) {
-        clearAuthCookies(res);
-
-        throw new UnauthorizedError("Refresh token expired.");
-      }
-    }
-
-    const token = refreshToken || user?.refreshToken;
-    const payload = await JWT.verifyJWTRefreshToken(token);
+    const payload = await JWT.verifyJWTRefreshToken(refreshToken);
     if (!payload) throw new InternalError("Failed to decrypt jwt");
 
     if (payload?.ok !== true) {
@@ -172,22 +171,36 @@ export async function refreshAccessTokenController(
           throw new UnauthorizedError("Refresh token expired.");
         case "invalid":
           throw new UnauthorizedError("Invalid refresh token");
+        default:
+          throw new UnauthorizedError("Failed to verify refresh token");
       }
     }
 
+    const role =
+      payload.role === UserRole.ADMIN ||
+      payload.role === UserRole.EDITOR ||
+      payload.role === UserRole.USER
+        ? payload.role
+        : UserRole.USER;
+
     const signAccessTokenPayload = {
-      userId: userId,
-      role: user?.role || UserRole.USER,
+      userId: payload.userId,
+      role,
     };
     const newAccessToken = await JWT.signJWTAccessToken(signAccessTokenPayload);
 
     setAccessTokenCookie(res, newAccessToken);
 
     logger.info("refresh access token controller called", {
-      userId,
+      userId: payload.userId,
     });
     return res.status(200).json({
-      message: "Successfully refreshed access token",
+      data: {
+        message: "Successfully refreshed access token",
+        isLoggedIn: true,
+        userId: payload.userId,
+        role: signAccessTokenPayload.role,
+      },
     });
   } catch (error) {
     next(error);
@@ -200,21 +213,42 @@ export async function logoutController(
   next: NextFunction,
 ) {
   try {
-    const { userId } = validateInput(logoutSchema, req.body);
+    const accessToken = req.cookies?.access_token;
+    const refreshToken = req.cookies?.refresh_token;
+    if (!accessToken && !refreshToken)
+      throw new UnauthorizedError("No credentials");
 
-    const user = await userRepository.findUserById(userId);
+    let payload;
+    if (accessToken) {
+      payload = await JWT.verifyJWTAccessToken(accessToken);
+    }
+    if (!accessToken) {
+      payload = await JWT.verifyJWTRefreshToken(refreshToken);
+    }
+    if (!payload) throw new UnauthorizedError("Failed to decrypt jwt");
+    if (payload?.ok !== true) {
+      clearAuthCookies(res);
+      switch (payload.type) {
+        case "expired":
+          throw new UnauthorizedError("Refresh token expired.");
+        case "invalid":
+          throw new UnauthorizedError("Invalid refresh token");
+        default:
+          throw new UnauthorizedError("Failed to verify refresh token");
+      }
+    }
 
-    user.refreshToken = undefined;
-
-    await user.save();
+    await UserRepository.updateRefreshToken(undefined, payload.userId);
 
     clearAuthCookies(res);
 
     logger.info("Logout controller called", {
-      userId,
+      userId: payload.userId,
     });
     return res.status(200).json({
-      message: "Successfully logged out",
+      data: {
+        message: "Successfully logged out",
+      },
     });
   } catch (error) {
     next(error);

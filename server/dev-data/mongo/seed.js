@@ -48,6 +48,19 @@ function seedUser({ email, username, role }) {
   );
 }
 
+function seedGenre({ id, name, slug, description }) {
+  seedOne(
+    "genres",
+    { _id: id },
+    {
+      _id: id,
+      name,
+      slug,
+      description,
+    },
+  );
+}
+
 function seedManga({
   id,
   title,
@@ -57,19 +70,25 @@ function seedManga({
   status,
   chaptersCount,
 }) {
-  seedOne(
-    "mangas",
+  db.mangas.updateOne(
     { _id: id },
     {
-      _id: id,
-      title,
-      author,
-      description,
-      genres,
-      status,
-      chaptersCount,
-      previewKey: `previews/${id}/${id}.png`,
+      $set: {
+        genres,
+      },
+      $setOnInsert: {
+        _id: id,
+        title,
+        author,
+        description,
+        status,
+        chaptersCount,
+        previewKey: `previews/${id}/${id}.png`,
+        createdAt: now,
+        updatedAt: now,
+      },
     },
+    { upsert: true },
   );
 }
 
@@ -107,13 +126,156 @@ function seedPages({ mangaId, chapterId, chapterNumber, pageIds }) {
   });
 }
 
+const genres = [
+  {
+    id: oid("69b1a3204cf95764efd309ba"),
+    name: "Mystery",
+    slug: "mystery",
+    description: "Stories revolving around solving crimes or uncovering secrets.",
+  },
+  {
+    id: oid("69b1a3204cf95764efd309bd"),
+    name: "Supernatural",
+    slug: "supernatural",
+    description:
+      "Stories involving paranormal forces like ghosts, demons, or spirits.",
+  },
+  {
+    id: oid("69b1a3204cf95764efd309b8"),
+    name: "Romance",
+    slug: "romance",
+    description:
+      "Stories centered around romantic relationships and emotional connections.",
+  },
+  {
+    id: oid("69b1a3204cf95764efd309bf"),
+    name: "Slice of Life",
+    slug: "slice-of-life",
+    description:
+      "Stories depicting everyday life and realistic character interactions.",
+  },
+  {
+    id: oid("69b1a3204cf95764efd309c2"),
+    name: "Isekai",
+    slug: "isekai",
+    description: "Characters transported or reincarnated into another world.",
+  },
+  {
+    id: oid("69b1a3204cf95764efd309c4"),
+    name: "Post-Apocalyptic",
+    slug: "post-apocalyptic",
+    description:
+      "Stories set after the collapse of civilization or global catastrophe.",
+  },
+  {
+    id: oid("69b1a3204cf95764efd309b2"),
+    name: "Action",
+    slug: "action",
+    description:
+      "Fast-paced stories featuring fights, battles, and intense physical conflict.",
+  },
+  {
+    id: oid("69b1a3204cf95764efd309b4"),
+    name: "Comedy",
+    slug: "comedy",
+    description: "Humorous stories meant to entertain and make audiences laugh.",
+  },
+  {
+    id: oid("69b1a3204cf95764efd309b6"),
+    name: "Fantasy",
+    slug: "fantasy",
+    description:
+      "Stories set in magical worlds with supernatural creatures and powers.",
+  },
+  {
+    id: oid("69b1a3204cf95764efd309b7"),
+    name: "Science Fiction",
+    slug: "science-fiction",
+    description:
+      "Futuristic stories involving advanced technology, space, or speculative science.",
+  },
+  {
+    id: oid("69b1a3204cf95764efd309b9"),
+    name: "Horror",
+    slug: "horror",
+    description:
+      "Stories designed to scare, disturb, or create suspense and dread.",
+  },
+  {
+    id: oid("69b1a3204cf95764efd309bb"),
+    name: "Thriller",
+    slug: "thriller",
+    description:
+      "High-tension stories with suspense, danger, and unexpected twists.",
+  },
+  {
+    id: oid("69b1a3204cf95764efd309bc"),
+    name: "Psychological",
+    slug: "psychological",
+    description:
+      "Stories exploring mental states, emotions, and psychological conflict.",
+  },
+  {
+    id: oid("69b1a3204cf95764efd309c1"),
+    name: "Mecha",
+    slug: "mecha",
+    description:
+      "Stories featuring giant robots, advanced machinery, and mechanical warfare.",
+  },
+  {
+    id: oid("69b1a3204cf95764efd309c3"),
+    name: "Cyberpunk",
+    slug: "cyberpunk",
+    description:
+      "High-tech dystopian futures with cybernetics, AI, and societal collapse.",
+  },
+  {
+    id: oid("69b1a3204cf95764efd309b3"),
+    name: "Adventure",
+    slug: "adventure",
+    description: "Stories focused on journeys, exploration, and exciting quests.",
+  },
+  {
+    id: oid("69b1a3204cf95764efd309b5"),
+    name: "Drama",
+    slug: "drama",
+    description:
+      "Character-driven stories focused on emotional development and conflict.",
+  },
+  {
+    id: oid("69b1a3204cf95764efd309be"),
+    name: "Historical",
+    slug: "historical",
+    description:
+      "Stories set in past historical periods or inspired by real events.",
+  },
+  {
+    id: oid("69b1a3204cf95764efd309c0"),
+    name: "Sports",
+    slug: "sports",
+    description:
+      "Stories centered around athletes, competitions, and sports teams.",
+  },
+  {
+    id: oid("69b1a3204cf95764efd309c5"),
+    name: "Martial Arts",
+    slug: "martial-arts",
+    description:
+      "Stories centered around combat techniques, warriors, and martial traditions.",
+  },
+];
+
+const genreIds = Object.fromEntries(
+  genres.map((genre) => [genre.name, genre.id]),
+);
+
 const mangas = [
   {
     id: oid("66f000000000000000000001"),
     title: "One Piece",
     author: "Eiichiro Oda",
     description: "Mock manga",
-    genres: ["Adventure", "Action", "Fantasy"],
+    genres: [genreIds.Adventure, genreIds.Action, genreIds.Fantasy],
     status: "ongoing",
     chapters: [
       {
@@ -135,7 +297,7 @@ const mangas = [
     title: "JoJo's Bizarre Adventure: Part 1 - Phantom Blood",
     author: "Hirohiko Araki",
     description: "Mock manga 2",
-    genres: ["Action", "Adventure", "Supernatural"],
+    genres: [genreIds.Action, genreIds.Adventure, genreIds.Supernatural],
     status: "completed",
     chapters: [
       {
@@ -158,6 +320,10 @@ seedUser({
   email: "user@test.com",
   username: "Default user",
   role: "USER",
+});
+
+genres.forEach((genre) => {
+  seedGenre(genre);
 });
 
 mangas.forEach((manga) => {

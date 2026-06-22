@@ -2,7 +2,7 @@ import { getSecret } from "@aws-lambda-powertools/parameters/secrets";
 import { InvalidEnvConfiguration } from "@errors/Error.js";
 import dotenv from "dotenv";
 import { z } from "zod";
-import { nonEmptyString } from "./validator.utils.js";
+import { nodeEnvSchema, nonEmptyString } from "./validator.utils.js";
 
 if (!process.env.MONGO_URI) {
   dotenv.config();
@@ -21,21 +21,21 @@ const baseSchema = z.object({
   PORT: z.coerce.number().default(4000),
   MONGO_URI: nonEmptyString,
   CORS_ORIGIN: nonEmptyString.default("http://localhost:5173"),
+  NODE_ENV: nodeEnvSchema,
 });
 
 const developmentSchema = baseSchema.extend({
-  NODE_ENV: z.literal("development").default("development"),
   AWS_ACCESS_KEY_ID: nonEmptyString,
   AWS_SECRET_ACCESS_KEY: nonEmptyString,
   S3_ENDPOINT: nonEmptyString,
   S3_FORCE_PATH_STYLE: z.coerce.boolean().default(true),
+  NODE_ENV: z.literal("development"),
 });
 
 const productionSchema = baseSchema.extend({
-  NODE_ENV: z.literal("production").default("production"),
-
   S3_ENDPOINT: nonEmptyString.optional(),
   S3_FORCE_PATH_STYLE: z.coerce.boolean().optional(),
+  NODE_ENV: z.literal("production"),
 });
 
 const envSchema = z.discriminatedUnion("NODE_ENV", [
