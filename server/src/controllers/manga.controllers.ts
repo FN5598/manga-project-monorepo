@@ -37,7 +37,7 @@ export async function uploadMangaController(
   try {
     const { mangaData } = validateInput(uploadMangaSchema, req.body);
 
-    const uploadedManga = await MangaRepository.uploadManga(mangaData);
+    const uploadedManga = await MangaRepository.createManga(mangaData);
     logger.debug("uploadMangaController called", {
       data: uploadedManga,
     });

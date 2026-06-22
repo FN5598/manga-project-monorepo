@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import * as userRepository from "@repository/user.repository.js";
+import { UserRepository } from "@repository/index.js";
 import { UserRole } from "@models/user.model.js";
 import {
   ForbiddenError,
@@ -32,7 +32,7 @@ export async function adminMiddleware(
       throw new UnauthorizedError("Invalid access token");
     }
 
-    const user = await userRepository.findUserById(payload.userId!);
+    const user = await UserRepository.findUserById(payload.userId!);
 
     if (!user || !user.role || user.role !== UserRole.ADMIN)
       throw new ForbiddenError("Only admins can access this route");
