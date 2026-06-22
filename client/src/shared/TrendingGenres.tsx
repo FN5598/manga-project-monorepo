@@ -18,7 +18,7 @@ export default function TrendingGenres() {
 
       {trendingGenres.map((genre) => (
         <NavLink
-          to={`/browse?genreId=${genre._id}`}
+          to={`/browse?genres=${genre._id}`}
           className="flex flex-row genres-bg-unchecked"
           key={genre._id}
         >
