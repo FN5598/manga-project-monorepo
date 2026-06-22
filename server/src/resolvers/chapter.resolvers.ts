@@ -1,5 +1,5 @@
-import { Resolver, Arg, InputType, Query } from "type-graphql";
-import * as chapterRepository from "@repository/chapter.repository.js";
+import { Resolver, Arg, Query } from "type-graphql";
+import { ChapterRepository } from "@repository/index.js";
 import { Chapter } from "@models/chapter.model.js";
 import logger from "@config/logger.js";
 import { PaginationInput, SortInputType } from "./resolver.utils.js";
@@ -21,7 +21,7 @@ export class ChapterResolver {
       mangaId: parsedMangaId,
     });
 
-    return await chapterRepository.findChaptersByMangaId(parsedMangaId);
+    return await ChapterRepository.findChaptersByMangaId(parsedMangaId);
   }
 
   @Query(() => Chapter)
@@ -34,7 +34,7 @@ export class ChapterResolver {
       chapterId: parsedChapterId,
     });
 
-    return await chapterRepository.findChapterById(parsedChapterId);
+    return await ChapterRepository.findChapterById(parsedChapterId);
   }
 
   @Query(() => [Chapter])
@@ -53,7 +53,7 @@ export class ChapterResolver {
       paginationInput: parsedData.paginationInput,
     });
 
-    return await chapterRepository.findAllChapters(
+    return await ChapterRepository.findAllChapters(
       parsedData.sort,
       parsedData.paginationInput,
     );

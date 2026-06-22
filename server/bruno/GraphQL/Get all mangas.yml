@@ -8,8 +8,8 @@ graphql:
   url: "{{BASE_URL}}/graphql"
   body:
     query: |-
-      query MyQuery($paginationInput: PaginationInput, $sort: SortInputType) {
-      	findAllMangas(paginationInput: $paginationInput, sort: $sort) {
+      query MyQuery($paginationInput: PaginationInput, $sort: SortInputType, $filters: [MangaFilterTypes!]) {
+      	findAllMangas(paginationInput: $paginationInput, sort: $sort, filters: $filters) {
           _id
           title
           description
@@ -25,6 +25,7 @@ graphql:
           updatedAt
           status
         }
+        countMangas(filters: $filters)
       }
     variables: |-
       {
@@ -35,7 +36,11 @@ graphql:
         "sort": {
           "sortBy": "asc",
           "field": "createdAt"
-        }
+        },
+        "filters": [{
+          "field": "",
+          "value": [""]
+        }]
       }
   auth: inherit
 

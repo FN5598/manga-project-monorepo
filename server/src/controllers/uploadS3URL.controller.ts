@@ -69,88 +69,93 @@ export async function createS3UploadURL(
   res: Response,
   next: NextFunction,
 ) {
-  const isMangaUpload = parseBooleanQuery(req.query.manga);
-  const isChapterUpload = parseBooleanQuery(req.query.chapter);
+  try {
+    const isMangaUpload = parseBooleanQuery(req.query.manga);
+    const isChapterUpload = parseBooleanQuery(req.query.chapter);
 
-  if (!isMangaUpload && !isChapterUpload)
-    throw new BadRequestError(
-      "Provide one upload mode: ?manga=true or ?chapter=true",
+    if (!isMangaUpload && !isChapterUpload)
+      throw new BadRequestError(
+        "Provide one upload mode: ?manga=true or ?chapter=true",
+      );
+
+    if (isMangaUpload && isChapterUpload)
+      throw new BadRequestError("Use only one upload mode at a time");
+
+    const {
+      fileName,
+      contentType,
+      mangaId,
+      mangaChapter,
+      size,
+      type,
+      chapters = [],
+    }: Partial<UploadImageData> = validateInput(
+      uploadImageDataSchema,
+      req.body,
     );
 
-  if (isMangaUpload && isChapterUpload)
-    throw new BadRequestError("Use only one upload mode at a time");
-
-  const {
-    fileName,
-    contentType,
-    mangaId,
-    mangaChapter,
-    size,
-    type,
-    chapters = [],
-  }: Partial<UploadImageData> = validateInput(uploadImageDataSchema, req.body);
-
-  // Shared required fields
-  if (!mangaId || mangaChapter == null) {
-    logger.debug("Missing shared required fields", {
-      mangaId: !!mangaId,
-      mangaChapter: mangaChapter != null,
-    });
-
-    throw new BadRequestError("mangaId and mangaChapter are required");
-  }
-
-  if (!Array.isArray(chapters))
-    throw new BadRequestError("Chapters must be an array");
-
-  // ?manga=true => all top-level fields required
-  if (isMangaUpload) {
-    if (!fileName || !contentType || size == null || !type) {
-      logger.debug("Missing required manga fields", {
-        fileName: !!fileName,
-        contentType: !!contentType,
-        size: size != null,
-        type: !!type,
+    // Shared required fields
+    if (!mangaId || mangaChapter == null) {
+      logger.debug("Missing shared required fields", {
+        mangaId: !!mangaId,
+        mangaChapter: mangaChapter != null,
       });
 
-      throw new BadRequestError(
-        "For manga upload, fileName, contentType, size, type, mangaId, mangaChapter and chapters are required",
-      );
+      throw new BadRequestError("mangaId and mangaChapter are required");
     }
 
-    if (!ALLOWED_TYPES.has(contentType)) {
-      logger.debug("Unsupported preview file type", { fileType: contentType });
-      throw new BadRequestError("Unsupported preview file type");
+    if (!Array.isArray(chapters))
+      throw new BadRequestError("Chapters must be an array");
+
+    // ?manga=true => all top-level fields required
+    if (isMangaUpload) {
+      if (!fileName || !contentType || size == null || !type) {
+        logger.debug("Missing required manga fields", {
+          fileName: !!fileName,
+          contentType: !!contentType,
+          size: size != null,
+          type: !!type,
+        });
+
+        throw new BadRequestError(
+          "For manga upload, fileName, contentType, size, type, mangaId, mangaChapter and chapters are required",
+        );
+      }
+
+      if (!ALLOWED_TYPES.has(contentType)) {
+        logger.debug("Unsupported preview file type", {
+          fileType: contentType,
+        });
+        throw new BadRequestError("Unsupported preview file type");
+      }
+
+      if (type === FileType.preview && size > MAX_PREVIEW_SIZE)
+        throw new FileTooLargeError("Preview file too large");
     }
 
-    if (type === FileType.preview && size > MAX_PREVIEW_SIZE)
-      throw new FileTooLargeError("Preview file too large");
-  }
+    // Validate chapters for both modes
+    for (const chapter of chapters) {
+      if (
+        !chapter.fileName ||
+        !chapter.contentType ||
+        chapter.size == null ||
+        !chapter.type
+      ) {
+        throw new BadRequestError("Invalid chapter data");
+      }
 
-  // Validate chapters for both modes
-  for (const chapter of chapters) {
-    if (
-      !chapter.fileName ||
-      !chapter.contentType ||
-      chapter.size == null ||
-      !chapter.type
-    ) {
-      throw new BadRequestError("Invalid chapter data");
+      if (!ALLOWED_TYPES.has(chapter.contentType)) {
+        logger.debug("Unsupported chapter file type", {
+          fileType: chapter.contentType,
+          fileName: chapter.fileName,
+        });
+
+        throw new BadRequestError(
+          `Unsupported file type for chapter ${chapter.fileName}`,
+        );
+      }
     }
 
-    if (!ALLOWED_TYPES.has(chapter.contentType)) {
-      logger.debug("Unsupported chapter file type", {
-        fileType: chapter.contentType,
-        fileName: chapter.fileName,
-      });
-
-      throw new BadRequestError(
-        `Unsupported file type for chapter ${chapter.fileName}`,
-      );
-    }
-  }
-
-  try {
     const chapterUploads = await Promise.all(
       chapters.map(async (chapter) => {
         const chapterExt = getExtension(chapter.fileName) || "bin";
@@ -225,7 +230,7 @@ export async function createS3UploadURL(
       },
       chapters: chapterUploads,
     });
-  } catch (error) {
-    next(error);
+  } catch (e) {
+    next(e);
   }
 }

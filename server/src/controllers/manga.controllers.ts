@@ -1,9 +1,10 @@
 import { Request, Response, NextFunction } from "express";
-import { uploadManga } from "@repository/manga.repository.js";
+import {
+  MangaRepository,
+  ChapterRepository,
+  PageRepository,
+} from "@repository/index.js";
 import logger from "@config/logger.js";
-import * as mangaRepository from "@repository/manga.repository.js";
-import * as chapterRepository from "@repository/chapter.repository.js";
-import * as pagesRepository from "@repository/page.repository.js";
 import { validateInput } from "@validators/validator.utils.js";
 import {
   updateMangaSchema,
@@ -36,7 +37,7 @@ export async function uploadMangaController(
   try {
     const { mangaData } = validateInput(uploadMangaSchema, req.body);
 
-    const uploadedManga = await uploadManga(mangaData);
+    const uploadedManga = await MangaRepository.uploadManga(mangaData);
     logger.debug("uploadMangaController called", {
       data: uploadedManga,
     });
@@ -63,7 +64,7 @@ export async function updateMangaController(
     const transactionData = await mongoose.connection.transaction(
       async (session) => {
         // 1. Update manga model
-        const updatedManga = await mangaRepository.updateManga(
+        const updatedManga = await MangaRepository.updateManga(
           manga._id,
           {
             previewKey: manga.previewKey,
@@ -81,7 +82,7 @@ export async function updateMangaController(
           pages[0].imageKey.split("/").slice(0, -1).join("/") + "/";
 
         // 2. Update Chapter info
-        const createdChapter = await chapterRepository.createChapter(
+        const createdChapter = await ChapterRepository.createChapter(
           {
             mangaId: updatedManga._id,
             pageCount,
@@ -97,7 +98,7 @@ export async function updateMangaController(
         });
 
         // 3. Fill in the Pages model
-        const pagesRes = await pagesRepository.createPages(
+        const pagesRes = await PageRepository.createPages(
           {
             chapterId: createdChapter._id,
             pages,

@@ -1,5 +1,5 @@
 import { Response, Request, NextFunction } from "express";
-import { AppError } from "@errors/Error.js";
+import { AppError, UnauthorizedError } from "@errors/Error.js";
 import logger from "@config/logger.js";
 
 export function errorHandler(
@@ -13,11 +13,17 @@ export function errorHandler(
   }
 
   if (error instanceof AppError) {
-    return res.status(error.statusCode).json({
+    const response = {
       message: error.message,
       code: error.code,
       ...(error.errorInfo ? { errorInfo: error.errorInfo } : {}),
-    });
+    };
+    if (error instanceof UnauthorizedError) {
+      return res
+        .status(error.statusCode)
+        .json({ ...response, isLoggedIn: false });
+    }
+    return res.status(error.statusCode).json(response);
   }
 
   logger.error("Unhandled error", { error });

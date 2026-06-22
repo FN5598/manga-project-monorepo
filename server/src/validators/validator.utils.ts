@@ -3,6 +3,7 @@ import { z } from "zod";
 import { FileType, SortInput } from "@config/constants.js";
 import logger from "@config/logger.js";
 import { InputValidationError } from "@errors/Error.js";
+import { MangaFilterFields } from "@resolvers/resolver.utils.js";
 
 type FormatReturn = {
   message: string;
@@ -53,10 +54,7 @@ export function validateInput<T>(schema: z.ZodType<T>, input: unknown) {
 export const nonEmptyString = z.string().trim().min(1);
 export const nonNegativeNumber = z.number().min(0);
 export function setDefaultStringValue(defaultValue: string) {
-  return z.preprocess((val) => {
-    if (val === null) return undefined;
-    return String(val);
-  }, z.string().trim().default(defaultValue));
+  return z.string().trim().default(defaultValue);
 }
 
 export const contentTypeSchema = z.enum([
@@ -90,6 +88,21 @@ export const paginationSchema = z.object({
     .optional(),
 });
 
-export const paginationSortSchema = paginationSchema.extend(sortSchema.shape);
+const fieldNameEnum = z.enum(MangaFilterFields);
+
+export const filterSchema = z.object({
+  filters: z
+    .array(
+      z.object({
+        field: fieldNameEnum,
+        value: z.array(nonEmptyString),
+      }),
+    )
+    .optional(),
+});
+
+export const paginationSortSchema = paginationSchema
+  .extend(sortSchema.shape)
+  .extend(filterSchema.shape);
 
 export type PaginationType = z.infer<typeof paginationSchema>;

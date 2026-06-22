@@ -6,7 +6,7 @@ import {
   InternalError,
   UnauthorizedError,
 } from "@errors/Error.js";
-import { JWT } from "@config/util.js";
+import { clearAuthCookies, JWT } from "@config/util.js";
 import logger from "@config/logger.js";
 
 export async function adminMiddleware(
@@ -26,6 +26,11 @@ export async function adminMiddleware(
     const payload = await JWT.verifyJWTAccessToken(access_token);
 
     if (!payload) throw new InternalError("Failed to verify payload");
+
+    if (payload.ok !== true) {
+      clearAuthCookies(res);
+      throw new UnauthorizedError("Invalid access token");
+    }
 
     const user = await userRepository.findUserById(payload.userId!);
 

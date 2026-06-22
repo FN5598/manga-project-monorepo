@@ -1,10 +1,11 @@
 import logger from "@config/logger.js";
 import { Response, Request, NextFunction } from "express";
-import * as chapterRepository from "@repository/chapter.repository.js";
-import * as pageRepository from "@repository/page.repository.js";
+import { PageRepository, ChapterRepository } from "@repository/index.js";
 import { validateInput } from "@validators/validator.utils.js";
 import * as chapterValidator from "@validators/chapter.validators.js";
 import mongoose from "mongoose";
+import { createChapterPayload } from "@repository/chapter.repository.js";
+import { CreatePagesPayload } from "@repository/page.repository.js";
 
 export type addChapterPayload = {
   mangaId: string;
@@ -33,7 +34,7 @@ export async function addChapterToMangaController(
     const chapterPrefix =
       pages[0].imageKey.split("/").slice(0, -1).join("/") + "/";
 
-    const createChapterPayload: chapterRepository.createChapterPayload = {
+    const createChapterPayload: createChapterPayload = {
       mangaId,
       chapterNumber,
       title: chapterTitle,
@@ -41,12 +42,12 @@ export async function addChapterToMangaController(
       pageCount: pages.length,
     };
 
-    const chapterRes = await chapterRepository.createChapter(
+    const chapterRes = await ChapterRepository.createChapter(
       createChapterPayload,
       session,
     );
 
-    const createPagePayload: pageRepository.CreatePagesPayload = {
+    const createPagePayload: CreatePagesPayload = {
       chapterId: chapterRes._id,
       pages: pages.map((page) => ({
         imageKey: page.imageKey,
@@ -54,7 +55,7 @@ export async function addChapterToMangaController(
       })),
     };
 
-    await pageRepository.createPages(createPagePayload, session);
+    await PageRepository.createPages(createPagePayload, session);
 
     await session.commitTransaction();
     logger.debug("addChapterToMangaController called");
