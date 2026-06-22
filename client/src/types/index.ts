@@ -17,6 +17,10 @@ export type SortInput = {
   field?: string;
 };
 
+export enum SortFields {
+  CREATED_AT = "createdAt",
+}
+
 export enum MangaFilterFields {
   STATUS = "STATUS",
   GENRES = "GENRES",

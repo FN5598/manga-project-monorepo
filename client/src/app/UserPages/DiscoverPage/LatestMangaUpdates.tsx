@@ -1,5 +1,5 @@
 import { Clock } from "lucide-react";
-import { Sort } from "@appTypes/index";
+import { Sort, SortFields } from "@appTypes/index";
 import LoadingSpinner from "@shared/LoadingSpinner";
 import { NavLink } from "react-router-dom";
 import { useFindAllChaptersQuery } from "@api/chapterApi";
@@ -12,7 +12,7 @@ export default function LatestchapterUpdates() {
     error,
   } = useFindAllChaptersQuery({
     paginationInput: { limit: 10 },
-    sort: { sortBy: Sort.ASC },
+    sort: { sortBy: Sort.ASC, field: SortFields.CREATED_AT },
   });
 
   return (
@@ -23,7 +23,7 @@ export default function LatestchapterUpdates() {
       </div>
       <div className="border border-slate-400 rounded-xl">
         {isLoading && <LoadingSpinner />}
-        {error && <div>{"TODO ADD ERROR HANDLING"}</div>}
+        {error && <div>{"Failed to fetch updates"}</div>}
         {!isLoading &&
           !error &&
           chapters &&
