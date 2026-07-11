@@ -1,11 +1,11 @@
 info:
   name: Upload Manga
   type: http
-  seq: 3
+  seq: 2
 
 http:
   method: POST
-  url: "{{BASE_URL}}/manga/upload-chapter"
+  url: "{{BASE_URL}}/api/manga/upload-chapter"
   body:
     type: json
     data: |-
