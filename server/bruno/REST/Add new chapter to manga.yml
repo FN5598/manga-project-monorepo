@@ -1,7 +1,7 @@
 info:
   name: Add new chapter to manga
   type: http
-  seq: 5
+  seq: 4
 
 http:
   method: POST

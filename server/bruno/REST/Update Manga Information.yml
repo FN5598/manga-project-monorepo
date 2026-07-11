@@ -1,11 +1,11 @@
 info:
   name: Update Manga Information
   type: http
-  seq: 4
+  seq: 3
 
 http:
   method: PUT
-  url: "{{BASE_URL}}/manga/update-manga"
+  url: "{{BASE_URL}}/api/manga/update-manga"
   body:
     type: json
     data: |-
