@@ -1,17 +1,14 @@
 info:
   name: Logout
   type: http
-  seq: 9
+  seq: 8
 
 http:
   method: POST
   url: "{{BASE_URL}}/api/auth/logout"
   body:
     type: json
-    data: |-
-      {
-        "userId": "{{?userId (69d0200860124058836d974d)}}"
-      }
+    data: ""
   auth: inherit
 
 settings:

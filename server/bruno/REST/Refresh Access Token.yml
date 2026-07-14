@@ -1,7 +1,7 @@
 info:
   name: Refresh Access Token
   type: http
-  seq: 7
+  seq: 6
 
 http:
   method: POST
@@ -11,10 +11,7 @@ http:
       value: __Host-access_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOnsiYnVmZmVyIjp7IjAiOjEwNSwiMSI6MjA2LCIyIjoxODUsIjMiOjE4NSwiNCI6MjA2LCI1IjoxODIsIjYiOjU2LCI3IjoyMjIsIjgiOjg5LCI5Ijo0MiwiMTAiOjg3LCIxMSI6NDZ9fSwicm9sZSI6IlVTRVIiLCJzdWIiOiI2OWNlYjliOWNlYjYzOGRlNTkyYTU3MmUiLCJpc3MiOiJtYW5nYS1hdXRoIiwiYXVkIjoibWFuZ2EtYWNjZXNzIiwiaWF0IjoxNzc1MjQ3MTU4LCJleHAiOjE3NzUyNDgwNTh9.nB72BSJtT-AuNm232xoPJbraHzDPP7JJEYb_f6PSulA; Max-Age=900; Path=/; Expires=Fri, 03 Apr 2026 20:27:38 GMT; HttpOnly; SameSite=Lax__Host-refresh_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOnsiYnVmZmVyIjp7IjAiOjEwNSwiMSI6MjA2LCIyIjoxODUsIjMiOjE4NSwiNCI6MjA2LCI1IjoxODIsIjYiOjU2LCI3IjoyMjIsIjgiOjg5LCI5Ijo0MiwiMTAiOjg3LCIxMSI6NDZ9fSwicm9sZSI6IlVTRVIiLCJzdWIiOiI2OWNlYjliOWNlYjYzOGRlNTkyYTU3MmUiLCJpc3MiOiJtYW5nYS1hdXRoIiwiYXVkIjoibWFuZ2EtcmVmcmVzaCIsImlhdCI6MTc3NTI0NzE1OCwiZXhwIjoxNzc1ODUxOTU4fQ.DmBEvHEFxF4Jq4klY8XqOuPUQjn6Ba2TkrlzywZ989I; Max-Age=604800; Path=/auth/refresh; Expires=Fri, 10 Apr 2026 20:12:38 GMT; HttpOnly; SameSite=Strict
   body:
     type: json
-    data: |-
-      {
-        "userId": "{{?userId (69d3864f468e26ba212d9d36)}}"
-      }
+    data: ""
   auth: inherit
 
 settings:

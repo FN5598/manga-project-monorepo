@@ -1,0 +1,21 @@
+services:
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    ports:
+      - "8000:80"
+    environment:
+      PORT: 4000
+    volumes:
+      - ./nginx.conf.template:/etc/nginx/templates/default.conf.template:ro
+    depends_on:
+      - app
+
+  app:
+    build:
+      context: .
+      target: production
+    image: node:22-alpine
+    working_dir: /app
+    expose:
+      - "4000"

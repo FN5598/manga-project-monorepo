@@ -1,0 +1,27 @@
+info:
+  name: Delete User By Id
+  type: graphql
+  seq: 9
+
+graphql:
+  method: POST
+  url: "{{BASE_URL}}/api/graphql"
+  body:
+    query: |-
+      mutation MyMutation ($userId: String!) {
+        deleteUserById(userId: $userId) {
+          username
+        }
+      }
+  auth: inherit
+
+runtime:
+  variables:
+    - name: userId
+      value: "{{?userId}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

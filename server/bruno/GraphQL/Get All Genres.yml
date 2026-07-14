@@ -1,0 +1,22 @@
+info:
+  name: Get All Genres
+  type: graphql
+  seq: 11
+
+graphql:
+  method: POST
+  url: "{{BASE_URL}}/api/graphql"
+  body:
+    query: |-
+      query MyQuery {
+        getAllGenres {
+          name
+        }
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

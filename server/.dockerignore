@@ -1,6 +1,7 @@
 
 # Folders
 node_modules
+.pnpm-store
 dist
 coverage
 /src/tests
@@ -16,6 +17,7 @@ package-lock.json
 yarn.lock
 Dockerfile
 compose.yaml
+compose.prod.yaml
 
 # Hidden .* files
 .env

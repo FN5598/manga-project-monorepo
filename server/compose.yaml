@@ -3,7 +3,7 @@ services:
     image: nginx:alpine
     container_name: nginx
     ports:
-      - "8000:80"
+      - '8000:80'
     environment:
       PORT: 4000
     volumes:
@@ -12,14 +12,17 @@ services:
       - app
 
   app:
-    image: node:22-alpine
+    build:
+      context: .
+      target: development
+    image: manga-app-dev
     working_dir: /app
     volumes:
       - .:/app
-      - /app/node_modules
-    command: sh -c "corepack enable && pnpm install --frozen-lockfile && pnpm run dev"
+      - app_node_modules:/app/node_modules
+    command: pnpm start:dev
     expose:
-      - "4000"
+      - '4000'
     env_file:
       - .env.docker
     depends_on:
@@ -36,28 +39,28 @@ services:
     volumes:
       - ./dev-data/mongo/seed.js:/seed.js:ro
     entrypoint:
-      ["mongosh", "mongodb://mongodb:27017/db?replicaSet=rs0", "/seed.js"]
-    restart: "no"
+      ['mongosh', 'mongodb://mongodb:27017/db?replicaSet=rs0', '/seed.js']
+    restart: 'no'
   mongo-rs-init:
     image: mongo:7
     depends_on:
       - mongodb
     volumes:
       - ./dev-data/mongo/mongo-init-replica.sh:/mongo-init-replica.sh:ro
-    entrypoint: ["/bin/sh", "/mongo-init-replica.sh"]
-    restart: "no"
+    entrypoint: ['/bin/sh', '/mongo-init-replica.sh']
+    restart: 'no'
 
   mongodb:
     image: mongo:7
     container_name: mongodb
-    command: ["mongod", "--replSet", "rs0", "--bind_ip_all", "--quiet"]
+    command: ['mongod', '--replSet', 'rs0', '--bind_ip_all', '--quiet']
     ports:
-      - "27017:27017"
+      - '27017:27017'
     volumes:
       - mongo_data:/data/db
     healthcheck:
       test:
-        ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+        ['CMD', 'mongosh', '--quiet', '--eval', "db.adminCommand('ping').ok"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -75,15 +78,15 @@ services:
       mc anonymous set public local/manga-project-bucket;
       mc cp --recursive /seed/ local/manga-project-bucket/;
       "
-    restart: "no"
+    restart: 'no'
 
   minio:
     image: minio/minio
     container_name: minio
     command: server /data --console-address ":9001"
     ports:
-      - "9000:9000"
-      - "9002:9001"
+      - '9000:9000'
+      - '9002:9001'
     environment:
       MINIO_ROOT_USER: minioadmin
       MINIO_ROOT_PASSWORD: minioadmin
@@ -93,3 +96,4 @@ services:
 volumes:
   mongo_data:
   minio_data:
+  app_node_modules:

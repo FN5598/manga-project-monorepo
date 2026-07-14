@@ -18,7 +18,6 @@ node_modules/
 
 dist/
 build/
-lib/
 out/
 
 # React (Vite)
@@ -78,6 +77,16 @@ coverage/
 .cache/
 .tmp/
 temp/
+
+# ------------------------------
+# Terraform
+# ------------------------------
+
+**/.terraform/*
+*.tfvars
+!*.tfvars.example
+crash.log
+crash.*.log
 
 # ------------------------------
 # Editors / IDE

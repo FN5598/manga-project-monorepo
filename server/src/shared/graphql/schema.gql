@@ -1,0 +1,133 @@
+type Chapter {
+  _id: ID!
+  chapterNumber: Float!
+  createdAt: DateTime!
+  mangaId: ID!
+  pageCount: Float!
+  storagePrefix: String!
+  title: String
+  updatedAt: DateTime!
+  uploadStatus: UploadStatus!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type Genre {
+  _id: ID!
+  description: String
+  name: String!
+  slug: String!
+}
+
+type Manga {
+  _id: ID!
+  author: String!
+  chaptersCount: Float
+  createdAt: DateTime!
+  description: String
+  genres: [String!]
+  previewKey: String
+  previewUrl: String
+  status: MangaStatus!
+  title: String!
+  updatedAt: DateTime!
+}
+
+enum MangaFilterFields {
+  AUTHOR
+  GENRES
+  ID
+  STATUS
+  TITLE
+}
+
+input MangaFilterInput {
+  field: MangaFilterFields!
+  value: [String!]!
+}
+
+enum MangaStatus {
+  CANCELLED
+  COMPLETED
+  HIATUS
+  ONGOING
+}
+
+input MangaUploadInput {
+  author: String!
+  description: String
+  genres: [String!]
+  status: MangaStatus!
+  title: String!
+}
+
+type Mutation {
+  deleteCurrentUser: User!
+  deleteManga(mangaId: String!): Manga!
+  deleteUserById(id: String!): User!
+  uploadManga(mangaUploadInput: MangaUploadInput!): Manga!
+}
+
+type Page {
+  _id: ID!
+  chapter: ID!
+  createdAt: DateTime!
+  fileSize: Float
+  imageKey: String!
+  pageNumber: Float!
+  pageUrl: String
+  updatedAt: DateTime!
+}
+
+input PaginationInput {
+  limit: Float
+  page: Float
+}
+
+type Query {
+  countMangas(filters: [MangaFilterInput!]): Float!
+  currentUser: User!
+  findAllChapters(paginationInput: PaginationInput, sort: SortInput): [Chapter!]!
+  findAllMangas(filters: [MangaFilterInput!], paginationInput: PaginationInput, sort: SortInput): [Manga!]!
+  findChapterById(chapterId: String!): Chapter!
+  findChaptersByMangaId(mangaId: String!): [Chapter!]!
+  findMangaById(mangaId: String!): Manga!
+  findMangaByName(mangaTitle: String!): [Manga!]!
+  getAllGenres(paginationInput: PaginationInput): [Genre!]!
+  getPagesByChapterId(chapterId: String!, paginationInput: PaginationInput, sort: SortInput): [Page!]!
+}
+
+enum SortFields {
+  CREATED_AT
+  UPDATED_AT
+}
+
+input SortInput {
+  field: SortFields!
+  sortBy: String!
+}
+
+enum UploadStatus {
+  DRAFT
+  FAILED
+  READY
+  UPLOADING
+}
+
+type User {
+  _id: ID!
+  createdAt: DateTime!
+  email: String!
+  role: UserRole!
+  updatedAt: DateTime!
+  username: String!
+}
+
+enum UserRole {
+  ADMIN
+  EDITOR
+  USER
+}

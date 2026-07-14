@@ -1,7 +1,7 @@
 info:
   name: Sign Up
   type: http
-  seq: 6
+  seq: 5
 
 http:
   method: POST
@@ -11,7 +11,7 @@ http:
     data: |-
       {
         "username": "Pierce",
-        "email": "pierce@cross.ua.com",
+        "email": "pierce@cross.ua.comdomdom",
         "password": "pierce"
       }
   auth: inherit

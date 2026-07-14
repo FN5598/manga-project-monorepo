@@ -57,7 +57,7 @@ cp .env.example .env.docker
 ```
 
 ### To set up client server completely
-- Make sure to create .env file
+Make sure to create .env file
 
 Review `.env` and make sure values match your local Docker services.
 
